@@ -88,7 +88,17 @@ export default function Nav() {
             letterSpacing: "-0.02em",
           }}
         >
-          <ReceiptLogo size={28} />
+          <img
+            src="/receipt-logo.png"
+            alt="Receipt"
+            width={28}
+            height={28}
+            style={{ borderRadius: 7, display: "block", objectFit: "cover" }}
+            onError={e => {
+              // Fallback to inline SVG if image not found
+              e.currentTarget.style.display = "none";
+            }}
+          />
           Receipt
         </button>
 
