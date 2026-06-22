@@ -10,6 +10,38 @@ const links = [
   { label: "Docs",         href: "https://github.com/mimisco-git/receipt" },
 ];
 
+function ReceiptLogo({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ borderRadius: 10 }}>
+      <defs>
+        <radialGradient id="nb" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#1A3D32"/>
+          <stop offset="100%" stopColor="#061A14"/>
+        </radialGradient>
+        <radialGradient id="nr" cx="55%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#12E89A"/>
+          <stop offset="60%" stopColor="#0A9E6A"/>
+          <stop offset="100%" stopColor="#065A3C"/>
+        </radialGradient>
+        <linearGradient id="nrp" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.55)"/>
+          <stop offset="100%" stopColor="rgba(255,255,255,0.15)"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="url(#nb)"/>
+      <rect width="100" height="100" rx="22" fill="none" stroke="rgba(18,232,154,0.4)" strokeWidth="1.5"/>
+      <path d="M24 22 L24 78 L35 78 L35 57 L52 78 L65 78 L47 55 C56 52 62 45 62 35 C62 27 56 22 46 22 Z M35 32 L44 32 C49 32 52 35 52 39 C52 43 49 46 44 46 L35 46 Z"
+        fill="url(#nr)"/>
+      <rect x="26" y="48" width="22" height="28" rx="3" fill="url(#nrp)" opacity="0.7"/>
+      <rect x="30" y="55" width="14" height="1.5" rx="1" fill="rgba(18,232,154,0.5)"/>
+      <rect x="30" y="60" width="11" height="1.5" rx="1" fill="rgba(18,232,154,0.4)"/>
+      <rect x="30" y="65" width="13" height="1.5" rx="1" fill="rgba(18,232,154,0.3)"/>
+      <path d="M26 76 L28 74 L30 76 L32 74 L34 76 L36 74 L38 76 L40 74 L42 76 L44 74 L46 76 L48 76 L48 78 L26 78 Z"
+        fill="url(#nrp)" opacity="0.6"/>
+    </svg>
+  );
+}
+
 export default function Nav() {
   const router   = useRouter();
   const pathname = usePathname();
@@ -36,12 +68,12 @@ export default function Nav() {
           display: "flex", alignItems: "center", gap: 2,
           padding: "5px 6px",
           borderRadius: 999,
-          background: scrolled ? "rgba(8,12,20,0.95)" : "rgba(8,12,20,0.75)",
+          background: scrolled ? "rgba(10,15,30,0.96)" : "rgba(10,15,30,0.78)",
           backdropFilter: "blur(32px) saturate(180%)",
           WebkitBackdropFilter: "blur(32px) saturate(180%)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05) inset",
-          transition: "background 0.3s ease",
+          border: "1px solid rgba(255,255,255,0.09)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)",
+          transition: "background 0.3s ease, box-shadow 0.3s ease",
         }}
       >
         {/* Logo */}
@@ -50,34 +82,27 @@ export default function Nav() {
           style={{
             display: "flex", alignItems: "center", gap: 8,
             background: "none", border: "none", cursor: "pointer",
-            padding: "5px 10px 5px 6px",
+            padding: "4px 10px 4px 4px",
             borderRadius: 999,
             fontSize: 14, fontWeight: 600, color: "var(--text-1)",
             letterSpacing: "-0.02em",
           }}
         >
-          <div style={{
-            width: 26, height: 26, borderRadius: 7,
-            background: "linear-gradient(135deg, #10D98A, #0BBFFF)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 12, fontWeight: 700, color: "#050A0E",
-            boxShadow: "0 0 12px rgba(16,217,138,0.25)",
-          }}>R</div>
+          <ReceiptLogo size={28} />
           Receipt
         </button>
 
-        {/* Divider */}
         <div style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
 
         {/* Links with sliding pill */}
         <LayoutGroup>
           {links.map(l => {
-            const active  = pathname === l.href;
+            const active   = pathname === l.href;
             const hovering = hovered === l.label;
             return (
               <button
                 key={l.label}
-                onClick={() => router.push(l.href)}
+                onClick={() => l.href.startsWith("http") ? window.open(l.href, "_blank") : router.push(l.href)}
                 onMouseEnter={() => setHovered(l.label)}
                 onMouseLeave={() => setHovered(null)}
                 style={{
@@ -106,14 +131,12 @@ export default function Nav() {
           })}
         </LayoutGroup>
 
-        {/* Divider */}
         <div style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
 
-        {/* CTA */}
         <button
           onClick={() => router.push("/setup")}
           style={{
-            padding: "6px 16px", borderRadius: 999,
+            padding: "7px 16px", borderRadius: 999,
             fontSize: 13, fontWeight: 600,
             background: "rgba(255,255,255,0.92)", color: "#080C14",
             border: "none", cursor: "pointer",

@@ -14,66 +14,59 @@ interface Props {
 export default function PaymentOrb({ amount, state, size = 180 }: Props) {
   const orbRef = useRef<HTMLDivElement>(null);
 
-  // Spring-physics mouse tracking for specular highlight
-  const mouseX = useSpring(50, { stiffness: 100, damping: 20 });
-  const mouseY = useSpring(50, { stiffness: 100, damping: 20 });
+  const mouseX = useSpring(38, { stiffness: 80, damping: 18 });
+  const mouseY = useSpring(32, { stiffness: 80, damping: 18 });
+  const specX  = useTransform(mouseX, v => `${v}%`);
+  const specY  = useTransform(mouseY, v => `${v}%`);
 
-  // Specular position as percentages
-  const specX = useTransform(mouseX, v => `${v}%`);
-  const specY = useTransform(mouseY, v => `${v}%`);
+  // Tilt effect: up to 3 degrees
+  const tiltX = useTransform(mouseY, [0, 100], [3, -3]);
+  const tiltY = useTransform(mouseX, [0, 100], [-3, 3]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!orbRef.current) return;
-    const rect = orbRef.current.getBoundingClientRect();
-    mouseX.set(((e.clientX - rect.left) / rect.width) * 100);
-    mouseY.set(((e.clientY - rect.top) / rect.height) * 100);
+    const r = orbRef.current.getBoundingClientRect();
+    mouseX.set(((e.clientX - r.left) / r.width) * 100);
+    mouseY.set(((e.clientY - r.top) / r.height) * 100);
   }, [mouseX, mouseY]);
 
-  const handleMouseLeave = useCallback(() => {
+  const onLeave = useCallback(() => {
     mouseX.set(38);
-    mouseY.set(30);
+    mouseY.set(32);
   }, [mouseX, mouseY]);
 
   const fmt = amount.toFixed(2);
 
-  // Per-state color system
   const theme = {
     idle: {
-      core:    "conic-gradient(from 200deg, rgba(30,38,58,0.9), rgba(18,24,40,0.95), rgba(30,38,58,0.9))",
-      fresnel: "radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.06), transparent 60%)",
-      spec:    "rgba(255,255,255,0.05)",
-      glow:    "transparent",
-      ring:    "rgba(255,255,255,0.04)",
-      pulse:   { boxShadow: ["0 0 0px rgba(255,255,255,0)", "0 0 0px rgba(255,255,255,0)"] },
-      label:   "var(--mist)",
+      coreA:  "rgba(18,30,50,0.95)",
+      coreB:  "rgba(10,18,32,0.98)",
+      spec:   "rgba(255,255,255,0.06)",
+      fresnel:"rgba(255,255,255,0.04)",
+      ring:   "rgba(255,255,255,0.06)",
+      glow:   "transparent",
+      anim:   "orb-glow-idle 8s ease-in-out infinite",
+      label:  "var(--text-3)",
     },
     locked: {
-      core:    "conic-gradient(from 200deg, rgba(58,40,8,0.95), rgba(40,28,6,0.98), rgba(58,40,8,0.95))",
-      fresnel: "radial-gradient(ellipse at 50% 100%, rgba(239,160,32,0.12), transparent 60%)",
-      spec:    "rgba(255,200,60,0.14)",
-      glow:    "rgba(239,160,32,0.14)",
-      ring:    "rgba(239,160,32,0.15)",
-      pulse:   {
-        boxShadow: [
-          "0 0 0px rgba(239,160,32,0.0), inset 0 1px 0 rgba(255,255,255,0.06)",
-          "0 0 50px rgba(239,160,32,0.22), inset 0 1px 0 rgba(255,255,255,0.08)",
-          "0 0 0px rgba(239,160,32,0.0), inset 0 1px 0 rgba(255,255,255,0.06)",
-        ]
-      },
-      label:   "var(--amber)",
+      coreA:  "rgba(60,35,5,0.95)",
+      coreB:  "rgba(35,20,3,0.98)",
+      spec:   "rgba(245,166,35,0.18)",
+      fresnel:"rgba(245,166,35,0.10)",
+      ring:   "rgba(245,166,35,0.20)",
+      glow:   "rgba(245,166,35,0.18)",
+      anim:   "orb-glow-locked 3s ease-in-out infinite",
+      label:  "var(--amber)",
     },
     released: {
-      core:    "conic-gradient(from 200deg, rgba(0,60,40,0.95), rgba(0,40,28,0.98), rgba(0,60,40,0.95))",
-      fresnel: "radial-gradient(ellipse at 50% 100%, rgba(0,229,160,0.16), transparent 60%)",
-      spec:    "rgba(0,255,180,0.18)",
-      glow:    "rgba(0,229,160,0.20)",
-      ring:    "rgba(0,229,160,0.22)",
-      pulse:   {
-        boxShadow: [
-          "0 0 40px rgba(0,229,160,0.18), inset 0 1px 0 rgba(255,255,255,0.10)",
-        ]
-      },
-      label:   "var(--ledger)",
+      coreA:  "rgba(5,45,28,0.95)",
+      coreB:  "rgba(3,28,16,0.98)",
+      spec:   "rgba(18,232,154,0.22)",
+      fresnel:"rgba(18,232,154,0.14)",
+      ring:   "rgba(18,232,154,0.28)",
+      glow:   "rgba(18,232,154,0.22)",
+      anim:   "orb-glow-settled 2s ease-in-out infinite",
+      label:  "var(--green)",
     },
   };
 
@@ -82,32 +75,35 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
   return (
     <div
       ref={orbRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
       style={{
         position: "relative",
-        width: size + 80, height: size + 80,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        width: size + 80,
+        height: size + 80,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      {/* Ambient light pool behind orb */}
+      {/* Ambient pool behind orb */}
       <div style={{
-        position: "absolute", inset: -20, borderRadius: "50%",
+        position: "absolute", inset: 0, borderRadius: "50%",
         background: t.glow,
-        filter: "blur(40px)",
+        filter: "blur(44px)",
         transition: "background 0.9s ease",
         pointerEvents: "none",
       }} />
 
-      {/* Concentric rings — only when active */}
+      {/* Pulse rings: only when active */}
       <AnimatePresence>
-        {state !== "idle" && [0, 26, 52].map((offset, i) => (
+        {state !== "idle" && [0, 24, 48].map((offset, i) => (
           <motion.div
             key={`ring-${state}-${i}`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: [0.6, 0.1, 0.6], scale: [1, 1.04, 1] }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 3.6, repeat: Infinity, delay: i * 0.55, ease: "easeInOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.6, 0.08, 0.6], scale: [1, 1.04, 1] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 3.5, repeat: Infinity, delay: i * 0.6, ease: "easeInOut" }}
             style={{
               position: "absolute", borderRadius: "50%",
               inset: -offset,
@@ -123,14 +119,13 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
         {state === "released" && (
           <motion.div
             key="ripple"
-            initial={{ scale: 0.85, opacity: 0.8 }}
-            animate={{ scale: 2.4, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0.85 }}
+            animate={{ scale: 2.8, opacity: 0 }}
             exit={{}}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "absolute",
-              inset: 0, borderRadius: "50%",
-              boxShadow: "inset 0 0 0 1px rgba(0,229,160,0.5)",
+              position: "absolute", inset: 0, borderRadius: "50%",
+              boxShadow: "inset 0 0 0 1px rgba(18,232,154,0.6)",
               pointerEvents: "none",
             }}
           />
@@ -141,73 +136,85 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
       <AnimatePresence mode="wait">
         <motion.div
           key={state}
+          ref={undefined}
           initial={{ scale: 0.82, opacity: 0 }}
-          animate={
-            state === "locked"
-              ? {
-                  scale: 1, opacity: 1,
-                  boxShadow: t.pulse.boxShadow as string[],
-                }
-              : state === "released"
-              ? {
-                  scale: 1, opacity: 1,
-                  boxShadow: t.pulse.boxShadow as string[],
-                }
-              : { scale: 1, opacity: 1 }
-          }
+          animate={{
+            scale: 1,
+            opacity: 1,
+            rotateX: tiltX.get(),
+            rotateY: tiltY.get(),
+          }}
           exit={{ scale: 0.82, opacity: 0 }}
-          transition={
-            state === "locked" || state === "released"
-              ? {
-                  scale: { type: "spring", stiffness: 260, damping: 22 },
-                  opacity: { duration: 0.4 },
-                  boxShadow: { duration: 3.8, repeat: Infinity, ease: "easeInOut" },
-                }
-              : { type: "spring", stiffness: 260, damping: 22 }
-          }
+          transition={{ type: "spring", stiffness: 240, damping: 22 }}
           style={{
-            width: size, height: size, borderRadius: "50%",
+            width: size, height: size,
+            borderRadius: "50%",
             position: "relative", overflow: "hidden",
             display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column",
-            background: t.core,
-            // Glass material: specular inset highlight on top, shadow on bottom
+            // Liquid glass core: conic gradient gives rotational depth
+            background: `conic-gradient(from 210deg at 50% 50%, ${t.coreA}, ${t.coreB}, ${t.coreA})`,
+            // Glass inset edges: top light, bottom shadow
             boxShadow: `
-              inset 0 1px 0 rgba(255,255,255,0.10),
-              inset 0 -1px 0 rgba(0,0,0,0.40),
-              inset 1px 0 0 rgba(255,255,255,0.04),
-              inset -1px 0 0 rgba(0,0,0,0.20),
-              0 4px 24px rgba(0,0,0,0.5)
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              inset 0 -1px 0 rgba(0,0,0,0.5),
+              inset 1px 0 0 rgba(255,255,255,0.05),
+              inset -1px 0 0 rgba(0,0,0,0.25)
             `,
-            // Thin specular ring (Fresnel edge effect)
             outline: `0.5px solid ${t.ring}`,
-            outlineOffset: "0px",
+            animation: t.anim,
+            transformStyle: "preserve-3d",
           }}
         >
-          {/* Moving specular highlight — follows mouse via spring */}
+          {/* Mouse-tracking specular highlight */}
           <motion.div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
-            background: `radial-gradient(circle at ${specX} ${specY}, ${t.spec}, transparent 52%)`,
+            background: `radial-gradient(circle at ${specX} ${specY}, ${t.spec}, transparent 50%)`,
             pointerEvents: "none",
           }} />
 
-          {/* Fresnel edge — brighter at bottom limb */}
+          {/* Fixed top-left specular (Fresnel edge) */}
           <div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
-            background: t.fresnel,
+            background: `radial-gradient(circle at 28% 22%, rgba(255,255,255,0.12), transparent 40%)`,
             pointerEvents: "none",
           }} />
 
-          {/* Chromatic aberration: tiny red fringe on one edge, blue on other */}
+          {/* Fresnel bottom limb brightening */}
           <div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
-            background: "radial-gradient(circle at 28% 28%, rgba(255,80,80,0.025), transparent 35%)",
-            pointerEvents: "none", mixBlendMode: "screen",
+            background: t.fresnel
+              ? `radial-gradient(ellipse at 50% 92%, ${t.fresnel}, transparent 50%)`
+              : "none",
+            pointerEvents: "none",
+          }} />
+
+          {/* Subtle chromatic aberration */}
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            background: "radial-gradient(circle at 22% 24%, rgba(255,60,60,0.025), transparent 35%)",
+            mixBlendMode: "screen", pointerEvents: "none",
           }} />
           <div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
-            background: "radial-gradient(circle at 72% 72%, rgba(80,120,255,0.025), transparent 35%)",
-            pointerEvents: "none", mixBlendMode: "screen",
+            background: "radial-gradient(circle at 76% 74%, rgba(60,120,255,0.025), transparent 35%)",
+            mixBlendMode: "screen", pointerEvents: "none",
           }} />
+
+          {/* Rotating inner caustic (slow light ray) */}
+          {state !== "idle" && (
+            <div style={{
+              position: "absolute",
+              width: "60%", height: "60%",
+              top: "-8%", left: "-8%",
+              borderRadius: "50%",
+              background: state === "released"
+                ? "radial-gradient(circle, rgba(18,232,154,0.14), transparent 70%)"
+                : "radial-gradient(circle, rgba(245,166,35,0.10), transparent 70%)",
+              animation: "orb-rotate 10s linear infinite",
+              transformOrigin: "82% 82%",
+              pointerEvents: "none",
+            }} />
+          )}
 
           {/* Content */}
           <AnimatePresence mode="wait">
@@ -216,36 +223,36 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
                 key="check"
                 initial={{ scale: 0.3, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 380, damping: 24, delay: 0.08 }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, zIndex: 1 }}
+                transition={{ type: "spring", stiffness: 350, damping: 22, delay: 0.06 }}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, zIndex: 1 }}
               >
-                <svg width={size * 0.24} height={size * 0.24} viewBox="0 0 32 32" fill="none">
-                  <circle cx="16" cy="16" r="15" stroke="rgba(0,229,160,0.3)" strokeWidth="0.5" />
-                  <polyline points="8 16 14 22 24 11" stroke="#00E5A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width={size * 0.26} height={size * 0.26} viewBox="0 0 40 40" fill="none">
+                  <circle cx="20" cy="20" r="19" stroke="rgba(18,232,154,0.3)" strokeWidth="0.75"/>
+                  <polyline points="11 20 18 27 29 13" stroke="#12E89A" strokeWidth="2.5"
+                    strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span className="font-mono" style={{
-                  fontSize: 9.5, letterSpacing: "0.14em",
-                  color: "var(--ledger)", textTransform: "uppercase",
+                  fontSize: 10, letterSpacing: "0.14em",
+                  color: "var(--green)", textTransform: "uppercase",
                 }}>Settled</span>
               </motion.div>
             ) : (
               <motion.div
-                key="amt"
+                key="amount"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, zIndex: 1 }}
               >
                 <span className="font-mono" style={{
-                  fontSize: size * 0.175,
-                  fontWeight: 400,
-                  color: "var(--ink)",
+                  fontSize: size * 0.175, fontWeight: 400,
+                  color: "rgba(255,255,255,0.92)",
                   letterSpacing: "-0.02em", lineHeight: 1,
                 }}>
                   {fmt}
                 </span>
                 <span className="font-mono" style={{
-                  fontSize: size * 0.065, fontWeight: 400,
-                  letterSpacing: "0.1em",
+                  fontSize: size * 0.07, fontWeight: 400,
+                  letterSpacing: "0.10em",
                   color: t.label, textTransform: "uppercase",
                 }}>USDC</span>
               </motion.div>

@@ -1,10 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="url(#g)"/>
-  <text x="16" y="22" text-anchor="middle" font-family="system-ui" font-weight="700" font-size="18" fill="#0A0E1A">R</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#00F5A0"/>
-      <stop offset="100%" stop-color="#00C8FF"/>
+    <radialGradient id="bg" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#1A3D32"/>
+      <stop offset="100%" stop-color="#061A14"/>
+    </radialGradient>
+    <radialGradient id="rgrad" cx="55%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#12E89A"/>
+      <stop offset="60%" stop-color="#0A9E6A"/>
+      <stop offset="100%" stop-color="#065A3C"/>
+    </radialGradient>
+    <linearGradient id="receipt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
     </linearGradient>
+    <linearGradient id="edge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(18,232,154,0.6)"/>
+      <stop offset="100%" stop-color="rgba(18,232,154,0.05)"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
+  <!-- Rounded square background -->
+  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
+  <!-- Edge highlight -->
+  <rect width="100" height="100" rx="22" fill="none" stroke="url(#edge)" stroke-width="1.5"/>
+  <!-- Inner light top -->
+  <rect width="100" height="100" rx="22" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+  <!-- R letterform -->
+  <path d="M24 22 L24 78 L35 78 L35 57 L52 78 L65 78 L47 55 C56 52 62 45 62 35 C62 27 56 22 46 22 Z M35 32 L44 32 C49 32 52 35 52 39 C52 43 49 46 44 46 L35 46 Z"
+    fill="url(#rgrad)" filter="url(#glow)"/>
+  <!-- Receipt paper overlay -->
+  <rect x="26" y="48" width="22" height="28" rx="3" fill="url(#receipt)" opacity="0.7"/>
+  <!-- Receipt lines -->
+  <rect x="30" y="55" width="14" height="1.5" rx="1" fill="rgba(18,232,154,0.5)"/>
+  <rect x="30" y="60" width="11" height="1.5" rx="1" fill="rgba(18,232,154,0.4)"/>
+  <rect x="30" y="65" width="13" height="1.5" rx="1" fill="rgba(18,232,154,0.3)"/>
+  <!-- Receipt zigzag bottom -->
+  <path d="M26 76 L28 74 L30 76 L32 74 L34 76 L36 74 L38 76 L40 74 L42 76 L44 74 L46 76 L48 76 L48 78 L26 78 Z"
+    fill="url(#receipt)" opacity="0.6"/>
+  <!-- Specular highlight top-left -->
+  <ellipse cx="35" cy="28" rx="18" ry="8" fill="rgba(255,255,255,0.06)" transform="rotate(-15 35 28)"/>
 </svg>
