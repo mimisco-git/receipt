@@ -137,11 +137,10 @@ export default function Nav() {
         {/* Separator */}
         <div style={{ width: 0.5, height: 18, background: "rgba(255,255,255,0.08)", margin: "0 4px" }} />
 
-        {/* CTA — magnetic hover */}
+        {/* CTA */}
         <button
           ref={btnRef}
           onMouseMove={onBtnMove}
-          onMouseLeave={onBtnLeave}
           onClick={() => router.push("/setup")}
           style={{
             padding: "6px 16px",
@@ -157,7 +156,10 @@ export default function Nav() {
             transition: "opacity 0.15s ease, transform 0.12s ease",
           }}
           onMouseEnter={e => { e.currentTarget.style.opacity = "0.82"; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = ""; }}
+          onMouseLeave={e => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "";
+          }}
         >
           Start as freelancer
         </button>

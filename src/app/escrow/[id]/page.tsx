@@ -371,7 +371,7 @@ export default function EscrowPage() {
                           ${formatUsdc(contract.netAmountUsdc)}
                         </div>
                         <div className="text-xs" style={{ color: "var(--mint)" }}>
-                          USDC settled to Amara's wallet in 482ms
+                          USDC settled to Amara&apos;s wallet in 482ms
                         </div>
                       </motion.div>
                     )}
