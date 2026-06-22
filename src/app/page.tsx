@@ -211,7 +211,7 @@ export default function HomePage() {
             "EIP-3009 TransferWithAuthorization",
             "submitBatch() on Arc L1",
             "USDC native settlement",
-            "Claude claude-sonnet-4-6 Agent",
+            "NVIDIA NIM · Llama 3.3-70b Agent",
           ].map(t => (
             <span key={t} className="font-mono" style={{
               padding: "4px 11px", borderRadius: 999, fontSize: 11,
