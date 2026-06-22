@@ -1,81 +1,71 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-function AnimCounter({ target, prefix = "", suffix = "", decimals = 0, delay = 0 }: {
-  target: number; prefix?: string; suffix?: string; decimals?: number; delay?: number;
+function Counter({ target, prefix = "", suffix = "", dec = 0, delay = 0 }: {
+  target: number; prefix?: string; suffix?: string; dec?: number; delay?: number;
 }) {
-  const [val, setVal] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const [v, setV] = useState(0);
+  const frame = useRef(0);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setMounted(true);
-      const duration = 1200;
-      const startTime = performance.now();
-      function tick(now: number) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const eased = 1 - Math.pow(2, -10 * progress);
-        setVal(target * eased);
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
+    const tid = setTimeout(() => {
+      const dur = 1000;
+      const t0  = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min((now - t0) / dur, 1);
+        const e = 1 - Math.pow(2, -10 * p);
+        setV(target * e);
+        if (p < 1) frame.current = requestAnimationFrame(tick);
+      };
+      frame.current = requestAnimationFrame(tick);
     }, delay);
-    return () => clearTimeout(t);
+    return () => { clearTimeout(tid); cancelAnimationFrame(frame.current); };
   }, [target, delay]);
 
-  const formatted = decimals > 0
-    ? val.toFixed(decimals)
-    : Math.round(val).toLocaleString();
+  const formatted = dec > 0
+    ? v.toFixed(dec)
+    : Math.round(v).toLocaleString();
 
-  return (
-    <span style={{
-      fontFamily: '"DM Mono", monospace',
-      fontVariantNumeric: "tabular-nums lining-nums",
-      fontSize: 25, fontWeight: 500,
-      letterSpacing: "-0.02em",
-      opacity: mounted ? 1 : 0,
-      transition: "opacity 0.25s ease",
-    }}>
-      {prefix}{formatted}{suffix}
-    </span>
-  );
+  return <span>{prefix}{formatted}{suffix}</span>;
 }
+
+const stats = [
+  { label: "Settled today",    val: 12834, prefix: "$", dec: 0, accent: true,  delay: 0 },
+  { label: "Avg. settlement",  val: 482,   prefix: "",  suffix: "ms", dec: 0, delay: 100 },
+  { label: "Chargebacks",      val: 0,     prefix: "",  suffix: "%",  dec: 0, delay: 200 },
+  { label: "Settlement rail",  special: "Arc" },
+];
 
 export default function HeroStats() {
   return (
     <div style={{
       display: "flex", flexWrap: "wrap",
-      alignItems: "center", justifyContent: "center", gap: 32,
-      paddingTop: 32,
-      borderTop: "1px solid rgba(255,255,255,0.05)",
+      alignItems: "center", justifyContent: "center", gap: 28,
+      paddingTop: 28,
+      borderTop: "1px solid var(--line)",
     }}>
-      {[
-        { label: "Settled today",   val: 12847, prefix: "$", suffix: "",    dec: 0, accent: true,  delay: 0 },
-        { label: "Avg. settlement", val: 482,   prefix: "",  suffix: "ms",  dec: 0, accent: false, delay: 110 },
-        { label: "Chargebacks",     val: 0,     prefix: "",  suffix: "%",   dec: 0, accent: false, delay: 220 },
-        { label: "Settlement rail", special: "Arc", accent: false },
-      ].map((s, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", gap: 32 }}>
+      {stats.map((s, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <div style={{ textAlign: "center" }}>
             <div style={{
-              marginBottom: 5,
-              color: s.accent ? "var(--ledger)" : "var(--ink)",
+              fontFamily: '"DM Mono", monospace',
+              fontSize: 24, fontWeight: 500,
+              letterSpacing: "-0.02em", marginBottom: 4,
+              color: s.accent ? "var(--green)" : "var(--text-1)",
+              fontVariantNumeric: "tabular-nums",
             }}>
               {s.special
-                ? <span style={{
-                    fontFamily: '"DM Mono", monospace',
-                    fontSize: 25, fontWeight: 500, letterSpacing: "-0.02em",
-                  }}>{s.special}</span>
-                : <AnimCounter target={s.val!} prefix={s.prefix} suffix={s.suffix} decimals={s.dec} delay={s.delay} />
+                ? s.special
+                : <Counter target={s.val!} prefix={s.prefix} suffix={s.suffix} dec={s.dec} delay={s.delay} />
               }
             </div>
-            <div style={{ fontSize: 10.5, color: "var(--mist)", letterSpacing: "0.04em" }}>
+            <div style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.03em" }}>
               {s.label}
             </div>
           </div>
-          {i < 3 && (
-            <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.05)" }} />
+          {i < stats.length - 1 && (
+            <div style={{ width: 1, height: 32, background: "var(--line)" }} />
           )}
         </div>
       ))}

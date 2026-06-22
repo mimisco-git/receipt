@@ -2,33 +2,38 @@ export default function Footer() {
   return (
     <footer style={{
       display: "flex", flexWrap: "wrap",
-      alignItems: "center", justifyContent: "space-between", gap: 16,
-      padding: "32px 28px",
-      borderTop: "1px solid var(--wire)",
+      alignItems: "center", justifyContent: "space-between", gap: 14,
+      padding: "28px 32px",
+      borderTop: "1px solid var(--line)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{
-          width: 28, height: 28, borderRadius: 7,
-          background: "linear-gradient(135deg, #00E896, #00BFFF)",
+          width: 26, height: 26, borderRadius: 7,
+          background: "linear-gradient(135deg, #10D98A, #0BBFFF)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "#07080F",
+          fontSize: 11, fontWeight: 700, color: "#050A0E",
         }}>R</div>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600 }}>Receipt</div>
-          <div style={{ fontSize: 11, color: "var(--mist)" }}>
-            Circle · Arc · USDC · Lepton Hackathon 2026
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Receipt</div>
+          <div style={{ fontSize: 11, color: "var(--text-3)" }}>
+            Circle · Arc · USDC · Lepton 2026
           </div>
         </div>
       </div>
       <div style={{ display: "flex", gap: 20 }}>
-        {["GitHub", "Docs", "Discord", "Lepton"].map(l => (
-          <a key={l} href="#" style={{
-            fontSize: 12.5, color: "var(--mist)", textDecoration: "none",
-            transition: "color 0.15s",
+        {[
+          { label: "GitHub", href: "https://github.com/mimisco-git/receipt" },
+          { label: "Submit project", href: "https://forms.gle/SMqLaw2pMGDe58LFA" },
+          { label: "Lepton", href: "https://lepton.thecanteenapp.com" },
+        ].map(l => (
+          <a key={l.label} href={l.href} target="_blank" rel="noreferrer" style={{
+            fontSize: 12.5, color: "var(--text-3)",
+            textDecoration: "none",
+            transition: "color 0.15s ease",
           }}
-          onMouseEnter={e => e.currentTarget.style.color = "var(--ink-2)"}
-          onMouseLeave={e => e.currentTarget.style.color = "var(--mist)"}
-          >{l}</a>
+          onMouseEnter={e => e.currentTarget.style.color = "var(--text-1)"}
+          onMouseLeave={e => e.currentTarget.style.color = "var(--text-3)"}
+          >{l.label}</a>
         ))}
       </div>
     </footer>
