@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Freelancer {
+  id             String   @id @default(cuid())
+  name           String
+  walletAddress  String   @unique
+  circleWalletId String?  @unique
+  bio            String?
+  avatarColor    String   @default("#667eea")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  services       Service[]
+  contracts      Contract[]
+}
+
+model Service {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  title        String
+  description  String
+  priceUsdc    Float
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id])
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  contracts    Contract[]
+}
+
+model Contract {
+  id             String         @id @default(cuid())
+  serviceId      String
+  service        Service        @relation(fields: [serviceId], references: [id])
+  freelancerId   String
+  freelancer     Freelancer     @relation(fields: [freelancerId], references: [id])
+  clientName     String
+  clientEmail    String?
+  brief          String
+  amountUsdc     Float
+  platformFee    Float
+  netAmountUsdc  Float
+  status         ContractStatus @default(PENDING_DELIVERY)
+  escrowTxHash   String?
+  settleTxHash   String?
+  agentScore     Float?
+  agentReasoning String?
+  circleEscrowId String?
+  clientWalletId String?
+  deliveryNote   String?
+  deliveredAt    DateTime?
+  settledAt      DateTime?
+  disputedAt     DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum ContractStatus {
+  PENDING_DELIVERY
+  DELIVERED
+  AGENT_EVALUATING
+  APPROVED
+  DISPUTED
+  SETTLED
+  REFUNDED
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  contractId String
+  type       String
+  amountUsdc Float
+  txHash     String?
+  chain      String   @default("ARC-TESTNET")
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+}
