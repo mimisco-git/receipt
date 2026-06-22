@@ -7,8 +7,8 @@ import Footer from "@/components/layout/Footer";
 import HeroStats from "@/components/shared/HeroStats";
 import HowItWorks from "@/components/shared/HowItWorks";
 import PaymentOrbDemo from "@/components/shared/PaymentOrbDemo";
+import LeptonLogo from "@/components/shared/LeptonLogo";
 
-// Clean SVG icons — no emojis anywhere
 function ZapSVG() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
@@ -17,7 +17,6 @@ function ZapSVG() {
     </svg>
   );
 }
-
 function AgentSVG() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
@@ -29,7 +28,6 @@ function AgentSVG() {
     </svg>
   );
 }
-
 function LockSVG() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
@@ -39,7 +37,6 @@ function LockSVG() {
     </svg>
   );
 }
-
 function ArrowRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -50,24 +47,9 @@ function ArrowRight() {
 }
 
 const features = [
-  {
-    icon: <ZapSVG />,
-    iconBg: "rgba(16,217,138,0.08)",
-    title: "Sub-500ms settlement",
-    desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting periods.",
-  },
-  {
-    icon: <AgentSVG />,
-    iconBg: "rgba(59,130,246,0.08)",
-    title: "Agent-verified scope",
-    desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously. No human arbiter.",
-  },
-  {
-    icon: <LockSVG />,
-    iconBg: "rgba(245,158,11,0.08)",
-    title: "Zero invoice chasing",
-    desc: "USDC locks in Circle escrow before work begins. The client cannot withdraw. Payment is mathematically guaranteed.",
-  },
+  { icon: <ZapSVG />,   iconBg: "rgba(18,232,154,0.08)", title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
+  { icon: <AgentSVG />, iconBg: "rgba(74,158,248,0.08)", title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
+  { icon: <LockSVG />,  iconBg: "rgba(245,166,35,0.08)", title: "Zero invoice chasing",   desc: "USDC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
 ];
 
 export default function HomePage() {
@@ -80,8 +62,8 @@ export default function HomePage() {
       {/* Ambient glow */}
       <div style={{
         position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
-        width: 900, height: 500, pointerEvents: "none", zIndex: 0,
-        background: "radial-gradient(ellipse, rgba(16,217,138,0.05) 0%, rgba(59,130,246,0.02) 50%, transparent 70%)",
+        width: "min(900px, 100vw)", height: 500, pointerEvents: "none", zIndex: 0,
+        background: "radial-gradient(ellipse, rgba(18,232,154,0.05) 0%, rgba(74,158,248,0.02) 50%, transparent 70%)",
         filter: "blur(60px)",
       }} />
 
@@ -91,19 +73,23 @@ export default function HomePage() {
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
-        padding: "140px 24px 80px",
+        padding: "120px 20px 60px",
         position: "relative", zIndex: 1,
       }}>
-        {/* Eyebrow pill */}
+        {/* Eyebrow pill with Lepton logo */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08, duration: 0.5 }}
           className="pill pill-green"
-          style={{ marginBottom: 28, fontSize: 11 }}
+          style={{ marginBottom: 28, fontSize: 11, gap: 8 }}
         >
           <span className="pill-dot" style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
-          Circle · Arc · USDC · Lepton Hackathon 2026
+          Circle · Arc · USDC
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <LeptonLogo size={14} />
+            Lepton Hackathon 2026
+          </span>
         </motion.div>
 
         {/* Headline */}
@@ -112,7 +98,7 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.6 }}
           style={{
-            fontSize: "clamp(40px, 6vw, 80px)",
+            fontSize: "clamp(32px, 7vw, 80px)",
             fontWeight: 700,
             letterSpacing: "-0.04em",
             lineHeight: 1.05,
@@ -124,7 +110,7 @@ export default function HomePage() {
           Get paid the moment<br />
           your work is{" "}
           <span style={{
-            background: "linear-gradient(135deg, #10D98A 0%, #0BBFFF 100%)",
+            background: "linear-gradient(135deg, #12E89A 0%, #0BBFFF 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -133,17 +119,18 @@ export default function HomePage() {
           </span>
         </motion.h1>
 
-        {/* Subheading */}
+        {/* Sub */}
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.55 }}
           style={{
-            fontSize: 17,
+            fontSize: "clamp(14px, 2vw, 17px)",
             color: "var(--text-2)",
             lineHeight: 1.7,
             maxWidth: 460,
-            marginBottom: 40,
+            marginBottom: 36,
+            padding: "0 4px",
           }}
         >
           AI-mediated freelance escrow on Arc. Client deposits USDC.
@@ -155,12 +142,15 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 72 }}
+          style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 60 }}
         >
           <button
             className="btn-primary"
             onClick={() => router.push("/setup")}
-            style={{ padding: "13px 24px", borderRadius: 12, display: "flex", alignItems: "center", gap: 8 }}
+            style={{
+              padding: "13px 24px", borderRadius: 12,
+              display: "flex", alignItems: "center", gap: 8,
+            }}
           >
             Create your service link
             <ArrowRight />
@@ -187,10 +177,12 @@ export default function HomePage() {
       <HowItWorks />
 
       {/* FEATURE CARDS */}
-      <section style={{ padding: "0 24px 80px", position: "relative", zIndex: 1 }}>
+      <section style={{ padding: "0 20px 80px", position: "relative", zIndex: 1 }}>
         <div style={{
           maxWidth: 860, margin: "0 auto",
-          display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10,
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 10,
         }}>
           {features.map((f, i) => (
             <motion.div
@@ -204,15 +196,15 @@ export default function HomePage() {
                 background: "var(--card)",
                 border: "1px solid var(--line)",
                 borderRadius: "var(--r-lg)",
-                transition: "border-color 0.2s ease, background 0.2s ease",
+                transition: "border-color 0.2s, background 0.2s",
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = "var(--line-2)";
-                e.currentTarget.style.background = "var(--card-2)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line-2)";
+                (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = "var(--line)";
-                e.currentTarget.style.background = "var(--card)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line)";
+                (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
               }}
             >
               <div style={{
@@ -236,7 +228,7 @@ export default function HomePage() {
 
       {/* LIVE DEMO */}
       <section id="demo" style={{
-        padding: "40px 24px 80px",
+        padding: "40px 20px 80px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
@@ -247,42 +239,43 @@ export default function HomePage() {
           Live demo
         </div>
         <h2 style={{
-          fontSize: "clamp(22px,3vw,36px)", fontWeight: 700,
+          fontSize: "clamp(20px,3vw,34px)", fontWeight: 700,
           letterSpacing: "-0.03em", textAlign: "center", marginBottom: 10,
           color: "var(--text-1)",
         }}>
           Watch a payment clear
         </h2>
         <p style={{
-          fontSize: 15, color: "var(--text-2)",
-          textAlign: "center", maxWidth: 380, marginBottom: 44, lineHeight: 1.65,
+          fontSize: 14, color: "var(--text-2)",
+          textAlign: "center", maxWidth: 360, marginBottom: 40, lineHeight: 1.65,
+          padding: "0 4px",
         }}>
           Real interface. Real orb. The ripple is exactly what your client sees when USDC settles.
         </p>
         <PaymentOrbDemo />
       </section>
 
-      {/* START A CONTRACT — direct entry point, no need to know the URL */}
+      {/* CTA SECTION */}
       <section style={{
-        padding: "60px 24px 80px",
+        padding: "20px 20px 80px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
         <div style={{
-          maxWidth: 560, width: "100%",
+          maxWidth: 520, width: "100%",
           background: "var(--card)",
           border: "1px solid var(--line)",
           borderRadius: "var(--r-xl)",
-          padding: "40px",
+          padding: "clamp(24px, 5vw, 40px)",
           textAlign: "center",
-          boxShadow: "0 0 0 1px rgba(16,217,138,0.05), 0 24px 48px rgba(0,0,0,0.3)",
+          boxShadow: "0 0 0 1px rgba(18,232,154,0.05), 0 24px 48px rgba(0,0,0,0.3)",
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
             background: "var(--green-dim)",
             border: "1px solid var(--green-border)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 20px",
+            margin: "0 auto 18px",
           }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
               strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
@@ -290,42 +283,41 @@ export default function HomePage() {
             </svg>
           </div>
           <h3 style={{
-            fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em",
+            fontSize: "clamp(18px,3vw,22px)", fontWeight: 700, letterSpacing: "-0.02em",
             marginBottom: 10, color: "var(--text-1)",
           }}>
             Ready to get paid?
           </h3>
-          <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.65, marginBottom: 28 }}>
-            Set up your service in 60 seconds. Share the link with your client.
-            Get paid in USDC the moment they approve your work.
+          <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.65, marginBottom: 24 }}>
+            Set up your service in 60 seconds. Share the link. Get paid in USDC the moment your client approves.
           </p>
           <button
             className="btn-primary"
             onClick={() => router.push("/setup")}
             style={{
-              padding: "13px 32px", borderRadius: 12, fontSize: 14,
+              padding: "13px 28px", borderRadius: 12, fontSize: 14,
               display: "inline-flex", alignItems: "center", gap: 8,
             }}
           >
             Create your service link
             <ArrowRight />
           </button>
-          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 14 }}>
-            Free to use. No subscription. 10% platform fee per settlement.
+          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12 }}>
+            Free to use. No subscription. 10% platform fee per settled contract.
           </div>
         </div>
       </section>
 
       {/* TECH STACK */}
       <section style={{
-        padding: "32px 24px 60px",
+        padding: "20px 20px 60px",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
         position: "relative", zIndex: 1,
       }}>
         <div style={{
           width: "100%", maxWidth: 820,
           height: 1, background: "linear-gradient(90deg, transparent, var(--line), transparent)",
-          marginBottom: 24,
+          marginBottom: 20,
         }} />
         <div style={{
           fontSize: 10.5, color: "var(--text-3)",
@@ -333,7 +325,7 @@ export default function HomePage() {
         }}>
           Built on
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "0 8px" }}>
           {[
             "Circle Programmable Wallets",
             "Circle Gateway",
@@ -351,6 +343,22 @@ export default function HomePage() {
               color: "var(--text-2)",
             }}>{t}</span>
           ))}
+        </div>
+        {/* Lepton attribution */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 6,
+          fontSize: 12, color: "var(--text-3)", marginTop: 8,
+        }}>
+          Built for
+          <LeptonLogo size={16} />
+          <a
+            href="https://lepton.thecanteenapp.com"
+            target="_blank" rel="noreferrer"
+            style={{ color: "var(--text-2)", textDecoration: "none", fontWeight: 500 }}
+          >
+            Lepton by Canteen
+          </a>
+          · June 2026
         </div>
       </section>
 

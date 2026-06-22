@@ -89,7 +89,7 @@ export default function HowItWorks() {
       </p>
 
       <div style={{
-        display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
+        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
         maxWidth: 860, width: "100%", gap: 10,
       }}>
         {steps.map((step, i) => (

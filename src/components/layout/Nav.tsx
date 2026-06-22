@@ -7,7 +7,7 @@ import { motion, LayoutGroup } from "framer-motion";
 const links = [
   { label: "How it works", href: "/#how" },
   { label: "Dashboard",    href: "/dashboard" },
-  { label: "Docs",         href: "https://github.com/mimisco-git/receipt" },
+  { label: "Profile",      href: "/profile" },
 ];
 
 function ReceiptLogo({ size = 28 }: { size?: number }) {
@@ -105,7 +105,7 @@ export default function Nav() {
         <div style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
 
         {/* Links with sliding pill */}
-        <LayoutGroup>
+        <div className="hide-mobile" style={{ display: "flex" }}><LayoutGroup>
           {links.map(l => {
             const active   = pathname === l.href;
             const hovering = hovered === l.label;
@@ -139,9 +139,9 @@ export default function Nav() {
               </button>
             );
           })}
-        </LayoutGroup>
+        </LayoutGroup></div>
 
-        <div style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
+        <div className="hide-mobile" style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
 
         <button
           onClick={() => router.push("/setup")}

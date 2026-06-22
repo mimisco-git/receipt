@@ -87,7 +87,7 @@ export default function PaymentOrbDemo() {
       {/* Body: side-by-side, equal height, no stretching */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "220px 1fr",
+        gridTemplateColumns: "clamp(180px, 40%, 240px) 1fr",
         alignItems: "stretch",
       }}>
 
@@ -112,7 +112,7 @@ export default function PaymentOrbDemo() {
             {phase === "released"   && "Payment cleared"}
           </div>
 
-          {/* Orb — fixed size, no float animation here to avoid jump */}
+          {/* Orb . fixed size, no float animation here to avoid jump */}
           <PaymentOrb amount={amount} state={orbState} size={150} />
 
           {/* Status pill */}
@@ -130,7 +130,7 @@ export default function PaymentOrbDemo() {
             {pillPhase[phase].label}
           </motion.div>
 
-          {/* Settlement breakdown — only when active */}
+          {/* Settlement breakdown . only when active */}
           <AnimatePresence>
             {(phase === "locked" || phase === "evaluating" || phase === "released") && (
               <motion.div
@@ -271,7 +271,7 @@ export default function PaymentOrbDemo() {
             </AnimatePresence>
           </div>
 
-          {/* Bottom: action button + note — always sticks to bottom */}
+          {/* Bottom: action button + note . always sticks to bottom */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <AnimatePresence mode="wait">
               {phase === "idle" && (

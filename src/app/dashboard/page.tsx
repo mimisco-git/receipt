@@ -7,7 +7,7 @@ import Nav from "@/components/layout/Nav";
 import Footer from "@/components/layout/Footer";
 import { timeAgo } from "@/lib/utils";
 
-// rAF spring counter — eases out exponentially
+// rAF spring counter . eases out exponentially
 function SpringNum({ target, prefix = "", suffix = "", dec = 2, delay = 0 }: {
   target: number; prefix?: string; suffix?: string; dec?: number; delay?: number;
 }) {
@@ -77,13 +77,13 @@ export default function DashboardPage() {
           </h1>
         </motion.div>
 
-        {/* WALLET-STYLE METRICS — large numbers, no card boxes */}
+        {/* WALLET-STYLE METRICS . large numbers, no card boxes */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.12, duration: 0.55 }}
           style={{
-            display: "grid", gridTemplateColumns: "1fr 1px 1fr 1px 1fr 1px 1fr",
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
             alignItems: "center",
             padding: "32px 40px", marginBottom: 48,
             background: "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.010))",
