@@ -15,6 +15,7 @@ interface ServiceData {
   title: string;
   description: string;
   priceUsdc: number;
+  currency: "USDC" | "EURC";
   freelancer: {
     id: string;
     name: string;
@@ -76,6 +77,7 @@ export default function HirePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           serviceId: service.id,
+          currency: service.currency || "USDC",
           ...form,
         }),
       });
@@ -99,6 +101,8 @@ export default function HirePage() {
   if (notFound || !service) return <NotFound />;
 
   const price = service.priceUsdc;
+  const cur = service.currency || "USDC";
+  const sym = cur === "EURC" ? "€" : "$";
   const initials = getInitials(service.freelancer.name);
 
   return (
@@ -181,7 +185,7 @@ export default function HirePage() {
                       className="font-mono font-semibold text-sm"
                       style={{ color: "var(--mint)" }}
                     >
-                      USDC
+                      {cur}
                     </span>
                     <span className="text-sm" style={{ color: "var(--text-muted)" }}>
                       per delivery
@@ -221,7 +225,7 @@ export default function HirePage() {
                     className="text-center text-xs mt-4 leading-relaxed"
                     style={{ color: "var(--text-muted)" }}
                   >
-                    Your USDC is locked in Circle escrow until you approve the delivery.
+                    Your {cur} is locked in Circle escrow until you approve the delivery.
                     Payment settles on Arc in under 500ms.
                   </div>
                 </div>
@@ -302,8 +306,8 @@ export default function HirePage() {
                   >
                     <div className="font-semibold mb-3">Escrow summary</div>
                     {[
-                      ["You deposit",       `$${formatUsdc(price)} USDC`],
-                      ["Freelancer receives", `$${formatUsdc(netAmount(price))} USDC`],
+                      ["You deposit",       `${sym}${formatUsdc(price)} ${cur}`],
+                      ["Freelancer receives", `${sym}${formatUsdc(netAmount(price))} ${cur}`],
                       ["Platform fee",       "10%"],
                       ["Settlement",         "Arc, under 500ms"],
                     ].map(([k, v]) => (
@@ -340,7 +344,7 @@ export default function HirePage() {
                     className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{ background: "var(--mint)", color: "#0A0E1A" }}
                   >
-                    {submitting ? "Locking escrow..." : `Confirm and deposit $${formatUsdc(price)} USDC`}
+                    {submitting ? "Locking escrow..." : `Confirm and deposit ${sym}${formatUsdc(price)} ${cur}`}
                     <ArrowRight size={14} />
                   </button>
                 </div>
@@ -369,7 +373,7 @@ export default function HirePage() {
                 </motion.div>
                 <h2 className="text-xl font-bold mb-2">Locking funds in escrow...</h2>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Depositing ${formatUsdc(price)} USDC to Circle smart escrow on Arc.
+                  Depositing {sym}{formatUsdc(price)} {cur} to Circle smart escrow on Arc.
                 </p>
               </motion.div>
             )}
@@ -402,7 +406,7 @@ export default function HirePage() {
                   Escrow funded.
                 </h2>
                 <p className="text-sm mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  ${formatUsdc(price)} USDC is locked in escrow.{" "}
+                  {sym}{formatUsdc(price)} {cur} is locked in escrow.{" "}
                   {service.freelancer.name} can now start your work.
                   You will be notified when the delivery is ready to review.
                 </p>
@@ -416,7 +420,7 @@ export default function HirePage() {
                     ["Freelancer notified", "They begin work on your brief immediately."],
                     ["Delivery submitted",  "You review the work and approve or flag issues."],
                     ["Agent validates",     "The AI reads brief vs delivery and scores the match."],
-                    ["Payment released",    "USDC settles to the freelancer in under 500ms."],
+                    ["Payment released",    `${cur} settles to the freelancer in under 500ms.`],
                   ].map(([title, desc]) => (
                     <div key={title} className="flex gap-3 py-1">
                       <div

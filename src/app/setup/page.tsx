@@ -51,6 +51,7 @@ export default function SetupPage() {
     title: "",
     description: "",
     priceUsdc: "8.00",
+    currency: "USDC" as "USDC" | "EURC",
   });
 
   // Load saved profile on mount so freelancer name/wallet pre-populate
@@ -94,7 +95,7 @@ export default function SetupPage() {
       const res = await fetch("/api/service", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, priceUsdc: parseFloat(form.priceUsdc) || 8 }),
+        body: JSON.stringify({ ...form, priceUsdc: parseFloat(form.priceUsdc) || 8, currency: form.currency }),
       });
       const data = await res.json();
       if (data.slug) {
@@ -278,10 +279,40 @@ export default function SetupPage() {
                   <Field label="What you deliver" placeholder="Describe exactly what the client receives. Word count, format, revision policy, turnaround time..."
                     value={form.description} onChange={v => update("description", v)} as="textarea" rows={4} />
 
+                  {/* Currency selector */}
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
+                      Currency
+                    </label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {(["USDC", "EURC"] as const).map(c => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setForm(p => ({ ...p, currency: c }))}
+                          style={{
+                            padding: "10px 18px", borderRadius: "var(--r-sm)",
+                            background: form.currency === c ? "var(--green-dim)" : "var(--card-2)",
+                            border: `1px solid ${form.currency === c ? "var(--green-border)" : "var(--line)"}`,
+                            color: form.currency === c ? "var(--green)" : "var(--text-2)",
+                            fontSize: 13, fontWeight: 600, cursor: "pointer",
+                            fontFamily: '"DM Mono", monospace',
+                            transition: "all 0.15s ease",
+                          }}
+                        >
+                          {c === "USDC" ? "$ USDC" : "€ EURC"}
+                        </button>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>
+                      {form.currency === "USDC" ? "USD Coin by Circle" : "Euro Coin by Circle"} on Arc Testnet
+                    </p>
+                  </div>
+
                   {/* Price field */}
                   <div>
                     <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
-                      Your price (USDC)
+                      Your price ({form.currency})
                     </label>
                     <div style={{ display: "flex", gap: 8 }}>
                       <div style={{
@@ -290,7 +321,7 @@ export default function SetupPage() {
                         fontSize: 13, fontWeight: 600, color: "var(--green)",
                         fontFamily: '"DM Mono", monospace', whiteSpace: "nowrap",
                       }}>
-                        USDC
+                        {form.currency}
                       </div>
                       <input
                         type="number" step="0.01" min="0.01"
@@ -304,7 +335,7 @@ export default function SetupPage() {
                       <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6 }}>
                         You receive{" "}
                         <span className="font-mono" style={{ color: "var(--green)" }}>
-                          ${netAmount(priceNum).toFixed(2)} USDC
+                          {form.currency === "EURC" ? "€" : "$"}{netAmount(priceNum).toFixed(2)} {form.currency}
                         </span>{" "}
                         after 10% platform fee.
                       </p>
@@ -426,11 +457,11 @@ export default function SetupPage() {
                   fontSize: 13, color: "var(--text-2)", textAlign: "left", marginBottom: 20,
                 }}>
                   <span style={{ color: "var(--green)", fontWeight: 600 }}>
-                    Each client pays ${form.priceUsdc} USDC.
+                    Each client pays {form.currency === "EURC" ? "€" : "$"}{form.priceUsdc} {form.currency}.
                   </span>{" "}
                   You receive{" "}
                   <span className="font-mono" style={{ color: "var(--green)" }}>
-                    ${netAmount(priceNum).toFixed(2)} USDC
+                    {form.currency === "EURC" ? "€" : "$"}{netAmount(priceNum).toFixed(2)} {form.currency}
                   </span>{" "}
                   per approved delivery. Settlement on Arc: under 500ms.
                 </div>

@@ -28,6 +28,7 @@ model Service {
   title        String
   description  String
   priceUsdc    Float      @map("price_usdc")
+  currency     String     @default("USDC")
   freelancerId String     @map("freelancer_id")
   freelancer   Freelancer @relation(fields: [freelancerId], references: [id])
   isActive     Boolean    @default(true) @map("is_active")
@@ -48,6 +49,7 @@ model Contract {
   clientEmail    String?        @map("client_email")
   brief          String
   amountUsdc     Float          @map("amount_usdc")
+  currency       String         @default("USDC")
   platformFee    Float          @map("platform_fee")
   netAmountUsdc  Float          @map("net_amount_usdc")
   status         ContractStatus @default(PENDING_DELIVERY)

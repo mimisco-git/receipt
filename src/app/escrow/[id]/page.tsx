@@ -14,6 +14,7 @@ interface ContractData {
   brief: string;
   amountUsdc: number;
   netAmountUsdc: number;
+  currency: "USDC" | "EURC";
   serviceTitle: string;
   freelancerName: string;
   freelancerAddress: string;
@@ -49,6 +50,7 @@ export default function EscrowPage() {
     brief: "Describe the task requirements here.",
     amountUsdc: 8.0,
     netAmountUsdc: 7.2,
+    currency: "USDC",
     serviceTitle: "Freelance service",
     freelancerName: "Freelancer",
     freelancerAddress: "",
@@ -79,6 +81,7 @@ export default function EscrowPage() {
             brief: data.brief,
             amountUsdc: data.amountUsdc || 0,
             netAmountUsdc: data.netAmountUsdc || 0,
+            currency: data.currency || "USDC",
             serviceTitle: data.service?.title || "Freelance service",
             freelancerName: data.freelancer?.name || data.service?.freelancer?.name || "Freelancer",
             freelancerAddress: data.freelancer?.walletAddress || data.service?.freelancer?.walletAddress || "",
@@ -169,6 +172,7 @@ export default function EscrowPage() {
           action: "APPROVE",
           freelancerAddress: contract.freelancerAddress,
           netAmountUsdc: contract.netAmountUsdc,
+          currency: contract.currency,
         }),
       });
       const data = await res.json();
@@ -267,9 +271,9 @@ export default function EscrowPage() {
               {/* Settlement details */}
               <div style={{ width: "100%", fontSize: 11.5 }}>
                 {[
-                  ["Contract",    `$${contract.amountUsdc.toFixed(2)} USDC`],
+                  ["Contract",    `${contract.currency === "EURC" ? "€" : "$"}${contract.amountUsdc.toFixed(2)} ${contract.currency}`],
                   ["Fee",         "10%"],
-                  ["You receive", `$${contract.netAmountUsdc.toFixed(2)} USDC`],
+                  ["You receive", `${contract.currency === "EURC" ? "€" : "$"}${contract.netAmountUsdc.toFixed(2)} ${contract.currency}`],
                   ["Chain",       "Arc Testnet"],
                 ].map(([k, v]) => (
                   <div key={k} style={{
@@ -442,7 +446,7 @@ export default function EscrowPage() {
                       }}
                     >
                       <div className="font-mono" style={{ fontSize: 28, color: "var(--green)", fontWeight: 500, marginBottom: 2 }}>
-                        ${contract.netAmountUsdc.toFixed(2)} USDC
+                        {contract.currency === "EURC" ? "€" : "$"}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
                       </div>
                       <div style={{ fontSize: 12, color: "var(--green)", opacity: 0.75 }}>
                         Settled on Arc in 482ms

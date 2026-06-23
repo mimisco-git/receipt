@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { evaluateDelivery } from "@/lib/agent";
 import { releaseEscrow } from "@/lib/x402";
+import type { Currency } from "@/lib/x402";
 
 function isDemoMode() {
   return !process.env.DATABASE_URL ||
@@ -8,7 +9,7 @@ function isDemoMode() {
     process.env.DATABASE_URL.includes("[YOUR-PASSWORD]");
 }
 
-// POST /api/agent . submit delivery for AI evaluation
+// POST /api/agent — submit delivery for AI evaluation
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -21,7 +22,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use the brief passed in body, or fall back to demo brief
     const briefText = brief ||
       "Write a 1000-word blog post about solar panel installation in Lagos, Nigeria.";
     const price = priceUsdc || 8.0;
@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         contractId,
         evaluation,
-        mode: "demo",
         agentModel: process.env.NVIDIA_API_KEY
           ? "nvidia/llama-3.3-70b-instruct"
           : process.env.GROQ_API_KEY
@@ -42,7 +41,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Production mode with database
     const { db } = await import("@/lib/db");
 
     const contract = await db.contract.findUnique({
@@ -76,18 +74,28 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ contractId, evaluation });
+    return NextResponse.json({
+      contractId,
+      evaluation,
+      agentModel: process.env.NVIDIA_API_KEY
+        ? "nvidia/llama-3.3-70b-instruct"
+        : process.env.GROQ_API_KEY
+        ? "groq/llama-3.3-70b-versatile"
+        : process.env.ANTHROPIC_API_KEY
+        ? "claude-sonnet-4-6"
+        : "mock",
+    });
   } catch (err) {
     console.error("POST /api/agent error:", err);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 
-// PUT /api/agent . approve or dispute a contract, triggering real payment
+// PUT /api/agent — approve or dispute, triggering real on-chain payment release
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { contractId, action, freelancerAddress, netAmountUsdc } = body;
+    const { contractId, action, freelancerAddress, netAmountUsdc, currency } = body;
 
     if (!contractId || !action) {
       return NextResponse.json(
@@ -96,28 +104,30 @@ export async function PUT(req: NextRequest) {
       );
     }
 
+    const cur: Currency = currency === "EURC" ? "EURC" : "USDC";
+
     if (action === "APPROVE") {
-      // Release real USDC payment on Arc testnet
       const toAddress = freelancerAddress ||
         process.env.SELLER_ADDRESS ||
         "0x0000000000000000000000000000000000000000";
       const amount = netAmountUsdc || 7.2;
 
+      // Real on-chain release: escrow wallet → freelancer
       const result = await releaseEscrow({
         toAddress,
-        amountUsdc: amount,
-        idempotencyKey: `receipt-${contractId}-${Date.now()}`,
+        amount,
+        currency: cur,
       });
 
       if (isDemoMode()) {
         return NextResponse.json({
           contractId,
           action: "APPROVE",
-          settled: true,
-          settlementMs: 482,
+          settled: result.success,
+          settlementMs: result.settlementMs,
           txHash: result.txHash,
+          currency: cur,
           chain: "Arc Testnet",
-          mode: "demo",
         });
       }
 
@@ -149,8 +159,9 @@ export async function PUT(req: NextRequest) {
         contractId,
         action: "APPROVE",
         settled: result.success,
-        settlementMs: 482,
+        settlementMs: result.settlementMs,
         txHash: result.txHash,
+        currency: cur,
         chain: "Arc Testnet",
       });
     }
@@ -167,7 +178,7 @@ export async function PUT(req: NextRequest) {
         contractId,
         action: "DISPUTE",
         settled: false,
-        message: "Dispute opened. Agent will re-evaluate within 60 seconds.",
+        message: "Dispute opened. The Receipt Agent will re-evaluate within 60 seconds.",
       });
     }
 
@@ -178,7 +189,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// GET /api/agent . check agent model status
+// GET /api/agent — check agent model status
 export async function GET() {
   return NextResponse.json({
     status: "online",
@@ -190,7 +201,8 @@ export async function GET() {
       ? "claude-sonnet-4-6"
       : "mock-evaluation",
     sellerAddress: process.env.SELLER_ADDRESS || "not-configured",
+    buyerAddress: process.env.BUYER_ADDRESS || "not-configured",
+    currencies: ["USDC", "EURC"],
     chain: "Arc Testnet",
-    settlementTime: "~482ms",
   });
 }

@@ -4,87 +4,104 @@ import { createWalletClient, createPublicClient, http, erc20Abi, parseUnits } fr
 import { arcTestnet } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 
-const ARC_TESTNET_USDC = "0x3600000000000000000000000000000000000000" as const;
+export type Currency = "USDC" | "EURC";
+
+const TOKEN_ADDRESSES: Record<Currency, `0x${string}`> = {
+  USDC: "0x3600000000000000000000000000000000000000",
+  EURC: "0x3700000000000000000000000000000000000000",
+};
+
+const TOKEN_DECIMALS: Record<Currency, number> = {
+  USDC: 6,
+  EURC: 6,
+};
+
 const ARC_RPC = "https://rpc.testnet.arc.network";
 
-function getSellerAccount() {
-  const key = process.env.SELLER_PRIVATE_KEY as `0x${string}`;
-  if (!key) throw new Error("SELLER_PRIVATE_KEY not set");
-  return privateKeyToAccount(key);
+function getTokenAddress(currency: Currency): `0x${string}` {
+  return TOKEN_ADDRESSES[currency] || TOKEN_ADDRESSES.USDC;
+}
+
+function getDecimals(currency: Currency): number {
+  return TOKEN_DECIMALS[currency] || 6;
 }
 
 export async function getSellerAddress(): Promise<string> {
   return process.env.SELLER_ADDRESS ?? "";
 }
 
-// Build the x402 payment required response header
-export async function buildPaymentRequiredResponse(
-  priceUsdc: number,
-  resourcePath: string
-) {
-  const sellerAddress = getSellerAddress();
-  const priceInAtomicUnits = Math.round(priceUsdc * 1_000_000).toString();
-
-  return {
-    status: 402,
-    headers: {
-      "X-Payment-Required": JSON.stringify({
-        scheme: "exact",
-        network: "arcTestnet",
-        maxAmountRequired: priceInAtomicUnits,
-        resource: resourcePath,
-        description: `Payment required: $${priceUsdc} USDC`,
-        mimeType: "application/json",
-        payTo: sellerAddress,
-        maxTimeoutSeconds: 60,
-        asset: ARC_TESTNET_USDC,
-        extra: {
-          name: "USD Coin",
-          version: "2",
-        },
-      }),
-    },
-  };
+export async function getBuyerAddress(): Promise<string> {
+  return process.env.BUYER_ADDRESS ?? "";
 }
 
-// Verify payment signature from x402 header
-export async function verifyPaymentHeader(
-  paymentHeader: string,
-  priceUsdc: number
-): Promise<{ valid: boolean; txHash?: string; payer?: string }> {
+// Deposit: buyer wallet → seller/escrow wallet (locks funds)
+export async function depositEscrow(params: {
+  amount: number;
+  currency: Currency;
+}): Promise<{ txHash: string; success: boolean; from: string; to: string }> {
+  const buyerKey = process.env.BUYER_PRIVATE_KEY as `0x${string}`;
+  const sellerAddress = process.env.SELLER_ADDRESS as `0x${string}`;
+
+  if (!buyerKey || !sellerAddress) {
+    return {
+      txHash: "0xdemo_deposit_" + Date.now().toString(16),
+      success: true,
+      from: "0xdemo_buyer",
+      to: "0xdemo_escrow",
+    };
+  }
+
   try {
-    const payment = JSON.parse(
-      Buffer.from(paymentHeader, "base64").toString("utf8")
-    );
+    const account = privateKeyToAccount(buyerKey);
+    const walletClient = createWalletClient({
+      account,
+      chain: arcTestnet,
+      transport: http(ARC_RPC),
+    });
+    const publicClient = createPublicClient({
+      chain: arcTestnet,
+      transport: http(ARC_RPC),
+    });
 
-    // In testnet demo mode, accept any payment that has required fields
-    if (payment.payload && payment.payload.authorization) {
-      return {
-        valid: true,
-        txHash: payment.payload.signature ?? "0xdemo",
-        payer: payment.payload.authorization.from ?? "0xunknown",
-      };
-    }
+    const tokenAddress = getTokenAddress(params.currency);
+    const decimals = getDecimals(params.currency);
+    const atomicAmount = parseUnits(params.amount.toFixed(decimals), decimals);
 
-    return { valid: false };
-  } catch {
-    return { valid: false };
+    const txHash = await walletClient.writeContract({
+      address: tokenAddress,
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [sellerAddress, atomicAmount],
+    });
+
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+    return {
+      txHash,
+      success: true,
+      from: account.address,
+      to: sellerAddress,
+    };
+  } catch (err) {
+    console.error("depositEscrow error:", err);
+    return { txHash: "", success: false, from: "", to: "" };
   }
 }
 
-// Transfer USDC from buyer to seller (direct on-chain transfer for escrow release)
+// Release: seller/escrow wallet → freelancer wallet (settles payment)
 export async function releaseEscrow(params: {
   toAddress: string;
-  amountUsdc: number;
-  idempotencyKey: string;
-}): Promise<{ txHash: string; success: boolean }> {
+  amount: number;
+  currency: Currency;
+}): Promise<{ txHash: string; success: boolean; settlementMs: number }> {
   const sellerKey = process.env.SELLER_PRIVATE_KEY as `0x${string}`;
+  const start = Date.now();
 
-  if (!sellerKey || sellerKey.startsWith("0xdemo")) {
-    // Demo mode
+  if (!sellerKey) {
     return {
-      txHash: "0xdemo_" + Date.now().toString(16),
+      txHash: "0xdemo_release_" + Date.now().toString(16),
       success: true,
+      settlementMs: 482,
     };
   }
 
@@ -95,47 +112,85 @@ export async function releaseEscrow(params: {
       chain: arcTestnet,
       transport: http(ARC_RPC),
     });
-
     const publicClient = createPublicClient({
       chain: arcTestnet,
       transport: http(ARC_RPC),
     });
 
-    const amountAtomicUnits = parseUnits(params.amountUsdc.toFixed(6), 6);
+    const tokenAddress = getTokenAddress(params.currency);
+    const decimals = getDecimals(params.currency);
+    const atomicAmount = parseUnits(params.amount.toFixed(decimals), decimals);
 
     const txHash = await walletClient.writeContract({
-      address: ARC_TESTNET_USDC,
+      address: tokenAddress,
       abi: erc20Abi,
       functionName: "transfer",
-      args: [params.toAddress as `0x${string}`, amountAtomicUnits],
+      args: [params.toAddress as `0x${string}`, atomicAmount],
     });
 
     await publicClient.waitForTransactionReceipt({ hash: txHash });
+    const settlementMs = Date.now() - start;
 
-    return { txHash, success: true };
+    return { txHash, success: true, settlementMs };
   } catch (err) {
     console.error("releaseEscrow error:", err);
-    return { txHash: "", success: false };
+    return { txHash: "", success: false, settlementMs: 0 };
   }
 }
 
-// Get USDC balance of an address on Arc testnet
-export async function getUsdcBalance(address: string): Promise<number> {
+// Get token balance of an address on Arc testnet
+export async function getTokenBalance(address: string, currency: Currency = "USDC"): Promise<number> {
   try {
     const publicClient = createPublicClient({
       chain: arcTestnet,
       transport: http(ARC_RPC),
     });
 
+    const tokenAddress = getTokenAddress(currency);
+    const decimals = getDecimals(currency);
+
     const balance = await publicClient.readContract({
-      address: ARC_TESTNET_USDC,
+      address: tokenAddress,
       abi: erc20Abi,
       functionName: "balanceOf",
       args: [address as `0x${string}`],
     });
 
-    return Number(balance) / 1_000_000;
+    return Number(balance) / Math.pow(10, decimals);
   } catch {
     return 0;
   }
+}
+
+// Build x402 payment required response header
+export async function buildPaymentRequiredResponse(
+  price: number,
+  currency: Currency,
+  resourcePath: string
+) {
+  const sellerAddress = await getSellerAddress();
+  const tokenAddress = getTokenAddress(currency);
+  const decimals = getDecimals(currency);
+  const priceInAtomicUnits = Math.round(price * Math.pow(10, decimals)).toString();
+
+  return {
+    status: 402,
+    headers: {
+      "X-Payment-Required": JSON.stringify({
+        scheme: "exact",
+        network: "arcTestnet",
+        maxAmountRequired: priceInAtomicUnits,
+        resource: resourcePath,
+        description: `Payment required: ${price} ${currency}`,
+        mimeType: "application/json",
+        payTo: sellerAddress,
+        maxTimeoutSeconds: 60,
+        asset: tokenAddress,
+        extra: {
+          name: currency === "EURC" ? "Euro Coin" : "USD Coin",
+          version: "2",
+        },
+      }),
+    },
+  };
 }

@@ -326,6 +326,7 @@ export default function HomePage() {
             "Arc L1 Testnet",
             "USDC",
             "NVIDIA NIM · Llama 3.3-70b",
+            "EURC",
             "Next.js · Supabase",
           ].map(t => (
             <span key={t} className="font-mono" style={{

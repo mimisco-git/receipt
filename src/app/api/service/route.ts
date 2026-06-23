@@ -13,7 +13,8 @@ function isDemoMode() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, bio, walletAddress, title, description, priceUsdc } = body;
+    const { name, bio, walletAddress, title, description, priceUsdc, currency } = body;
+    const cur = currency === "EURC" ? "EURC" : "USDC";
 
     if (!name || !title || !description || !priceUsdc) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
         title,
         description,
         priceUsdc,
+        currency: cur,
         freelancer: { name, bio, walletAddress, avatarColor: "#667eea" },
       });
     }
@@ -61,6 +63,7 @@ export async function POST(req: NextRequest) {
         title,
         description,
         priceUsdc: parseFloat(priceUsdc),
+        currency: cur,
         freelancerId: freelancer.id,
       },
       include: { freelancer: true },
