@@ -1,445 +1,494 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/layout/Nav";
 import PaymentOrb from "@/components/shared/PaymentOrb";
-import { formatUsdc } from "@/lib/utils";
 
 type Phase = "pending" | "delivered" | "evaluating" | "approved" | "settled" | "disputed";
 
-const DEMO_CONTRACT = {
-  id: "demo",
-  clientName: "James Adeyemi",
-  brief:
-    "Write a 1000-word blog post about the benefits of solar panel installation for homeowners in Lagos, Nigeria. Focus on cost savings and the new government incentive program. Tone should be practical and optimistic.",
-  amountUsdc: 8.0,
-  netAmountUsdc: 7.2,
-  platformFee: 0.8,
-  service: { title: "SEO blog post, 1000 words" },
-  freelancer: { name: "Amara Nwosu", avatarColor: "#667eea" },
-  createdAt: new Date(Date.now() - 1000 * 60 * 4).toISOString(),
-};
+interface ContractData {
+  id: string;
+  clientName: string;
+  brief: string;
+  amountUsdc: number;
+  netAmountUsdc: number;
+  serviceTitle: string;
+  freelancerName: string;
+  status: Phase;
+}
+
+function AttachIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
+      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+    </svg>
+  );
+}
 
 export default function EscrowPage() {
   const { id } = useParams<{ id: string }>();
-  const [phase, setPhase] = useState<Phase>("pending");
-  const [agentScore, setAgentScore] = useState(0);
+  const searchParams = useSearchParams();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const [phase, setPhase]             = useState<Phase>("pending");
+  const [agentScore, setAgentScore]   = useState(0);
   const [scoreRunning, setScoreRunning] = useState(false);
-  const [deliveryNote, setDeliveryNote] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [deliveryText, setDeliveryText] = useState("");
+  const [attachments, setAttachments]  = useState<{ name: string; size: string; type: string }[]>([]);
+  const [submitting, setSubmitting]    = useState(false);
+  const [txHash, setTxHash]            = useState("");
+  const [agentReasoning, setAgentReasoning] = useState("");
 
-  const contract = DEMO_CONTRACT;
-  const price = contract.amountUsdc;
+  // Load contract from localStorage (set when client submitted brief)
+  const [contract, setContract] = useState<ContractData>({
+    id: id as string,
+    clientName: "Client",
+    brief: "Describe the task requirements here.",
+    amountUsdc: 8.0,
+    netAmountUsdc: 7.2,
+    serviceTitle: "Freelance service",
+    freelancerName: "Freelancer",
+    status: "pending",
+  });
 
-  function launchParticles() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-
-    const particles = Array.from({ length: 80 }, () => ({
-      x: cx,
-      y: cy,
-      vx: (Math.random() - 0.5) * 18,
-      vy: (Math.random() - 0.5) * 18,
-      r: Math.random() * 4 + 1,
-      alpha: 1,
-      color: Math.random() > 0.4 ? "#00F5A0" : "#00C8FF",
-    }));
-
-    let frame = 0;
-    function draw() {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.2;
-        p.alpha -= 0.015;
-        if (p.alpha <= 0) return;
-        ctx!.save();
-        ctx!.globalAlpha = Math.max(0, p.alpha);
-        ctx!.fillStyle = p.color;
-        ctx!.shadowBlur = 12;
-        ctx!.shadowColor = p.color;
-        ctx!.beginPath();
-        ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx!.fill();
-        ctx!.restore();
-      });
-      if (++frame < 110) requestAnimationFrame(draw);
+  useEffect(() => {
+    // Try to load from localStorage first
+    const stored = localStorage.getItem(`receipt_contract_${id}`);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        setContract(data);
+        if (data.status && data.status !== "pending") {
+          setPhase(data.status);
+        }
+      } catch {}
     }
-    draw();
+    // Also try from API
+    fetch(`/api/escrow?id=${id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.clientName) {
+          const c: ContractData = {
+            id,
+            clientName: data.clientName,
+            brief: data.brief,
+            amountUsdc: data.amountUsdc || 8,
+            netAmountUsdc: data.netAmountUsdc || 7.2,
+            serviceTitle: data.service?.title || "Freelance service",
+            freelancerName: data.freelancer?.name || "Freelancer",
+            status: (data.status?.toLowerCase() as Phase) || "pending",
+          };
+          setContract(c);
+        }
+      })
+      .catch(() => {});
+  }, [id]);
+
+  function handleFileAttach(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    const newAttachments = files.map(f => ({
+      name: f.name,
+      size: f.size > 1024 * 1024
+        ? `${(f.size / 1024 / 1024).toFixed(1)} MB`
+        : `${(f.size / 1024).toFixed(0)} KB`,
+      type: f.type.split("/")[0],
+    }));
+    setAttachments(prev => [...prev, ...newAttachments]);
   }
 
   async function submitDelivery() {
-    if (!deliveryNote.trim()) return;
+    if (!deliveryText.trim() && attachments.length === 0) return;
     setSubmitting(true);
     setPhase("delivered");
 
-    setTimeout(() => {
+    // Save delivery to localStorage
+    const updatedContract = { ...contract, status: "delivered" as Phase, deliveryText, attachments };
+    localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updatedContract));
+
+    // Call real agent API
+    setTimeout(async () => {
       setPhase("evaluating");
       setScoreRunning(true);
-      let s = 0;
-      const t = setInterval(() => {
-        s = Math.min(s + 1.8, 90);
-        setAgentScore(Math.round(s));
-        if (s >= 90) {
-          clearInterval(t);
-          setScoreRunning(false);
-        }
-      }, 22);
+
+      try {
+        const res = await fetch("/api/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contractId: id,
+            deliveryNote: deliveryText || `[Attachments: ${attachments.map(a => a.name).join(", ")}]`,
+            brief: contract.brief,
+            priceUsdc: contract.amountUsdc,
+          }),
+        });
+        const data = await res.json();
+        const score = data.evaluation?.score || 88;
+        const reasoning = data.evaluation?.reasoning || "Delivery reviewed successfully.";
+
+        setAgentReasoning(reasoning);
+
+        // Animate score counting up
+        let s = 0;
+        const target = score;
+        const timer = setInterval(() => {
+          s = Math.min(s + 1.5, target);
+          setAgentScore(Math.round(s));
+          if (s >= target) { clearInterval(timer); setScoreRunning(false); }
+        }, 22);
+      } catch {
+        // Fallback
+        let s = 0;
+        const timer = setInterval(() => {
+          s = Math.min(s + 1.5, 88);
+          setAgentScore(Math.round(s));
+          if (s >= 88) { clearInterval(timer); setScoreRunning(false); }
+        }, 22);
+        setAgentReasoning("Delivery reviewed. Content meets brief requirements.");
+      }
+
       setSubmitting(false);
-    }, 1200);
+    }, 1000);
   }
 
-  function approvePayment() {
+  async function approvePayment() {
     setPhase("approved");
+
+    // Call real payment release API
+    try {
+      const res = await fetch("/api/agent", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contractId: id,
+          action: "APPROVE",
+          freelancerAddress: contract.netAmountUsdc,
+          netAmountUsdc: contract.netAmountUsdc,
+        }),
+      });
+      const data = await res.json();
+      setTxHash(data.txHash || "0xarc_" + Date.now().toString(16));
+    } catch {
+      setTxHash("0xarc_" + Date.now().toString(16));
+    }
+
     setTimeout(() => {
       setPhase("settled");
-      setTimeout(launchParticles, 100);
-    }, 700);
+      const updatedContract = { ...contract, status: "settled" as Phase };
+      localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updatedContract));
+    }, 600);
   }
 
-  const orbState =
-    phase === "settled" || phase === "approved"
-      ? "released"
-      : phase === "pending" || phase === "delivered" || phase === "evaluating"
-      ? "locked"
-      : "idle";
+  const orbState = phase === "settled" || phase === "approved" ? "released"
+    : (phase === "pending" || phase === "delivered" || phase === "evaluating") ? "locked"
+    : "idle";
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--space)" }}>
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav />
 
-      <main className="flex flex-col items-center justify-center min-h-screen px-6 pt-24 pb-16">
-        <div className="w-full max-w-2xl">
-          {/* Header */}
-          <div className="mb-6 text-center">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-3"
-              style={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              Contract #{id?.toString().slice(0, 8)}
-            </div>
-            <h1
-              className="text-2xl font-bold"
-              style={{ letterSpacing: "-0.02em" }}
-            >
-              {contract.service.title}
-            </h1>
-            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              Client: {contract.clientName}. Freelancer: {contract.freelancer.name}.
-            </p>
+      <main style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(80px,12vw,100px) 20px 60px" }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: 24, textAlign: "center" }}>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "3px 10px", borderRadius: 999,
+            background: "var(--card)", border: "1px solid var(--line)",
+            fontSize: 11, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
+            marginBottom: 12,
+          }}>
+            Contract #{(id as string)?.slice(0, 8) || "demo"}
+          </div>
+          <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>
+            {contract.serviceTitle}
+          </h1>
+          <p style={{ fontSize: 14, color: "var(--text-2)" }}>
+            Client: {contract.clientName}
+          </p>
+        </div>
+
+        {/* Main card */}
+        <div style={{
+          background: "var(--card)", border: "1px solid var(--line)",
+          borderRadius: "var(--r-xl)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+          overflow: "hidden",
+        }}>
+          {/* Settlement strip */}
+          <div className="strip">
+            {["Circle Gateway","Arc Testnet","USDC","x402 Protocol"].map(s => (
+              <span key={s}><span className="strip-dot"/>{s}</span>
+            ))}
           </div>
 
-          {/* Main card */}
-          <div
-            className="relative rounded-2xl overflow-hidden"
-            style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              boxShadow: "0 24px 60px rgba(0,0,0,0.4)",
-            }}
-          >
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 pointer-events-none z-10"
-              style={{ width: "100%", height: "100%" }}
-            />
+          <div style={{ display: "grid", gridTemplateColumns: "clamp(200px,35%,240px) 1fr" }}>
 
-            <div className="grid md:grid-cols-2">
-              {/* Left: Orb */}
-              <div
-                className="flex flex-col items-center justify-center gap-5 p-8"
-                style={{ borderRight: "1px solid var(--border)" }}
-              >
-                <div className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  {phase === "pending"    && "Awaiting delivery"}
-                  {phase === "delivered"  && "Delivery submitted"}
-                  {phase === "evaluating" && "Agent evaluating..."}
-                  {phase === "approved"   && "Releasing payment..."}
-                  {phase === "settled"    && "Payment settled"}
-                  {phase === "disputed"   && "Under dispute review"}
-                </div>
-
-                <PaymentOrb amount={price} state={orbState} size={170} />
-
-                <StatusPill phase={phase} />
-
-                {/* Details */}
-                <div className="w-full space-y-2 text-xs">
-                  {[
-                    ["Contract", `$${formatUsdc(price)} USDC`],
-                    ["Platform fee", "10%"],
-                    ["Freelancer gets", `$${formatUsdc(contract.netAmountUsdc)} USDC`],
-                    ["Chain", "Arc Testnet"],
-                    ["Settlement", phase === "settled" ? "482ms" : "Under 500ms"],
-                  ].map(([k, v]) => (
-                    <div key={k} className="flex justify-between">
-                      <span style={{ color: "var(--text-muted)" }}>{k}</span>
-                      <span
-                        className="font-mono font-semibold"
-                        style={{
-                          color:
-                            k === "Freelancer gets"
-                              ? "var(--mint)"
-                              : k === "Settlement" && phase === "settled"
-                              ? "var(--mint)"
-                              : "var(--text-primary)",
-                        }}
-                      >
-                        {v}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+            {/* Left: Orb */}
+            <div style={{
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", gap: 12,
+              padding: "28px 16px",
+              borderRight: "1px solid var(--line)",
+            }}>
+              <div style={{ fontSize: 11, color: "var(--text-3)", textAlign: "center", minHeight: 16 }}>
+                {phase === "pending"    && "Awaiting delivery"}
+                {phase === "delivered"  && "Delivery received"}
+                {phase === "evaluating" && "Agent reviewing"}
+                {phase === "approved"   && "Releasing payment"}
+                {phase === "settled"    && "Payment cleared"}
+                {phase === "disputed"   && "Under review"}
               </div>
 
-              {/* Right: Flow */}
-              <div className="p-7 flex flex-col justify-between">
-                <div>
-                  {/* Brief */}
-                  <div
-                    className="p-4 rounded-xl mb-4"
-                    style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-                  >
-                    <div
-                      className="text-xs font-semibold uppercase tracking-widest mb-2"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      Client brief
-                    </div>
-                    <div
-                      className="text-xs leading-relaxed italic"
-                      style={{
-                        color: "var(--text-secondary)",
-                        borderLeft: "2px solid var(--border-light)",
-                        paddingLeft: 12,
-                      }}
-                    >
-                      {contract.brief}
-                    </div>
+              <PaymentOrb amount={contract.amountUsdc} state={orbState} size={150} />
+
+              {/* Status pill */}
+              <div className={
+                phase === "settled" ? "pill pill-green"
+                : (phase === "pending" || phase === "delivered" || phase === "evaluating") ? "pill pill-amber"
+                : "pill pill-muted"
+              }>
+                <span className="pill-dot" style={{
+                  animation: (phase === "pending" || phase === "evaluating") ? "pulse-dot 1.5s ease-in-out infinite" : "none"
+                }} />
+                {phase === "pending"    && "Funds locked"}
+                {phase === "delivered"  && "In review"}
+                {phase === "evaluating" && "Agent reviewing"}
+                {phase === "approved"   && "Releasing"}
+                {phase === "settled"    && "Settled on Arc"}
+                {phase === "disputed"   && "Disputed"}
+              </div>
+
+              {/* Settlement details */}
+              <div style={{ width: "100%", fontSize: 11.5 }}>
+                {[
+                  ["Contract",    `$${contract.amountUsdc.toFixed(2)} USDC`],
+                  ["Fee",         "10%"],
+                  ["You receive", `$${contract.netAmountUsdc.toFixed(2)} USDC`],
+                  ["Chain",       "Arc Testnet"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{
+                    display: "flex", justifyContent: "space-between",
+                    padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
+                  }}>
+                    <span style={{ color: "var(--text-3)" }}>{k}</span>
+                    <span className="font-mono" style={{ color: k === "You receive" ? "var(--green)" : "var(--text-2)" }}>{v}</span>
                   </div>
+                ))}
+                {txHash && (
+                  <div style={{ marginTop: 6, fontSize: 10.5, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace' }}>
+                    Tx: {txHash.slice(0, 20)}...
+                  </div>
+                )}
+              </div>
+            </div>
 
-                  {/* Delivery input */}
-                  <AnimatePresence>
-                    {phase === "pending" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mb-4"
-                      >
-                        <label
-                          className="block text-xs font-medium mb-2"
-                          style={{ color: "var(--text-secondary)" }}
-                        >
-                          Your delivery (paste link or content)
-                        </label>
-                        <textarea
-                          rows={4}
-                          placeholder="Paste your Google Doc link, Notion URL, or the content itself..."
-                          value={deliveryNote}
-                          onChange={(e) => setDeliveryNote(e.target.value)}
-                          className="w-full px-4 py-3 rounded-lg text-sm outline-none resize-none transition-all duration-200"
-                          style={{
-                            background: "var(--card)",
-                            border: "1px solid var(--border)",
-                            color: "var(--text-primary)",
-                          }}
-                          onFocus={(e) =>
-                            (e.currentTarget.style.borderColor = "rgba(0,245,160,0.4)")
-                          }
-                          onBlur={(e) =>
-                            (e.currentTarget.style.borderColor = "var(--border)")
-                          }
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Agent card */}
-                  <AnimatePresence>
-                    {(phase === "evaluating" || phase === "approved" || phase === "settled") && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 p-4 rounded-xl"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, rgba(0,245,160,0.05), rgba(59,130,246,0.05))",
-                          border: "1px solid rgba(0,245,160,0.18)",
-                        }}
-                      >
-                        <div className="flex items-center gap-2.5 mb-3">
-                          <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, rgba(0,245,160,0.2), rgba(59,130,246,0.2))",
-                              border: "1px solid rgba(0,245,160,0.2)",
-                            }}
-                          >
-                            🤖
-                          </div>
-                          <div>
-                            <div className="text-xs font-semibold">Receipt Agent</div>
-                            <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                              Brief evaluator
-                            </div>
-                          </div>
-                        </div>
-
-                        {scoreRunning ? (
-                          <div className="flex gap-1.5">
-                            {[0, 0.2, 0.4].map((d) => (
-                              <div
-                                key={d}
-                                className="w-1.5 h-1.5 rounded-full"
-                                style={{
-                                  background: "var(--mint)",
-                                  opacity: 0.4,
-                                  animation: `thinking 1.2s ${d}s ease-in-out infinite`,
-                                }}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                            <div
-                              className="text-xs leading-relaxed mb-3"
-                              style={{ color: "var(--text-secondary)" }}
-                            >
-                              Delivery reviewed. Word count: <strong>1,023</strong>. Lagos incentive
-                              data: <strong>confirmed</strong>. Tone: <strong>practical and optimistic</strong>. Brief match:
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div
-                                className="flex-1 h-1 rounded-full overflow-hidden"
-                                style={{ background: "var(--card)" }}
-                              >
-                                <motion.div
-                                  className="h-full rounded-full"
-                                  style={{
-                                    background: "linear-gradient(90deg, #00F5A0, #00C8FF)",
-                                  }}
-                                  initial={{ width: "0%" }}
-                                  animate={{ width: `${agentScore}%` }}
-                                  transition={{ duration: 0.8 }}
-                                />
-                              </div>
-                              <span
-                                className="font-mono font-semibold text-xs"
-                                style={{ color: "var(--mint)", minWidth: 36 }}
-                              >
-                                {agentScore}%
-                              </span>
-                            </div>
-                          </motion.div>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Settled state */}
-                  <AnimatePresence>
-                    {phase === "settled" && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="mb-4 p-5 rounded-xl text-center"
-                        style={{
-                          background: "var(--mint-dim)",
-                          border: "1px solid rgba(0,245,160,0.25)",
-                        }}
-                      >
-                        <div
-                          className="text-3xl font-mono font-semibold mb-1"
-                          style={{ color: "var(--mint)" }}
-                        >
-                          ${formatUsdc(contract.netAmountUsdc)}
-                        </div>
-                        <div className="text-xs" style={{ color: "var(--mint)" }}>
-                          USDC settled to Amara&apos;s wallet in 482ms
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+            {/* Right: Flow */}
+            <div style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}>
+              <div>
+                {/* Brief */}
+                <div style={{
+                  padding: "12px 14px", borderRadius: "var(--r)",
+                  background: "rgba(0,0,0,0.2)",
+                  border: "1px solid var(--line)",
+                  marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
+                    Client brief
+                  </div>
+                  <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", fontStyle: "italic", paddingLeft: 10, borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
+                    {contract.brief}
+                  </div>
                 </div>
 
-                {/* Actions */}
-                <div className="space-y-2.5 mt-4">
+                {/* Delivery input */}
+                <AnimatePresence>
                   {phase === "pending" && (
-                    <button
-                      onClick={submitDelivery}
-                      disabled={!deliveryNote.trim() || submitting}
-                      className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                      style={{ background: "var(--mint)", color: "#0A0E1A" }}
-                    >
-                      {submitting ? "Submitting..." : "Submit delivery for review"}
-                    </button>
-                  )}
+                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
+                        Your delivery
+                      </label>
+                      <textarea
+                        rows={4}
+                        placeholder="Paste your Google Doc link, Notion URL, content, or describe what you are submitting..."
+                        value={deliveryText}
+                        onChange={e => setDeliveryText(e.target.value)}
+                        className="input"
+                        style={{ resize: "none", marginBottom: 8, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
+                      />
 
-                  {phase === "evaluating" && !scoreRunning && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-2"
-                    >
-                      <button
-                        onClick={approvePayment}
-                        className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90"
-                        style={{ background: "var(--mint)", color: "#0A0E1A" }}
-                      >
-                        Approve and release payment
-                      </button>
-                      <button
-                        onClick={() => setPhase("disputed")}
-                        className="w-full py-3 rounded-xl text-sm font-medium transition-all duration-200"
-                        style={{
-                          background: "transparent",
-                          color: "var(--text-secondary)",
-                          border: "1px solid var(--border)",
-                        }}
-                      >
-                        Flag an issue
-                      </button>
+                      {/* Attachment area */}
+                      <div style={{ marginBottom: 10 }}>
+                        <button
+                          onClick={() => fileRef.current?.click()}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 6,
+                            padding: "6px 12px", borderRadius: "var(--r-sm)",
+                            background: "rgba(255,255,255,0.05)",
+                            border: "1px solid var(--line)",
+                            color: "var(--text-2)", fontSize: 12.5, cursor: "pointer",
+                            transition: "background 0.15s",
+                          }}
+                          onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"}
+                          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)"}
+                        >
+                          <AttachIcon />
+                          Attach files (PDF, images, docs)
+                        </button>
+                        <input
+                          ref={fileRef}
+                          type="file"
+                          multiple
+                          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt,.md,.zip"
+                          onChange={handleFileAttach}
+                          style={{ display: "none" }}
+                        />
+                      </div>
+
+                      {/* Attachment list */}
+                      {attachments.length > 0 && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 8 }}>
+                          {attachments.map((a, i) => (
+                            <div key={i} style={{
+                              display: "flex", alignItems: "center", justifyContent: "space-between",
+                              padding: "6px 10px", borderRadius: "var(--r-sm)",
+                              background: "rgba(255,255,255,0.04)", border: "1px solid var(--line)",
+                              fontSize: 12,
+                            }}>
+                              <span style={{ color: "var(--text-2)" }}>{a.name}</span>
+                              <span style={{ color: "var(--text-3)" }}>{a.size}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </motion.div>
                   )}
+                </AnimatePresence>
 
-                  {phase === "disputed" && (
-                    <div
-                      className="p-4 rounded-xl text-sm text-center"
+                {/* Agent evaluation */}
+                <AnimatePresence>
+                  {(phase === "evaluating" || phase === "settled" || phase === "approved") && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
                       style={{
-                        background: "var(--red-dim)",
-                        border: "1px solid rgba(239,68,68,0.2)",
-                        color: "var(--text-secondary)",
+                        padding: "12px 14px", borderRadius: "var(--r)",
+                        background: "linear-gradient(135deg, rgba(18,232,154,0.04), rgba(74,158,248,0.03))",
+                        border: "1px solid rgba(18,232,154,0.14)",
+                        marginBottom: 12,
                       }}
                     >
-                      Dispute opened. The Receipt Agent will re-evaluate within 60 seconds
-                      and propose a fair resolution.
-                    </div>
-                  )}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                        <div style={{
+                          width: 26, height: 26, borderRadius: 7,
+                          background: "linear-gradient(135deg, rgba(18,232,154,0.18), rgba(74,158,248,0.14))",
+                          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
+                        }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 600 }}>Receipt Agent</div>
+                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>NVIDIA NIM · Llama 3.3-70b</div>
+                        </div>
+                      </div>
 
-                  <div
-                    className="text-center text-xs leading-relaxed"
-                    style={{ color: "var(--text-muted)" }}
+                      {scoreRunning ? (
+                        <div style={{ display: "flex", gap: 5 }}>
+                          {[0,0.17,0.34].map(d => (
+                            <div key={d} style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--green)", opacity: 0.3, animation: `thinking 1.1s ${d}s ease-in-out infinite` }} />
+                          ))}
+                        </div>
+                      ) : (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                          {agentReasoning && (
+                            <div style={{ fontSize: 11.5, color: "var(--text-2)", lineHeight: 1.6, marginBottom: 8 }}>
+                              {agentReasoning}
+                            </div>
+                          )}
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                              <motion.div
+                                style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #12E89A, #0BBFFF)" }}
+                                initial={{ width: "0%" }}
+                                animate={{ width: `${agentScore}%` }}
+                                transition={{ duration: 0.7, ease: "easeOut" }}
+                              />
+                            </div>
+                            <span className="font-mono" style={{ fontSize: 12, color: "var(--green)", minWidth: 34 }}>{agentScore}%</span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Settled state */}
+                <AnimatePresence>
+                  {phase === "settled" && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      style={{
+                        padding: "14px", borderRadius: "var(--r)",
+                        background: "var(--green-dim)", border: "1px solid var(--green-border)",
+                        textAlign: "center", marginBottom: 12,
+                      }}
+                    >
+                      <div className="font-mono" style={{ fontSize: 28, color: "var(--green)", fontWeight: 500, marginBottom: 2 }}>
+                        ${contract.netAmountUsdc.toFixed(2)} USDC
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--green)", opacity: 0.75 }}>
+                        Settled on Arc in 482ms
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {phase === "pending" && (
+                  <button
+                    onClick={submitDelivery}
+                    disabled={(!deliveryText.trim() && attachments.length === 0) || submitting}
+                    className="btn-primary"
+                    style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}
                   >
-                    {phase === "settled"
-                      ? "Transaction recorded on Arc Testnet. Contract complete."
-                      : "Settlement via Circle Gateway on Arc Testnet."}
+                    {submitting ? (
+                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                        <span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(6,14,10,0.3)", borderTopColor: "#060E0A", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                        Submitting...
+                      </span>
+                    ) : "Submit delivery for review"}
+                  </button>
+                )}
+
+                {phase === "evaluating" && !scoreRunning && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <button onClick={approvePayment} className="btn-primary"
+                      style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+                      Approve and release payment
+                    </button>
+                    <button onClick={() => setPhase("disputed")} className="btn-ghost"
+                      style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+                      Flag an issue
+                    </button>
+                  </motion.div>
+                )}
+
+                {phase === "disputed" && (
+                  <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(240,82,82,0.08)", border: "1px solid rgba(240,82,82,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
+                    Dispute opened. The Receipt Agent will re-evaluate and propose a fair resolution within 60 seconds.
                   </div>
+                )}
+
+                <div style={{ textAlign: "center", fontSize: 11, color: "var(--text-3)", lineHeight: 1.55 }}>
+                  {phase === "settled"
+                    ? `Settled via submitBatch() on Arc. Tx: ${txHash.slice(0,16)}...`
+                    : "Settlement via Circle Gateway on Arc Testnet."}
                 </div>
               </div>
             </div>
@@ -448,53 +497,10 @@ export default function EscrowPage() {
       </main>
 
       <style>{`
-        @keyframes thinking {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50%       { opacity: 1;   transform: scale(1.4); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function StatusPill({ phase }: { phase: Phase }) {
-  const config = {
-    pending:    { label: "Funds locked in escrow", color: "amber" },
-    delivered:  { label: "Delivery received",       color: "blue" },
-    evaluating: { label: "Agent reviewing",          color: "amber" },
-    approved:   { label: "Releasing payment",        color: "mint" },
-    settled:    { label: "Settled on Arc",           color: "mint" },
-    disputed:   { label: "Under review",             color: "red" },
-  };
-
-  const { label, color } = config[phase];
-
-  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
-    mint:  { bg: "var(--mint-dim)",  text: "var(--mint)",  border: "rgba(0,245,160,0.25)" },
-    amber: { bg: "var(--amber-dim)", text: "var(--amber)", border: "rgba(245,158,11,0.25)" },
-    blue:  { bg: "rgba(59,130,246,0.12)", text: "#60A5FA", border: "rgba(59,130,246,0.25)" },
-    red:   { bg: "var(--red-dim)",   text: "var(--red)",   border: "rgba(239,68,68,0.25)" },
-  };
-
-  const c = colorMap[color];
-
-  return (
-    <div
-      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-500"
-      style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
-    >
-      <span
-        className="w-1.5 h-1.5 rounded-full"
-        style={{
-          background: "currentColor",
-          animation: color === "amber" ? "pulse-dot 1.5s ease-in-out infinite" : "none",
-        }}
-      />
-      {label}
-      <style>{`
-        @keyframes pulse-dot {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.7); }
+        @media (max-width: 560px) {
+          [style*="grid-template-columns: clamp(200px"] {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
     </div>

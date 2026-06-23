@@ -6,7 +6,7 @@ import { motion, LayoutGroup } from "framer-motion";
 
 const links = [
   { label: "How it works", href: "/#how" },
-  { label: "Dashboard",    href: "/dashboard" },
+  { label: "My jobs",      href: "/worker-dashboard" },
   { label: "Profile",      href: "/profile" },
 ];
 

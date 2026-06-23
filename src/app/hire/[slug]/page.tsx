@@ -88,6 +88,21 @@ export default function HirePage() {
       // Demo mode
       const id = "demo-" + Date.now().toString(36);
       setContractId(id);
+      // Save contract to localStorage for dashboards and escrow page
+      if (service) {
+        localStorage.setItem(`receipt_contract_${id}`, JSON.stringify({
+          id,
+          clientName: form.clientName,
+          clientEmail: form.clientEmail,
+          brief: form.brief,
+          amountUsdc: service.priceUsdc,
+          netAmountUsdc: service.priceUsdc * 0.9,
+          serviceTitle: service.title,
+          freelancerName: service.freelancer?.name || "Freelancer",
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        }));
+      }
       setPhase("funding");
       setTimeout(() => setPhase("success"), 2200);
     } finally {
