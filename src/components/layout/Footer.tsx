@@ -1,3 +1,5 @@
+"use client";
+
 import LeptonLogo from "@/components/shared/LeptonLogo";
 
 function XIcon() {
