@@ -90,6 +90,8 @@ export default function EscrowPage() {
             status: rawStatus || "pending",
           };
           setContract(c);
+          if (data.escrowTxHash) setTxHash(data.escrowTxHash);
+          if (data.settleTxHash) setTxHash(data.settleTxHash);
           if (rawStatus && rawStatus !== "pending") setPhase(rawStatus);
         }
       })
@@ -312,9 +314,14 @@ export default function EscrowPage() {
                   </div>
                 ))}
                 {txHash && (
-                  <div style={{ marginTop: 6, fontSize: 10.5, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace' }}>
-                    Tx: {txHash.slice(0, 20)}...
-                  </div>
+                  <a
+                    href={`https://testnet.arcscan.io/tx/${txHash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ display: "block", marginTop: 6, fontSize: 10.5, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace', textDecoration: "underline", cursor: "pointer" }}
+                  >
+                    Tx: {txHash.slice(0, 20)}... ↗
+                  </a>
                 )}
                 {settlementMs > 0 && (
                   <div style={{ marginTop: 4, fontSize: 10.5, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
@@ -558,7 +565,7 @@ export default function EscrowPage() {
 
                 <div style={{ textAlign: "center", fontSize: 11, color: "var(--text-3)", lineHeight: 1.55 }}>
                   {phase === "settled"
-                    ? `Settled on Arc in ${settlementMs || 482}ms. Tx: ${txHash.slice(0,16)}...`
+                    ? <span>Settled on Arc in {settlementMs || 482}ms. <a href={`https://testnet.arcscan.io/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: "var(--green)", textDecoration: "underline" }}>View on ArcScan ↗</a></span>
                     : "Settlement via Circle Gateway on Arc Testnet."}
                 </div>
               </div>
