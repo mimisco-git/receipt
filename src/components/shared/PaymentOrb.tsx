@@ -228,7 +228,7 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
               >
                 <svg width={size * 0.26} height={size * 0.26} viewBox="0 0 40 40" fill="none">
                   <circle cx="20" cy="20" r="19" stroke="rgba(18,232,154,0.3)" strokeWidth="0.75"/>
-                  <polyline points="11 20 18 27 29 13" stroke="#12E89A" strokeWidth="2.5"
+                  <polyline points="11 20 18 27 29 13" stroke="#00D184" strokeWidth="2.5"
                     strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span className="font-mono" style={{

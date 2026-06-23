@@ -19,7 +19,7 @@ function ReceiptLogo({ size = 28 }: { size?: number }) {
           <stop offset="100%" stopColor="#061A14"/>
         </radialGradient>
         <radialGradient id="nr" cx="55%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#12E89A"/>
+          <stop offset="0%" stopColor="#00D184"/>
           <stop offset="60%" stopColor="#0A9E6A"/>
           <stop offset="100%" stopColor="#065A3C"/>
         </radialGradient>

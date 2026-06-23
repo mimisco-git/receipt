@@ -31,7 +31,7 @@ export default function PaymentOrbDemo() {
   function reset()   { setPhase("idle"); setScore(0); }
 
   const orbState = phase === "released" ? "released"
-    : (phase === "locked" || phase === "evaluating" || phase === "locking") ? "locked"
+    : (phase === "locked" || phase === "locking" || phase === "evaluating") ? "locked"
     : "idle";
 
   const pillPhase: Record<Phase, { label: string; cls: string }> = {
@@ -217,15 +217,15 @@ export default function PaymentOrbDemo() {
                   exit={{ opacity: 0 }}
                   style={{
                     padding: "12px 13px", borderRadius: "var(--r)",
-                    background: "linear-gradient(135deg, rgba(0,229,160,0.04), rgba(74,144,232,0.03))",
-                    boxShadow: "inset 0 1px 0 rgba(0,229,160,0.08), inset 0 0 0 0.5px rgba(0,229,160,0.10)",
+                    background: "linear-gradient(135deg, rgba(0,209,132,0.04), rgba(74,144,232,0.03))",
+                    boxShadow: "inset 0 1px 0 rgba(0,209,132,0.08), inset 0 0 0 0.5px rgba(0,209,132,0.10)",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                     <div style={{
                       width: 26, height: 26, borderRadius: 7,
-                      background: "linear-gradient(135deg, rgba(0,229,160,0.18), rgba(74,144,232,0.14))",
-                      boxShadow: "inset 0 0 0 0.5px rgba(0,229,160,0.2)",
+                      background: "linear-gradient(135deg, rgba(0,209,132,0.18), rgba(74,144,232,0.14))",
+                      boxShadow: "inset 0 0 0 0.5px rgba(0,209,132,0.2)",
                       display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
                     }}>🤖</div>
                     <div>
@@ -256,7 +256,7 @@ export default function PaymentOrbDemo() {
                           background: "rgba(255,255,255,0.06)", overflow: "hidden",
                         }}>
                           <motion.div
-                            style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #00E5A0, #00C0FF)" }}
+                            style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #00D184, #38BDF8)" }}
                             initial={{ width: "0%" }}
                             animate={{ width: `${score}%` }}
                             transition={{ duration: 0.65, ease: "easeOut" }}

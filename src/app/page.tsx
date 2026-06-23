@@ -110,7 +110,7 @@ export default function HomePage() {
           Get paid the moment<br />
           your work is{" "}
           <span style={{
-            background: "linear-gradient(135deg, #12E89A 0%, #0BBFFF 100%)",
+            background: "linear-gradient(135deg, #00D184 0%, #38BDF8 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",

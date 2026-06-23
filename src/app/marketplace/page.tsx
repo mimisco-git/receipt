@@ -28,7 +28,7 @@ const SAMPLE_SERVICES: Service[] = [
     priceUsdc: 8,
     freelancerName: "Amaka O.",
     freelancerBio: "5 years writing for SaaS startups and African tech publications.",
-    avatarColor: "#10d98a",
+    avatarColor: "#00D184",
     skills: ["Writing", "SEO", "Marketing"],
     completedJobs: 47,
     avgScore: 93,
@@ -153,7 +153,7 @@ export default function Marketplace() {
                 <button
                   style={{
                     padding: "9px 18px",
-                    background: "#10d98a",
+                    background: "var(--green)",
                     color: "#0a0f1e",
                     border: "none",
                     borderRadius: 10,
@@ -201,9 +201,9 @@ export default function Marketplace() {
                 style={{
                   padding: "6px 13px",
                   borderRadius: 100,
-                  border: filter === cat ? "1px solid #10d98a" : "1px solid rgba(255,255,255,0.08)",
-                  background: filter === cat ? "rgba(16,217,138,0.1)" : "rgba(255,255,255,0.03)",
-                  color: filter === cat ? "#10d98a" : "rgba(255,255,255,0.5)",
+                  border: "none",
+                  background: filter === cat ? "var(--green-dim)" : "rgba(255,255,255,0.03)",
+                  color: filter === cat ? "var(--green)" : "rgba(255,255,255,0.4)",
                   fontSize: 12,
                   fontWeight: filter === cat ? 600 : 500,
                   cursor: "pointer",
@@ -270,7 +270,7 @@ export default function Marketplace() {
                           width: 38,
                           height: 38,
                           borderRadius: "50%",
-                          background: service.avatarColor || "#10d98a",
+                          background: service.avatarColor || "var(--green)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -355,7 +355,7 @@ export default function Marketplace() {
                             fontFamily: "'DM Mono', monospace",
                             fontSize: 18,
                             fontWeight: 700,
-                            color: "#10d98a",
+                            color: "var(--green)",
                             fontVariantNumeric: "tabular-nums",
                           }}
                         >
@@ -367,7 +367,7 @@ export default function Marketplace() {
                         style={{
                           fontSize: 12,
                           fontWeight: 600,
-                          color: "#10d98a",
+                          color: "var(--green)",
                           display: "flex",
                           alignItems: "center",
                           gap: 4,

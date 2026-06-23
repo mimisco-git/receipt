@@ -7,7 +7,7 @@ import Nav from "@/components/layout/Nav";
 import { loadProfile, saveProfile, getInitials, type ProfileData } from "@/lib/profile";
 
 const AVATAR_COLORS = [
-  "#12E89A","#4A9EF8","#F5A623","#F05252",
+  "#00D184","#4A9EF8","#F5A623","#F05252",
   "#A855F7","#EC4899","#14B8A6","#F59E0B",
 ];
 
@@ -42,7 +42,7 @@ export default function ProfilePage() {
   const [form, setForm] = useState<ProfileData>({
     role: "", name: "", bio: "", walletAddress: "",
     website: "", twitter: "", skills: "",
-    avatarColor: "#12E89A", avatarUrl: null,
+    avatarColor: "#00D184", avatarUrl: null,
     hourlyRate: "", availability: "available",
   });
 
@@ -77,6 +77,8 @@ export default function ProfilePage() {
       await new Promise(r => setTimeout(r, 600));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+      // Reload page so nav picks up new role
+      setTimeout(() => window.location.reload(), 800);
     } finally {
       setSaving(false);
     }

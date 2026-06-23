@@ -31,41 +31,37 @@ function Counter({ target, prefix = "", suffix = "", dec = 0, delay = 0 }: {
 }
 
 const stats = [
-  { label: "Settled today",    val: 12834, prefix: "$", dec: 0, accent: true,  delay: 0 },
-  { label: "Avg. settlement",  val: 482,   prefix: "",  suffix: "ms", dec: 0, delay: 100 },
-  { label: "Chargebacks",      val: 0,     prefix: "",  suffix: "%",  dec: 0, delay: 200 },
-  { label: "Settlement rail",  special: "Arc" },
+  { label: "Settlement speed",  special: "<500ms" },
+  { label: "Chain",             special: "Arc L1" },
+  { label: "Currency",          special: "USDC" },
+  { label: "Chargebacks",       special: "0%" },
 ];
 
 export default function HeroStats() {
   return (
     <div style={{
       display: "flex", flexWrap: "wrap",
-      alignItems: "center", justifyContent: "center", gap: 28,
-      paddingTop: 28,
-      borderTop: "1px solid var(--line)",
+      alignItems: "center", justifyContent: "center", gap: 32,
+      opacity: 0.6,
     }}>
       {stats.map((s, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <div style={{ textAlign: "center" }}>
             <div style={{
               fontFamily: '"DM Mono", monospace',
-              fontSize: 24, fontWeight: 500,
+              fontSize: 20, fontWeight: 500,
               letterSpacing: "-0.02em", marginBottom: 4,
-              color: s.accent ? "var(--green)" : "var(--text-1)",
+              color: "var(--text-1)",
               fontVariantNumeric: "tabular-nums",
             }}>
-              {s.special
-                ? s.special
-                : <Counter target={s.val!} prefix={s.prefix} suffix={s.suffix} dec={s.dec} delay={s.delay} />
-              }
+              {s.special}
             </div>
             <div style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.03em" }}>
               {s.label}
             </div>
           </div>
           {i < stats.length - 1 && (
-            <div style={{ width: 1, height: 32, background: "var(--line)" }} />
+            <span style={{ color: "rgba(255,255,255,0.12)", fontSize: 10 }}>·</span>
           )}
         </div>
       ))}

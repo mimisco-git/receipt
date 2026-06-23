@@ -374,15 +374,15 @@ export default function EscrowPage() {
                       animate={{ opacity: 1, y: 0 }}
                       style={{
                         padding: "12px 14px", borderRadius: "var(--r)",
-                        background: "linear-gradient(135deg, rgba(18,232,154,0.04), rgba(74,158,248,0.03))",
-                        border: "1px solid rgba(18,232,154,0.14)",
+                        background: "linear-gradient(135deg, rgba(0,209,132,0.04), rgba(74,158,248,0.03))",
+                        border: "1px solid rgba(0,209,132,0.14)",
                         marginBottom: 12,
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                         <div style={{
                           width: 26, height: 26, borderRadius: 7,
-                          background: "linear-gradient(135deg, rgba(18,232,154,0.18), rgba(74,158,248,0.14))",
+                          background: "linear-gradient(135deg, rgba(0,209,132,0.18), rgba(74,158,248,0.14))",
                           display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
                         }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
@@ -411,7 +411,7 @@ export default function EscrowPage() {
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
                               <motion.div
-                                style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #12E89A, #0BBFFF)" }}
+                                style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #00D184, #38BDF8)" }}
                                 initial={{ width: "0%" }}
                                 animate={{ width: `${agentScore}%` }}
                                 transition={{ duration: 0.7, ease: "easeOut" }}

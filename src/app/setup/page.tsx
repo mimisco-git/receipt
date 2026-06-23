@@ -371,7 +371,7 @@ export default function SetupPage() {
                   }}
                 >
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-                    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="#12E89A">
+                    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="#00D184">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </motion.div>

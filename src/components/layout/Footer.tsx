@@ -42,7 +42,6 @@ export default function Footer() {
       display: "flex", flexWrap: "wrap",
       alignItems: "center", justifyContent: "space-between", gap: 16,
       padding: "28px 24px",
-      borderTop: "1px solid var(--line)",
     }}>
       {/* Left: Brand */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -76,23 +75,17 @@ export default function Footer() {
             title={s.label}
             style={{
               width: 34, height: 34, borderRadius: 9,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--line)",
+              background: "transparent",
+              border: "none",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "var(--text-3)", textDecoration: "none",
-              transition: "background 0.15s, color 0.15s, border-color 0.15s",
+              color: "rgba(255,255,255,0.25)", textDecoration: "none",
+              transition: "color 0.35s cubic-bezier(0.16,1,0.3,1)",
             }}
             onMouseEnter={e => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.background = "rgba(255,255,255,0.10)";
-              el.style.color = "var(--text-1)";
-              el.style.borderColor = "var(--line-2)";
+              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.6)";
             }}
             onMouseLeave={e => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.background = "rgba(255,255,255,0.05)";
-              el.style.color = "var(--text-3)";
-              el.style.borderColor = "var(--line)";
+              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.25)";
             }}
           >
             {s.icon}
