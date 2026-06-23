@@ -20,16 +20,22 @@ export async function POST(req: NextRequest) {
 
     const { db } = await import("@/lib/db");
 
-    let freelancer = await db.freelancer.findFirst({
-      where: { walletAddress: walletAddress || "pending" },
-    });
+    // Find or create freelancer — use wallet if provided, otherwise unique per name+timestamp
+    const wallet = walletAddress?.trim() || "";
+    let freelancer = null;
+
+    if (wallet) {
+      freelancer = await db.freelancer.findFirst({
+        where: { walletAddress: wallet },
+      });
+    }
 
     if (!freelancer) {
       freelancer = await db.freelancer.create({
         data: {
           name,
           bio: bio || null,
-          walletAddress: walletAddress || "pending-" + Date.now(),
+          walletAddress: wallet || `pending-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           avatarColor: "#667eea",
         },
       });
@@ -48,9 +54,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(service);
-  } catch (err) {
-    console.error("POST /api/service error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("POST /api/service error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -75,8 +82,9 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(service);
-  } catch (err) {
-    console.error("GET /api/service error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("GET /api/service error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

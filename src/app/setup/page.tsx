@@ -139,11 +139,11 @@ export default function SetupPage() {
         setSlug(data.slug);
         setStep("done");
       } else {
-        throw new Error(data.error || "Failed to create");
+        setError(data.error || "Failed to create. Please try again.");
       }
     } catch (err) {
       console.error("Creation failed:", err);
-      setError("Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
