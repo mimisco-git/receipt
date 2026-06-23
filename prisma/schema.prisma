@@ -29,6 +29,7 @@ model Service {
   description  String
   priceUsdc    Float      @map("price_usdc")
   currency     String     @default("USDC")
+  type         String     @default("service")
   freelancerId String     @map("freelancer_id")
   freelancer   Freelancer @relation(fields: [freelancerId], references: [id])
   isActive     Boolean    @default(true) @map("is_active")

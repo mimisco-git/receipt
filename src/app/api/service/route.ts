@@ -4,8 +4,9 @@ import { slugify } from "@/lib/utils";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, bio, walletAddress, title, description, priceUsdc, currency } = body;
+    const { name, bio, walletAddress, title, description, priceUsdc, currency, type } = body;
     const cur = currency === "EURC" ? "EURC" : "USDC";
+    const listingType = type === "job" ? "job" : "service";
 
     if (!name || !title || !description || !priceUsdc) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
         description,
         priceUsdc: parseFloat(priceUsdc),
         currency: cur,
+        type: listingType,
         freelancerId: freelancer.id,
       },
       include: { freelancer: true },

@@ -132,6 +132,7 @@ export default function SetupPage() {
           ...form,
           priceUsdc: parseFloat(form.priceUsdc) || 8,
           currency: form.currency,
+          type: mode,
         }),
       });
       const data = await res.json();
