@@ -6,8 +6,7 @@ import { motion, LayoutGroup } from "framer-motion";
 
 const links = [
   { label: "Marketplace",  href: "/marketplace" },
-  { label: "My jobs",      href: "/dashboard" },
-  { label: "Profile",      href: "/profile" },
+  { label: "Dashboard",    href: "/dashboard" },
 ];
 
 export default function Nav() {
@@ -15,10 +14,18 @@ export default function Nav() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [hovered, setHovered]   = useState<string | null>(null);
+  const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", h, { passive: true });
+    try {
+      const p = localStorage.getItem("receipt_profile");
+      if (p) {
+        const profile = JSON.parse(p);
+        if (profile.name) setHasProfile(true);
+      }
+    } catch {}
     return () => window.removeEventListener("scroll", h);
   }, []);
 
@@ -117,7 +124,7 @@ export default function Nav() {
         <div className="hide-mobile" style={{ width: 1, height: 16, background: "rgba(255,255,255,0.10)", margin: "0 4px" }} />
 
         <button
-          onClick={() => router.push("/setup")}
+          onClick={() => router.push(hasProfile ? "/setup" : "/profile")}
           style={{
             padding: "7px 16px", borderRadius: 999,
             fontSize: 13, fontWeight: 600,
