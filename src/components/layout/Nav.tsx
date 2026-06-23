@@ -42,6 +42,8 @@ export default function Nav() {
 
   const links = role === "worker" ? workerLinks : role === "client" ? clientLinks : defaultLinks;
 
+  const spring = { type: "spring" as const, stiffness: 260, damping: 20 };
+
   return (
     <>
       <motion.nav
@@ -71,37 +73,25 @@ export default function Nav() {
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             borderRadius: 100,
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.05)",
             boxShadow: scrolled
               ? "0 8px 32px rgba(0,0,0,0.5)"
-              : "0 2px 12px rgba(0,0,0,0.2)",
+              : "0 2px 12px rgba(0,0,0,0.15)",
             transition: "background 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s cubic-bezier(0.16,1,0.3,1)",
           }}
         >
-          {/* Logo — left */}
+          {/* Logo */}
           <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
             <div style={{ position: "relative", width: 26, height: 26, flexShrink: 0 }}>
-              <Image
-                src="/receipt-logo.png"
-                alt="Receipt"
-                fill
-                style={{ objectFit: "contain" }}
-              />
+              <Image src="/receipt-logo.png" alt="Receipt" fill style={{ objectFit: "contain" }} />
             </div>
-            <span
-              style={{
-                fontSize: 15,
-                fontWeight: 700,
-                color: "#ffffff",
-                letterSpacing: "-0.02em",
-              }}
-            >
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.02em" }}>
               Receipt
             </span>
           </Link>
 
-          {/* Links — right-aligned, next to CTA */}
-          <div className="nav-links-desktop" style={{ display: "flex", alignItems: "center", gap: 0 }}>
+          {/* Desktop links */}
+          <div className="nav-desktop" style={{ display: "flex", alignItems: "center", gap: 0 }}>
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -109,24 +99,25 @@ export default function Nav() {
                 style={{
                   fontSize: 13,
                   fontWeight: 500,
-                  color: "rgba(255,255,255,0.5)",
+                  color: "rgba(255,255,255,0.45)",
                   textDecoration: "none",
                   padding: "8px 14px",
                   borderRadius: 100,
                   transition: "color 0.3s cubic-bezier(0.16,1,0.3,1)",
                   whiteSpace: "nowrap" as const,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.9)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.45)"; }}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          {/* CTA button */}
+          {/* Desktop CTA */}
           <Link
             href="/profile"
+            className="nav-desktop-cta"
             style={{
               fontSize: 13,
               fontWeight: 600,
@@ -146,112 +137,128 @@ export default function Nav() {
             {role ? "My Profile" : "Get started"}
           </Link>
 
-          {/* Mobile menu button */}
+          {/* Mobile: menu trigger only */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="nav-menu-btn"
+            className="nav-mobile-trigger"
             style={{
               display: "none",
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               borderRadius: "50%",
               border: "none",
-              background: "rgba(255,255,255,0.06)",
+              background: "transparent",
               cursor: "pointer",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              marginLeft: 6,
+              padding: 0,
             }}
             aria-label="Menu"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              {menuOpen ? (
-                <>
-                  <line x1="4" y1="4" x2="12" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="12" y1="4" x2="4" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                </>
-              ) : (
-                <>
-                  <line x1="3" y1="5" x2="13" y2="5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="3" y1="8" x2="13" y2="8" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="3" y1="11" x2="13" y2="11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                </>
-              )}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              {/* Top line → morphs to X */}
+              <motion.line
+                x1="4" x2="16"
+                animate={menuOpen ? { y1: 10, y2: 10, rotate: 45 } : { y1: 6, y2: 6, rotate: 0 }}
+                transition={spring}
+                stroke="white" strokeWidth="1.5" strokeLinecap="round"
+                style={{ transformOrigin: "center" }}
+              />
+              {/* Middle line → fades */}
+              <motion.line
+                x1="4" y1="10" x2="16" y2="10"
+                animate={{ opacity: menuOpen ? 0 : 1, scaleX: menuOpen ? 0 : 1 }}
+                transition={spring}
+                stroke="white" strokeWidth="1.5" strokeLinecap="round"
+                style={{ transformOrigin: "center" }}
+              />
+              {/* Bottom line → morphs to X */}
+              <motion.line
+                x1="4" x2="16"
+                animate={menuOpen ? { y1: 10, y2: 10, rotate: -45 } : { y1: 14, y2: 14, rotate: 0 }}
+                transition={spring}
+                stroke="white" strokeWidth="1.5" strokeLinecap="round"
+                style={{ transformOrigin: "center" }}
+              />
             </svg>
           </button>
         </div>
 
-        {/* Mobile dropdown */}
+        {/* Mobile overlay menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 marginTop: 8,
-                padding: "8px",
-                background: "rgba(10,15,30,0.95)",
+                padding: "12px",
+                background: "rgba(10,15,30,0.96)",
                 backdropFilter: "blur(24px)",
-                borderRadius: 18,
-                border: "1px solid rgba(255,255,255,0.06)",
-                boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+                borderRadius: 20,
+                border: "1px solid rgba(255,255,255,0.05)",
+                boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
               }}
             >
-              {links.map((link) => (
-                <Link
+              {links.map((link, i) => (
+                <motion.div
                   key={link.href}
-                  href={link.href}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05, ...spring }}
+                >
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    style={{
+                      display: "block",
+                      fontSize: 16,
+                      fontWeight: 500,
+                      color: "rgba(255,255,255,0.7)",
+                      textDecoration: "none",
+                      padding: "14px 16px",
+                      borderRadius: 12,
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
+              ))}
+              <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "4px 12px" }} />
+              <motion.div
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: links.length * 0.05, ...spring }}
+              >
+                <Link
+                  href="/profile"
                   onClick={() => setMenuOpen(false)}
                   style={{
                     display: "block",
-                    fontSize: 15,
-                    fontWeight: 500,
-                    color: "rgba(255,255,255,0.7)",
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "var(--green)",
                     textDecoration: "none",
-                    padding: "12px 16px",
+                    padding: "14px 16px",
                     borderRadius: 12,
-                    transition: "all 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                    e.currentTarget.style.color = "#ffffff";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = "rgba(255,255,255,0.7)";
                   }}
                 >
-                  {link.label}
+                  {role ? "My Profile" : "Get started"}
                 </Link>
-              ))}
-              <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "4px 8px" }} />
-              <Link
-                href="/profile"
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  display: "block",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: "var(--green)",
-                  textDecoration: "none",
-                  padding: "12px 16px",
-                  borderRadius: 12,
-                }}
-              >
-                {role ? "My Profile" : "Get started"}
-              </Link>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.nav>
 
       <style>{`
-        @media (max-width: 600px) {
-          .nav-links-desktop { display: none !important; }
-          .nav-menu-btn { display: flex !important; }
+        @media (max-width: 640px) {
+          .nav-desktop { display: none !important; }
+          .nav-desktop-cta { display: none !important; }
+          .nav-mobile-trigger { display: flex !important; }
         }
       `}</style>
     </>

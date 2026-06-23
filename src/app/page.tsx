@@ -30,7 +30,7 @@ export default function HomePage() {
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0,
         height: 600, pointerEvents: "none", zIndex: 0,
-        background: "radial-gradient(ellipse at 50% 0%, rgba(52,211,153,0.035) 0%, transparent 60%)",
+        background: "radial-gradient(ellipse at 50% 0%, rgba(0,209,132,0.03) 0%, transparent 60%)",
         filter: "blur(80px)",
       }} />
 
@@ -43,10 +43,10 @@ export default function HomePage() {
         padding: "160px 24px 100px",
         position: "relative", zIndex: 1,
       }}>
-        {/* Eyebrow — quiet, not competing */}
+        {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.7 }}
+          animate={{ opacity: 0.5 }}
           transition={{ delay: 0.5, duration: 1 }}
           style={{
             marginBottom: 28,
@@ -57,25 +57,25 @@ export default function HomePage() {
           Circle · Arc · USDC · Lepton 2026
         </motion.div>
 
-        {/* Headline — the only thing that matters */}
+        {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 1, ease }}
           style={{
-            fontSize: "clamp(40px, 8vw, 80px)",
+            fontSize: "clamp(36px, 7vw, 76px)",
             fontWeight: 700,
             letterSpacing: "-0.045em",
-            lineHeight: 0.95,
-            maxWidth: 720,
-            marginBottom: 32,
+            lineHeight: 1,
+            maxWidth: 680,
+            marginBottom: 28,
             color: "var(--text-1)",
+            wordBreak: "keep-all",
           }}
         >
-          Get paid the moment{" "}
-          your work is{" "}
+          Get paid the moment your work is{" "}
           <span style={{
-            background: "linear-gradient(135deg, #34D399 0%, #38BDF8 100%)",
+            background: "linear-gradient(135deg, #00D184 0%, #38BDF8 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -84,23 +84,23 @@ export default function HomePage() {
           </span>
         </motion.h1>
 
-        {/* Sub — one strong sentence */}
+        {/* Sub */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 1 }}
           style={{
-            fontSize: 17,
+            fontSize: "clamp(15px, 1.8vw, 17px)",
             color: "var(--text-3)",
             lineHeight: 1.5,
-            maxWidth: 380,
+            maxWidth: 360,
             marginBottom: 48,
           }}
         >
           AI-verified freelance escrow. USDC settles in under 500ms.
         </motion.p>
 
-        {/* CTA — clear, single focus */}
+        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -146,13 +146,13 @@ export default function HomePage() {
           style={{ textAlign: "center", marginBottom: 64 }}
         >
           <h2 style={{
-            fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 700,
-            letterSpacing: "-0.04em", lineHeight: 0.95,
+            fontSize: "clamp(28px, 5vw, 52px)", fontWeight: 700,
+            letterSpacing: "-0.04em", lineHeight: 1,
             color: "var(--text-1)", marginBottom: 16,
           }}>
             Watch a payment clear.
           </h2>
-          <p style={{ fontSize: 16, color: "var(--text-3)", maxWidth: 340, margin: "0 auto" }}>
+          <p style={{ fontSize: "clamp(14px, 1.6vw, 16px)", color: "var(--text-3)", maxWidth: 340, margin: "0 auto" }}>
             The settlement completes in under 500ms.
           </p>
         </motion.div>
@@ -173,13 +173,13 @@ export default function HomePage() {
           style={{ textAlign: "center", maxWidth: 440 }}
         >
           <h3 style={{
-            fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700,
-            letterSpacing: "-0.035em", lineHeight: 0.95,
+            fontSize: "clamp(26px, 4vw, 44px)", fontWeight: 700,
+            letterSpacing: "-0.035em", lineHeight: 1,
             marginBottom: 16, color: "var(--text-1)",
           }}>
             Ready to get paid?
           </h3>
-          <p style={{ fontSize: 16, color: "var(--text-3)", marginBottom: 36 }}>
+          <p style={{ fontSize: "clamp(14px, 1.6vw, 16px)", color: "var(--text-3)", marginBottom: 36 }}>
             Set up in 60 seconds. Get paid the moment your client approves.
           </p>
           <button
@@ -196,29 +196,27 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* ─── BUILT ON ─── */}
+      {/* ─── BUILT ON — demoted to plain text links ─── */}
       <section style={{
         padding: "0 24px 60px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+        textAlign: "center",
         position: "relative", zIndex: 1,
-        opacity: 0.5,
       }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 20, justifyContent: "center", alignItems: "center" }}>
-          {["Circle", "Arc", "USDC", "Claude"].map(t => (
-            <span key={t} style={{ fontSize: 12, fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.04em" }}>
-              {t}
-            </span>
-          ))}
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", marginBottom: 12 }}>
+          Circle{" "}<span style={{ opacity: 0.4 }}>·</span>{" "}
+          Arc{" "}<span style={{ opacity: 0.4 }}>·</span>{" "}
+          USDC{" "}<span style={{ opacity: 0.4 }}>·</span>{" "}
+          Claude
         </div>
         <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          fontSize: 11, color: "var(--text-3)",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+          fontSize: 11, color: "rgba(255,255,255,0.15)",
         }}>
-          <LeptonLogo size={12} />
+          <LeptonLogo size={11} />
           <a
             href="https://lepton.thecanteenapp.com"
             target="_blank" rel="noreferrer"
-            style={{ color: "var(--text-3)", textDecoration: "none" }}
+            style={{ color: "rgba(255,255,255,0.2)", textDecoration: "none" }}
           >
             Lepton by Canteen
           </a>

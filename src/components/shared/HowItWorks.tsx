@@ -36,9 +36,9 @@ export default function HowItWorks() {
         style={{ textAlign: "center", marginBottom: 80 }}
       >
         <h2 style={{
-          fontSize: "clamp(32px, 5vw, 56px)",
+          fontSize: "clamp(28px, 5vw, 52px)",
           fontWeight: 700, letterSpacing: "-0.04em",
-          lineHeight: 0.95, color: "var(--text-1)",
+          lineHeight: 1, color: "var(--text-1)",
           marginBottom: 16,
         }}>
           Three steps. No invoices.

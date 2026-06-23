@@ -14,10 +14,10 @@
   --text-1:    #FFFFFF;
   --text-2:    #A8B8CC;
   --text-3:    #5A6A82;
-  --green:         #34D399;
-  --green-dim:     rgba(52,211,153,0.08);
-  --green-border:  rgba(52,211,153,0.18);
-  --green-glow:    rgba(52,211,153,0.15);
+  --green:         #00D184;
+  --green-dim:     rgba(0,209,132,0.07);
+  --green-border:  rgba(0,209,132,0.16);
+  --green-glow:    rgba(0,209,132,0.12);
   --amber:     #F5A623;
   --amber-dim: rgba(245,166,35,0.12);
   --blue:      #4A9EF8;
@@ -26,8 +26,8 @@
 
   /* Legacy aliases */
   --space:          #0A0F1E;
-  --mint:           #34D399;
-  --mint-dim:       rgba(52,211,153,0.08);
+  --mint:           #00D184;
+  --mint-dim:       rgba(0,209,132,0.07);
   --card-hover:     #1F2A3D;
   --border:         rgba(255,255,255,0.08);
   --border-light:   rgba(255,255,255,0.15);
@@ -88,11 +88,11 @@ body {
 .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
 .btn-ghost {
-  background: rgba(255,255,255,0.05); color: var(--text-2);
-  border: 1px solid rgba(255,255,255,0.06); cursor: pointer; font-size: 14px;
+  background: rgba(255,255,255,0.04); color: var(--text-2);
+  border: none; cursor: pointer; font-size: 14px;
   transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
 }
-.btn-ghost:hover { background: rgba(255,255,255,0.09); color: var(--text-1); border-color: rgba(255,255,255,0.12); }
+.btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text-1); }
 .btn-ghost:active { transform: scale(0.98); transition-duration: 0.1s; }
 
 .input {
