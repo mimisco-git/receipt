@@ -13,7 +13,6 @@ export default function Nav() {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    // Read role from saved profile
     try {
       const stored = localStorage.getItem("receipt_profile");
       if (stored) {
@@ -37,7 +36,7 @@ export default function Nav() {
   ];
 
   const defaultLinks = [
-    { href: "/#how-it-works", label: "How it works" },
+    { href: "/#how", label: "How it works" },
     { href: "/marketplace", label: "Marketplace" },
   ];
 
@@ -48,7 +47,7 @@ export default function Nav() {
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: "fixed",
           top: 16,
@@ -57,31 +56,31 @@ export default function Nav() {
           margin: "0 auto",
           zIndex: 100,
           width: "calc(100% - 32px)",
-          maxWidth: 760,
+          maxWidth: 720,
         }}
       >
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            padding: "10px 18px",
+            padding: "0 6px 0 16px",
+            height: 52,
             background: scrolled
-              ? "rgba(8,12,20,0.92)"
-              : "rgba(8,12,20,0.75)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
+              ? "rgba(10,15,30,0.92)"
+              : "rgba(10,15,30,0.7)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             borderRadius: 100,
             border: "1px solid rgba(255,255,255,0.06)",
             boxShadow: scrolled
-              ? "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)"
-              : "0 4px 16px rgba(0,0,0,0.2)",
-            transition: "all 0.3s ease",
+              ? "0 8px 32px rgba(0,0,0,0.5)"
+              : "0 2px 12px rgba(0,0,0,0.2)",
+            transition: "background 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s cubic-bezier(0.16,1,0.3,1)",
           }}
         >
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ position: "relative", width: 28, height: 28, flexShrink: 0 }}>
+          {/* Logo — left */}
+          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
+            <div style={{ position: "relative", width: 26, height: 26, flexShrink: 0 }}>
               <Image
                 src="/receipt-logo.png"
                 alt="Receipt"
@@ -91,7 +90,6 @@ export default function Nav() {
             </div>
             <span
               style={{
-                fontFamily: "'Inter', sans-serif",
                 fontSize: 15,
                 fontWeight: 700,
                 color: "#ffffff",
@@ -102,100 +100,86 @@ export default function Nav() {
             </span>
           </Link>
 
-          {/* Desktop Links */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-            }}
-            className="nav-links-desktop"
-          >
+          {/* Links — right-aligned, next to CTA */}
+          <div className="nav-links-desktop" style={{ display: "flex", alignItems: "center", gap: 0 }}>
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 13.5,
+                  fontSize: 13,
                   fontWeight: 500,
-                  color: "rgba(255,255,255,0.6)",
+                  color: "rgba(255,255,255,0.5)",
                   textDecoration: "none",
-                  padding: "6px 12px",
+                  padding: "8px 14px",
                   borderRadius: 100,
-                  transition: "all 0.15s ease",
+                  transition: "color 0.3s cubic-bezier(0.16,1,0.3,1)",
                   whiteSpace: "nowrap" as const,
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "#ffffff";
-                  e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "rgba(255,255,255,0.6)";
-                  e.currentTarget.style.background = "transparent";
-                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          {/* Right side */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Link
-              href="/profile"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
-                fontWeight: 600,
-                color: "#0a0f1e",
-                background: "rgba(255,255,255,0.92)",
-                textDecoration: "none",
-                padding: "7px 14px",
-                borderRadius: 100,
-                transition: "all 0.15s ease",
-                whiteSpace: "nowrap" as const,
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "#ffffff"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.92)"; }}
-            >
-              {role ? "My Profile" : "Get started"}
-            </Link>
+          {/* CTA button */}
+          <Link
+            href="/profile"
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#0a0f1e",
+              background: "#ffffff",
+              textDecoration: "none",
+              padding: "8px 18px",
+              borderRadius: 100,
+              marginLeft: 6,
+              transition: "opacity 0.3s cubic-bezier(0.16,1,0.3,1)",
+              whiteSpace: "nowrap" as const,
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+          >
+            {role ? "My Profile" : "Get started"}
+          </Link>
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="nav-menu-btn"
-              style={{
-                display: "none",
-                width: 34,
-                height: 34,
-                borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.06)",
-                cursor: "pointer",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-              aria-label="Menu"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {menuOpen ? (
-                  <>
-                    <line x1="3" y1="3" x2="13" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                    <line x1="13" y1="3" x2="3" y2="13" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                  </>
-                ) : (
-                  <>
-                    <line x1="3" y1="5" x2="13" y2="5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                    <line x1="3" y1="8" x2="13" y2="8" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                    <line x1="3" y1="11" x2="13" y2="11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="nav-menu-btn"
+            style={{
+              display: "none",
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              border: "none",
+              background: "rgba(255,255,255,0.06)",
+              cursor: "pointer",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              marginLeft: 6,
+            }}
+            aria-label="Menu"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              {menuOpen ? (
+                <>
+                  <line x1="4" y1="4" x2="12" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="12" y1="4" x2="4" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="5" x2="13" y2="5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="3" y1="8" x2="13" y2="8" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="3" y1="11" x2="13" y2="11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                </>
+              )}
+            </svg>
+          </button>
         </div>
 
         {/* Mobile dropdown */}
@@ -205,15 +189,15 @@ export default function Nav() {
               initial={{ opacity: 0, y: -8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ duration: 0.18 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 marginTop: 8,
                 padding: "8px",
-                background: "rgba(8,12,20,0.95)",
-                backdropFilter: "blur(20px)",
-                borderRadius: 16,
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                background: "rgba(10,15,30,0.95)",
+                backdropFilter: "blur(24px)",
+                borderRadius: 18,
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
               }}
             >
               {links.map((link) => (
@@ -223,40 +207,38 @@ export default function Nav() {
                   onClick={() => setMenuOpen(false)}
                   style={{
                     display: "block",
-                    fontFamily: "'Inter', sans-serif",
                     fontSize: 15,
                     fontWeight: 500,
-                    color: "rgba(255,255,255,0.75)",
+                    color: "rgba(255,255,255,0.7)",
                     textDecoration: "none",
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    transition: "all 0.12s ease",
+                    padding: "12px 16px",
+                    borderRadius: 12,
+                    transition: "all 0.2s ease",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
                     e.currentTarget.style.color = "#ffffff";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = "rgba(255,255,255,0.75)";
+                    e.currentTarget.style.color = "rgba(255,255,255,0.7)";
                   }}
                 >
                   {link.label}
                 </Link>
               ))}
-              <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "4px 0" }} />
+              <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "4px 8px" }} />
               <Link
                 href="/profile"
                 onClick={() => setMenuOpen(false)}
                 style={{
                   display: "block",
-                  fontFamily: "'Inter', sans-serif",
                   fontSize: 15,
                   fontWeight: 600,
                   color: "var(--green)",
                   textDecoration: "none",
-                  padding: "10px 14px",
-                  borderRadius: 10,
+                  padding: "12px 16px",
+                  borderRadius: 12,
                 }}
               >
                 {role ? "My Profile" : "Get started"}
