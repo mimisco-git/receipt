@@ -16,6 +16,7 @@ interface ContractData {
   netAmountUsdc: number;
   serviceTitle: string;
   freelancerName: string;
+  freelancerAddress: string;
   status: Phase;
 }
 
@@ -50,6 +51,7 @@ export default function EscrowPage() {
     netAmountUsdc: 7.2,
     serviceTitle: "Freelance service",
     freelancerName: "Freelancer",
+    freelancerAddress: "",
     status: "pending",
   });
 
@@ -78,7 +80,8 @@ export default function EscrowPage() {
             amountUsdc: data.amountUsdc || 0,
             netAmountUsdc: data.netAmountUsdc || 0,
             serviceTitle: data.service?.title || "Freelance service",
-            freelancerName: data.freelancer?.name || "Freelancer",
+            freelancerName: data.freelancer?.name || data.service?.freelancer?.name || "Freelancer",
+            freelancerAddress: data.freelancer?.walletAddress || data.service?.freelancer?.walletAddress || "",
             status: rawStatus || "pending",
           };
           setContract(c);
@@ -164,6 +167,7 @@ export default function EscrowPage() {
         body: JSON.stringify({
           contractId: id,
           action: "APPROVE",
+          freelancerAddress: contract.freelancerAddress,
           netAmountUsdc: contract.netAmountUsdc,
         }),
       });

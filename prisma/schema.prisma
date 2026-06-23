@@ -10,14 +10,16 @@ datasource db {
 model Freelancer {
   id             String   @id @default(cuid())
   name           String
-  walletAddress  String   @unique
-  circleWalletId String?  @unique
+  walletAddress  String   @unique @map("wallet_address")
+  circleWalletId String?  @unique @map("circle_wallet_id")
   bio            String?
-  avatarColor    String   @default("#667eea")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  avatarColor    String   @default("#667eea") @map("avatar_color")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
   services       Service[]
   contracts      Contract[]
+
+  @@map("freelancers")
 }
 
 model Service {
@@ -25,40 +27,44 @@ model Service {
   slug         String     @unique
   title        String
   description  String
-  priceUsdc    Float
-  freelancerId String
+  priceUsdc    Float      @map("price_usdc")
+  freelancerId String     @map("freelancer_id")
   freelancer   Freelancer @relation(fields: [freelancerId], references: [id])
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  isActive     Boolean    @default(true) @map("is_active")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
   contracts    Contract[]
+
+  @@map("services")
 }
 
 model Contract {
   id             String         @id @default(cuid())
-  serviceId      String
+  serviceId      String         @map("service_id")
   service        Service        @relation(fields: [serviceId], references: [id])
-  freelancerId   String
+  freelancerId   String         @map("freelancer_id")
   freelancer     Freelancer     @relation(fields: [freelancerId], references: [id])
-  clientName     String
-  clientEmail    String?
+  clientName     String         @map("client_name")
+  clientEmail    String?        @map("client_email")
   brief          String
-  amountUsdc     Float
-  platformFee    Float
-  netAmountUsdc  Float
+  amountUsdc     Float          @map("amount_usdc")
+  platformFee    Float          @map("platform_fee")
+  netAmountUsdc  Float          @map("net_amount_usdc")
   status         ContractStatus @default(PENDING_DELIVERY)
-  escrowTxHash   String?
-  settleTxHash   String?
-  agentScore     Float?
-  agentReasoning String?
-  circleEscrowId String?
-  clientWalletId String?
-  deliveryNote   String?
-  deliveredAt    DateTime?
-  settledAt      DateTime?
-  disputedAt     DateTime?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  escrowTxHash   String?        @map("escrow_tx_hash")
+  settleTxHash   String?        @map("settle_tx_hash")
+  agentScore     Float?         @map("agent_score")
+  agentReasoning String?        @map("agent_reasoning")
+  circleEscrowId String?        @map("circle_escrow_id")
+  clientWalletId String?        @map("client_wallet_id")
+  deliveryNote   String?        @map("delivery_note")
+  deliveredAt    DateTime?      @map("delivered_at")
+  settledAt      DateTime?      @map("settled_at")
+  disputedAt     DateTime?      @map("disputed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  @@map("contracts")
 }
 
 enum ContractStatus {
@@ -69,15 +75,19 @@ enum ContractStatus {
   DISPUTED
   SETTLED
   REFUNDED
+
+  @@map("contract_status")
 }
 
 model Transaction {
   id         String   @id @default(cuid())
-  contractId String
+  contractId String   @map("contract_id")
   type       String
-  amountUsdc Float
-  txHash     String?
+  amountUsdc Float    @map("amount_usdc")
+  txHash     String?  @map("tx_hash")
   chain      String   @default("ARC-TESTNET")
   status     String   @default("PENDING")
-  createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("transactions")
 }

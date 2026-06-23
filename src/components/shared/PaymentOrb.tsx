@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { useRef, useCallback } from "react";
 
 type OrbState = "idle" | "locked" | "released";
@@ -18,6 +18,7 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
   const mouseY = useSpring(32, { stiffness: 80, damping: 18 });
   const specX  = useTransform(mouseX, v => `${v}%`);
   const specY  = useTransform(mouseY, v => `${v}%`);
+  const specBg = useMotionTemplate`radial-gradient(circle at ${specX} ${specY}, var(--orb-spec), transparent 50%)`;
 
   // Tilt effect: up to 3 degrees
   const tiltX = useTransform(mouseY, [0, 100], [3, -3]);
@@ -168,9 +169,10 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
           {/* Mouse-tracking specular highlight */}
           <motion.div style={{
             position: "absolute", inset: 0, borderRadius: "50%",
-            background: `radial-gradient(circle at ${specX} ${specY}, ${t.spec}, transparent 50%)`,
+            "--orb-spec": t.spec,
+            background: specBg as unknown as string,
             pointerEvents: "none",
-          }} />
+          } as React.CSSProperties} />
 
           {/* Fixed top-left specular (Fresnel edge) */}
           <div style={{
