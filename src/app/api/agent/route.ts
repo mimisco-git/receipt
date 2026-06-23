@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { evaluateDelivery } from "@/lib/agent";
-
-function isDemoMode() {
-  const url = process.env.DATABASE_URL || "";
-  return !url ||
-    url.includes("localhost") ||
-    url.includes("[YOUR-PASSWORD]") ||
-    url.includes("USER:PASSWORD") ||
-    url.includes("HOST:5432");
-}
+import { isDemoMode, hasCircleKey } from "@/lib/utils";
 
 export async function GET() {
   return NextResponse.json({
@@ -92,7 +84,7 @@ export async function PUT(req: NextRequest) {
       let circleSettlement = false;
 
       // Try real Circle settlement
-      if (process.env.CIRCLE_API_KEY) {
+      if (hasCircleKey()) {
         try {
           const { transferUsdc } = await import("@/lib/circle");
           const t0 = Date.now();

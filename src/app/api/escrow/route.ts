@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { platformFee, netAmount } from "@/lib/utils";
+import { platformFee, netAmount, isDemoMode, hasCircleKey } from "@/lib/utils";
 import { nanoid } from "nanoid";
-
-function isDemoMode() {
-  const url = process.env.DATABASE_URL || "";
-  return !url ||
-    url.includes("localhost") ||
-    url.includes("[YOUR-PASSWORD]") ||
-    url.includes("USER:PASSWORD") ||
-    url.includes("HOST:5432");
-}
 
 // POST /api/escrow — client creates a contract and locks escrow
 export async function POST(req: NextRequest) {
@@ -61,7 +52,7 @@ export async function POST(req: NextRequest) {
     let circleEscrowId: string | null = null;
 
     // Try real Circle escrow locking
-    if (process.env.CIRCLE_API_KEY) {
+    if (hasCircleKey()) {
       try {
         const { transferUsdc } = await import("@/lib/circle");
         const result = await transferUsdc({

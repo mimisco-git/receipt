@@ -7,7 +7,6 @@ import Footer from "@/components/layout/Footer";
 import HeroStats from "@/components/shared/HeroStats";
 import HowItWorks from "@/components/shared/HowItWorks";
 import PaymentOrbDemo from "@/components/shared/PaymentOrbDemo";
-import PaymentOrb from "@/components/shared/PaymentOrb";
 import LeptonLogo from "@/components/shared/LeptonLogo";
 
 function ArrowRight() {
@@ -60,16 +59,6 @@ export default function HomePage() {
         padding: "140px 24px 80px",
         position: "relative", zIndex: 1,
       }}>
-        {/* Hero Orb */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          style={{ marginBottom: 48 }}
-        >
-          <PaymentOrb variant="hero" state="idle" size={180} interactive={true} />
-        </motion.div>
-
         {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0 }}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
+import { hasCircleKey } from "@/lib/utils";
 
 // GET /api/wallet?walletId=xxx — check wallet balance
 export async function GET(req: NextRequest) {
@@ -10,8 +11,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "walletId required" }, { status: 400 });
   }
 
-  const circleKey = process.env.CIRCLE_API_KEY || "";
-  if (!circleKey || circleKey.includes("your-") || circleKey.includes("YOUR")) {
+  if (!hasCircleKey()) {
     return NextResponse.json({ balance: 100.0, currency: "USDC", mode: "demo" });
   }
 
@@ -35,9 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "userId required" }, { status: 400 });
     }
 
-    const circleApiKey = process.env.CIRCLE_API_KEY;
-
-    if (!circleApiKey) {
+    if (!hasCircleKey()) {
       // Demo mode: return a fake wallet
       return NextResponse.json({
         walletId: "demo-wallet-" + nanoid(8),
