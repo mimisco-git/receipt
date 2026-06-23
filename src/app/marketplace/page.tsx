@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Nav from "@/components/layout/Nav";
+import { formatUsdc, timeAgo } from "@/lib/utils";
 
 interface Service {
   id: string;
@@ -10,192 +11,91 @@ interface Service {
   title: string;
   description: string;
   priceUsdc: number;
+  currency: string;
   freelancerName: string;
   freelancerBio?: string;
   avatarColor?: string;
-  skills?: string[];
-  completedJobs?: number;
-  avgScore?: number;
   createdAt: string;
 }
-
-const SAMPLE_SERVICES: Service[] = [
-  {
-    id: "demo-1",
-    slug: "amaka-seo-writing",
-    title: "SEO blog post, 1,000 words",
-    description: "Research-backed, keyword-optimised articles. Delivered in 48 hours with 2 revisions included.",
-    priceUsdc: 8,
-    freelancerName: "Amaka O.",
-    freelancerBio: "5 years writing for SaaS startups and African tech publications.",
-    avatarColor: "#00D184",
-    skills: ["Writing", "SEO", "Marketing"],
-    completedJobs: 47,
-    avgScore: 93,
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: "demo-2",
-    slug: "chidi-react-dev",
-    title: "React UI component, pixel-perfect",
-    description: "Responsive, accessible React components. TypeScript + Tailwind. Delivered with Storybook docs.",
-    priceUsdc: 35,
-    freelancerName: "Chidi A.",
-    freelancerBio: "Frontend engineer with 6 years building products for fintech and health.",
-    avatarColor: "#5090ff",
-    skills: ["Development", "Design"],
-    completedJobs: 22,
-    avgScore: 97,
-    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-  {
-    id: "demo-3",
-    slug: "fatima-translation",
-    title: "English to French/Arabic translation",
-    description: "Certified translator. Legal, marketing, and technical documents. Fast turnaround.",
-    priceUsdc: 12,
-    freelancerName: "Fatima N.",
-    freelancerBio: "Trilingual translator working with international NGOs and startups.",
-    avatarColor: "#e0407a",
-    skills: ["Translation"],
-    completedJobs: 104,
-    avgScore: 96,
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-  },
-  {
-    id: "demo-4",
-    slug: "emeka-logo-design",
-    title: "Logo + brand identity pack",
-    description: "Custom logo, color palette, typography guidelines, and social media kit. SVG + all formats.",
-    priceUsdc: 60,
-    freelancerName: "Emeka D.",
-    freelancerBio: "Brand designer for 40+ African and global startups.",
-    avatarColor: "#f0a500",
-    skills: ["Design"],
-    completedJobs: 31,
-    avgScore: 91,
-    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-];
-
-const CATEGORY_FILTERS = ["All", "Writing", "SEO", "Development", "Design", "Translation", "Marketing", "Data Analysis"];
 
 interface Job {
   id: string;
   clientName: string;
   brief: string;
   amountUsdc: number;
+  currency: string;
   serviceTitle: string;
   createdAt: string;
   status: string;
 }
 
 export default function Marketplace() {
-  const [role, setRole] = useState<string | null>(null);
   const [tab, setTab] = useState<"workers" | "jobs">("workers");
-  const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
-  const [userServices, setUserServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
-
-  const [dbServices, setDbServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const p = localStorage.getItem("receipt_profile");
-      if (p) setRole(JSON.parse(p).role || null);
-    } catch {}
-    try {
-      const raw = localStorage.getItem("receipt_services");
-      if (raw) setUserServices(JSON.parse(raw));
-    } catch {}
-
-    // Fetch open jobs (contracts with PENDING_DELIVERY)
-    fetch("/api/contracts?role=open")
-      .then(r => r.ok ? r.json() : { contracts: [] })
-      .then(data => {
-        if (data.contracts?.length) {
-          setJobs(data.contracts.map((c: Record<string, unknown>) => ({
-            id: c.id as string,
-            clientName: c.clientName as string,
-            brief: c.brief as string,
-            amountUsdc: c.amountUsdc as number,
-            serviceTitle: (c.service as Record<string, string>)?.title || "Job",
-            createdAt: c.createdAt as string,
-            status: c.status as string,
-          })));
-        }
-      })
-      .catch(() => {});
-
-    // Fetch real services from API
-    fetch("/api/service/list")
-      .then(r => r.ok ? r.json() : { services: [] })
-      .then(data => {
-        if (data.services?.length) {
-          setDbServices(data.services.map((s: Record<string, unknown>) => ({
-            id: s.id as string,
-            slug: s.slug as string,
-            title: s.title as string,
-            description: s.description as string,
-            priceUsdc: s.priceUsdc as number,
-            freelancerName: (s.freelancer as Record<string, string>)?.name || "Freelancer",
-            freelancerBio: (s.freelancer as Record<string, string>)?.bio,
-            avatarColor: (s.freelancer as Record<string, string>)?.avatarColor,
-            skills: [],
-            createdAt: s.createdAt as string,
-          })));
-        }
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch("/api/service/list").then(r => r.ok ? r.json() : { services: [] }),
+      fetch("/api/contracts?role=open").then(r => r.ok ? r.json() : { contracts: [] }),
+    ]).then(([serviceData, jobData]) => {
+      if (serviceData.services?.length) {
+        setServices(serviceData.services.map((s: Record<string, unknown>) => ({
+          id: s.id as string,
+          slug: s.slug as string,
+          title: s.title as string,
+          description: s.description as string,
+          priceUsdc: s.priceUsdc as number,
+          currency: (s.currency as string) || "USDC",
+          freelancerName: (s.freelancer as Record<string, string>)?.name || "Freelancer",
+          freelancerBio: (s.freelancer as Record<string, string>)?.bio,
+          avatarColor: (s.freelancer as Record<string, string>)?.avatarColor,
+          createdAt: s.createdAt as string,
+        })));
+      }
+      if (jobData.contracts?.length) {
+        setJobs(jobData.contracts.map((c: Record<string, unknown>) => ({
+          id: c.id as string,
+          clientName: c.clientName as string,
+          brief: c.brief as string,
+          amountUsdc: c.amountUsdc as number,
+          currency: (c.currency as string) || "USDC",
+          serviceTitle: (c.service as Record<string, string>)?.title || "Job",
+          createdAt: c.createdAt as string,
+          status: c.status as string,
+        })));
+      }
+    }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const allServices = dbServices.length > 0
-    ? [...userServices, ...dbServices]
-    : [...userServices, ...SAMPLE_SERVICES];
-
-  const filtered = allServices.filter((s) => {
-    const matchFilter = filter === "All" || (s.skills || []).includes(filter);
-    const matchSearch = !search || s.title.toLowerCase().includes(search.toLowerCase()) || s.description.toLowerCase().includes(search.toLowerCase());
-    return matchFilter && matchSearch;
+  const filtered = services.filter(s => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return s.title.toLowerCase().includes(q)
+      || s.description.toLowerCase().includes(q)
+      || s.freelancerName.toLowerCase().includes(q);
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0f1e", color: "#ffffff" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", color: "#ffffff" }}>
       <Nav />
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "100px 20px 60px" }}>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24 }}>
-            <div>
-              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
-                Marketplace
-              </h1>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>
-                {role === "worker"
-                  ? "Find clients or list your services."
-                  : "Hire skilled workers or post a job."}
-              </p>
-            </div>
-            {role === "worker" && (
-              <Link href="/setup">
-                <button className="btn-primary" style={{ padding: "9px 18px", borderRadius: 10, fontSize: 13 }}>
-                  + List my service
-                </button>
-              </Link>
-            )}
-            {role === "client" && (
-              <Link href="/setup">
-                <button className="btn-primary" style={{ padding: "9px 18px", borderRadius: 10, fontSize: 13 }}>
-                  + Post a job
-                </button>
-              </Link>
-            )}
+          <div style={{ marginBottom: 24 }}>
+            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
+              Marketplace
+            </h1>
+            <p style={{ fontSize: 14, color: "var(--text-2)" }}>
+              Hire skilled workers or find open jobs. All payments settle in USDC or EURC on Arc.
+            </p>
           </div>
 
           {/* Tabs */}
-          <div style={{ display: "flex", gap: 4, marginBottom: 28 }}>
+          <div style={{ display: "flex", gap: 4, marginBottom: 24 }}>
             {(["workers", "jobs"] as const).map(t => (
               <button
                 key={t}
@@ -209,7 +109,7 @@ export default function Marketplace() {
                   fontSize: 13,
                   fontWeight: tab === t ? 600 : 500,
                   cursor: "pointer",
-                  transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
+                  transition: "all 0.2s ease",
                 }}
               >
                 {t === "workers" ? "Workers" : "Open Jobs"}
@@ -221,301 +121,251 @@ export default function Marketplace() {
           </div>
         </motion.div>
 
-        {/* ─── JOBS TAB ─── */}
+        {/* JOBS TAB */}
         {tab === "jobs" && (
           <div>
-            {jobs.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "64px 0" }}>
-                <div style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 12 }}>No open jobs yet.</div>
-                {role === "client" && (
-                  <Link href="/setup">
-                    <button className="btn-primary" style={{ padding: "10px 20px", borderRadius: 10, fontSize: 13 }}>
-                      Post the first job
-                    </button>
-                  </Link>
-                )}
-              </div>
+            {loading ? (
+              <LoadingDots />
+            ) : jobs.length === 0 ? (
+              <EmptyState
+                icon="📋"
+                title="No open jobs yet"
+                subtitle="When clients fund escrow, open jobs appear here for workers to claim."
+                ctaLabel="Post a job"
+                ctaHref="/setup"
+              />
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {jobs.map((job, i) => (
-                  <motion.div
-                    key={job.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                  >
-                    <Link href={`/escrow/${job.id}`} style={{ textDecoration: "none" }}>
-                      <div
-                        style={{
-                          padding: "18px 20px",
-                          background: "rgba(255,255,255,0.025)",
-                          borderRadius: 14,
-                          cursor: "pointer",
-                          transition: "background 0.2s ease",
-                          display: "flex", alignItems: "center", gap: 14,
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.045)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
-                      >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 4 }}>
-                            {job.serviceTitle}
+                {jobs.map((job, i) => {
+                  const sym = job.currency === "EURC" ? "€" : "$";
+                  return (
+                    <motion.div
+                      key={job.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                    >
+                      <Link href={`/escrow/${job.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                        <div
+                          style={{
+                            padding: "18px 20px",
+                            background: "var(--card)",
+                            border: "1px solid var(--line)",
+                            borderRadius: 14,
+                            cursor: "pointer",
+                            transition: "border-color 0.15s, background 0.15s",
+                            display: "flex", alignItems: "center", gap: 14,
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--line-2)"; e.currentTarget.style.background = "var(--card-2)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--line)"; e.currentTarget.style.background = "var(--card)"; }}
+                        >
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
+                              {job.serviceTitle}
+                            </div>
+                            <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 6 }}>
+                              Posted by {job.clientName} · {timeAgo(new Date(job.createdAt))}
+                            </div>
+                            <div style={{
+                              fontSize: 13, color: "var(--text-2)", lineHeight: 1.5,
+                              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                            }}>
+                              {job.brief}
+                            </div>
                           </div>
-                          <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 6 }}>
-                            Posted by {job.clientName} · {new Date(job.createdAt).toLocaleDateString()}
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
+                            <div className="font-mono" style={{ fontSize: 16, fontWeight: 600, color: "var(--green)" }}>
+                              {sym}{formatUsdc(job.amountUsdc)}
+                            </div>
+                            <div style={{ fontSize: 10, color: "var(--text-3)" }}>{job.currency}</div>
                           </div>
-                          <div style={{
-                            fontSize: 13, color: "var(--text-2)", lineHeight: 1.5,
-                            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-                          }}>
-                            {job.brief}
-                          </div>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
                         </div>
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div className="font-mono" style={{ fontSize: 16, fontWeight: 600, color: "var(--green)" }}>
-                            ${job.amountUsdc.toFixed(2)}
-                          </div>
-                          <div style={{ fontSize: 10, color: "var(--text-3)" }}>USDC</div>
-                        </div>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </div>
         )}
 
-        {/* ─── WORKERS TAB ─── */}
-        {tab === "workers" && (<div>
-        {/* Search + filters */}
-        <div style={{ marginBottom: 28, marginTop: 28 }}>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search services..."
-            style={{
-              width: "100%",
-              padding: "11px 16px",
-              background: "rgba(0,0,0,0.3)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 12,
-              color: "#ffffff",
-              fontSize: 14,
-              fontFamily: "'Inter', sans-serif",
-              outline: "none",
-              boxSizing: "border-box" as const,
-              marginBottom: 14,
-              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
-            }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.3)"; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
-          />
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {CATEGORY_FILTERS.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
+        {/* WORKERS TAB */}
+        {tab === "workers" && (
+          <div>
+            {/* Search */}
+            <div style={{ marginBottom: 24 }}>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search workers or services..."
+                className="input"
                 style={{
-                  padding: "6px 13px",
-                  borderRadius: 100,
-                  border: "none",
-                  background: filter === cat ? "var(--green-dim)" : "rgba(255,255,255,0.03)",
-                  color: filter === cat ? "var(--green)" : "rgba(255,255,255,0.4)",
-                  fontSize: 12,
-                  fontWeight: filter === cat ? 600 : 500,
-                  cursor: "pointer",
-                  transition: "all 0.12s ease",
+                  background: "rgba(0,0,0,0.3)",
+                  boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
                 }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+              />
+            </div>
 
-        {/* Results count */}
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", marginBottom: 16 }}>
-          {filtered.length} service{filtered.length !== 1 ? "s" : ""} available
-        </p>
+            {loading ? (
+              <LoadingDots />
+            ) : filtered.length === 0 && services.length === 0 ? (
+              <EmptyState
+                icon="👷"
+                title="No workers yet"
+                subtitle="Be the first to list your service on Receipt."
+                ctaLabel="List my service"
+                ctaHref="/setup"
+              />
+            ) : filtered.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "48px 0" }}>
+                <p style={{ color: "var(--text-3)", fontSize: 14 }}>
+                  No services match &ldquo;{search}&rdquo;.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 16 }}>
+                  {filtered.length} service{filtered.length !== 1 ? "s" : ""} available
+                </p>
 
-        {/* Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 14,
-          }}
-        >
-          {filtered.map((service, i) => {
-            const initials = service.freelancerName
-              .split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-            return (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <Link href={`/hire/${service.slug}`} style={{ textDecoration: "none" }}>
-                  <div
-                    style={{
-                      padding: "20px",
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      borderRadius: 16,
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                      height: "100%",
-                      boxSizing: "border-box" as const,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                  >
-                    {/* Worker info */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                      <div
-                        style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: "50%",
-                          background: service.avatarColor || "var(--green)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 13,
-                          fontWeight: 700,
-                          flexShrink: 0,
-                        }}
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: 14,
+                }}>
+                  {filtered.map((service, i) => {
+                    const initials = service.freelancerName
+                      .split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+                    const sym = service.currency === "EURC" ? "€" : "$";
+                    return (
+                      <motion.div
+                        key={service.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 }}
                       >
-                        {initials}
-                      </div>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>
-                          {service.freelancerName}
-                        </div>
-                        {(service.avgScore || service.completedJobs) && (
-                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
-                            {service.completedJobs && `${service.completedJobs} jobs`}
-                            {service.avgScore && service.completedJobs && " · "}
-                            {service.avgScore && `${service.avgScore}% agent score`}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Service title */}
-                    <h3
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 700,
-                        color: "#ffffff",
-                        letterSpacing: "-0.01em",
-                        marginBottom: 8,
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {service.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p
-                      style={{
-                        fontSize: 13,
-                        color: "rgba(255,255,255,0.4)",
-                        lineHeight: 1.5,
-                        marginBottom: 14,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {service.description}
-                    </p>
-
-                    {/* Skills */}
-                    {service.skills && service.skills.length > 0 && (
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-                        {service.skills.slice(0, 3).map((skill) => (
-                          <span
-                            key={skill}
+                        <Link href={`/hire/${service.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                          <div
                             style={{
-                              padding: "3px 8px",
-                              borderRadius: 100,
-                              fontSize: 10,
-                              fontWeight: 600,
-                              background: "rgba(80,144,255,0.1)",
-                              color: "#5090ff",
-                              letterSpacing: "0.03em",
+                              padding: 20,
+                              background: "var(--card)",
+                              border: "1px solid var(--line)",
+                              borderRadius: 16,
+                              cursor: "pointer",
+                              transition: "all 0.15s ease",
+                              height: "100%",
+                              boxSizing: "border-box",
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = "var(--card-2)";
+                              e.currentTarget.style.borderColor = "var(--line-2)";
+                              e.currentTarget.style.transform = "translateY(-2px)";
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = "var(--card)";
+                              e.currentTarget.style.borderColor = "var(--line)";
+                              e.currentTarget.style.transform = "translateY(0)";
                             }}
                           >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                            {/* Worker info */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                              <div style={{
+                                width: 38, height: 38, borderRadius: "50%",
+                                background: service.avatarColor || "var(--green)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 13, fontWeight: 700, flexShrink: 0, color: "#fff",
+                              }}>
+                                {initials}
+                              </div>
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 600 }}>
+                                  {service.freelancerName}
+                                </div>
+                                {service.freelancerBio && (
+                                  <div style={{ fontSize: 11, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {service.freelancerBio}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
 
-                    {/* Price + CTA */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div>
-                        <span
-                          style={{
-                            fontFamily: "'DM Mono', monospace",
-                            fontSize: 18,
-                            fontWeight: 700,
-                            color: "var(--green)",
-                            fontVariantNumeric: "tabular-nums",
-                          }}
-                        >
-                          ${service.priceUsdc.toFixed(2)}
-                        </span>
-                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>USDC</span>
-                      </div>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: "var(--green)",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        Hire
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
+                            <h3 style={{
+                              fontSize: 15, fontWeight: 700,
+                              letterSpacing: "-0.01em",
+                              marginBottom: 8, lineHeight: 1.3,
+                            }}>
+                              {service.title}
+                            </h3>
 
-        {filtered.length === 0 && (
-          <div style={{ textAlign: "center", padding: "48px 0" }}>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}>
-              No services match your search.
-            </p>
+                            <p style={{
+                              fontSize: 13, color: "var(--text-2)", lineHeight: 1.5,
+                              marginBottom: 14,
+                              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                            }}>
+                              {service.description}
+                            </p>
+
+                            {/* Price + CTA */}
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <div>
+                                <span className="font-mono" style={{ fontSize: 18, fontWeight: 700, color: "var(--green)" }}>
+                                  {sym}{formatUsdc(service.priceUsdc)}
+                                </span>
+                                <span style={{ fontSize: 11, color: "var(--text-3)", marginLeft: 4 }}>{service.currency}</span>
+                              </div>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--green)", display: "flex", alignItems: "center", gap: 4 }}>
+                                Hire
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                  <polyline points="9 18 15 12 9 6" />
+                                </svg>
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         )}
-        </div>)}
       </div>
+    </div>
+  );
+}
+
+function LoadingDots() {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", padding: "60px 0", gap: 6 }}>
+      {[0, 0.15, 0.3].map(d => (
+        <div key={d} style={{
+          width: 6, height: 6, borderRadius: "50%", background: "var(--green)",
+          animation: `pulse-dot 1.2s ${d}s ease-in-out infinite`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({ icon, title, subtitle, ctaLabel, ctaHref }: {
+  icon: string; title: string; subtitle: string; ctaLabel: string; ctaHref: string;
+}) {
+  return (
+    <div style={{ textAlign: "center", padding: "60px 20px" }}>
+      <div style={{ fontSize: 36, marginBottom: 16 }}>{icon}</div>
+      <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{title}</div>
+      <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24, maxWidth: 360, margin: "0 auto 24px" }}>
+        {subtitle}
+      </p>
+      <Link href={ctaHref}>
+        <button className="btn-primary" style={{ padding: "12px 24px", borderRadius: "var(--r-sm)" }}>
+          {ctaLabel}
+        </button>
+      </Link>
     </div>
   );
 }
