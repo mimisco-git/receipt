@@ -43,12 +43,7 @@ export async function depositEscrow(params: {
   const sellerAddress = process.env.SELLER_ADDRESS as `0x${string}`;
 
   if (!buyerKey || !sellerAddress) {
-    return {
-      txHash: "0xdemo_deposit_" + Date.now().toString(16),
-      success: true,
-      from: "0xdemo_buyer",
-      to: "0xdemo_escrow",
-    };
+    throw new Error("BUYER_PRIVATE_KEY and SELLER_ADDRESS must be set");
   }
 
   try {
@@ -98,11 +93,7 @@ export async function releaseEscrow(params: {
   const start = Date.now();
 
   if (!sellerKey) {
-    return {
-      txHash: "0xdemo_release_" + Date.now().toString(16),
-      success: true,
-      settlementMs: 482,
-    };
+    throw new Error("SELLER_PRIVATE_KEY must be set");
   }
 
   try {

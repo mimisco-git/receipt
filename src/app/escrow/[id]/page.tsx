@@ -207,7 +207,7 @@ export default function EscrowPage() {
             fontSize: 11, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
             marginBottom: 12,
           }}>
-            Contract #{(id as string)?.slice(0, 8) || "demo"}
+            Contract #{(id as string)?.slice(0, 8)}
           </div>
           <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>
             {contract.serviceTitle}
