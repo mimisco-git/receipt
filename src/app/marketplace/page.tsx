@@ -86,6 +86,8 @@ export default function Marketplace() {
   const [search, setSearch] = useState("");
   const [userServices, setUserServices] = useState<Service[]>([]);
 
+  const [dbServices, setDbServices] = useState<Service[]>([]);
+
   useEffect(() => {
     try {
       const p = localStorage.getItem("receipt_profile");
@@ -95,9 +97,32 @@ export default function Marketplace() {
       const raw = localStorage.getItem("receipt_services");
       if (raw) setUserServices(JSON.parse(raw));
     } catch {}
+
+    // Fetch real services from API
+    fetch("/api/service/list")
+      .then(r => r.ok ? r.json() : { services: [] })
+      .then(data => {
+        if (data.services?.length) {
+          setDbServices(data.services.map((s: Record<string, unknown>) => ({
+            id: s.id as string,
+            slug: s.slug as string,
+            title: s.title as string,
+            description: s.description as string,
+            priceUsdc: s.priceUsdc as number,
+            freelancerName: (s.freelancer as Record<string, string>)?.name || "Freelancer",
+            freelancerBio: (s.freelancer as Record<string, string>)?.bio,
+            avatarColor: (s.freelancer as Record<string, string>)?.avatarColor,
+            skills: [],
+            createdAt: s.createdAt as string,
+          })));
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  const allServices = [...userServices, ...SAMPLE_SERVICES];
+  const allServices = dbServices.length > 0
+    ? [...userServices, ...dbServices]
+    : [...userServices, ...SAMPLE_SERVICES];
 
   const filtered = allServices.filter((s) => {
     const matchFilter = filter === "All" || (s.skills || []).includes(filter);
