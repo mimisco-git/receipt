@@ -1,489 +1,591 @@
 "use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/layout/Nav";
-import { slugify, netAmount } from "@/lib/utils";
 
-type Step = "profile" | "service" | "link";
+const CURRENCIES = [8, 15, 25, 35, 50, 75, 100];
 
-function CheckIcon({ size = 12 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-function CopyIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
-      <rect x="9" y="9" width="13" height="13" rx="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-    </svg>
-  );
-}
-
-function ArrowRight() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
-      <path d="M5 12h14M12 5l7 7-7 7"/>
-    </svg>
-  );
+function slugify(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 export default function SetupPage() {
-  const router = useRouter();
-  const [step, setStep]     = useState<Step>("profile");
-  const [copied, setCopied] = useState(false);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState("");
+  const [generatedSlug, setGeneratedSlug] = useState("");
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     name: "",
     bio: "",
     walletAddress: "",
-    title: "",
-    description: "",
-    priceUsdc: "8.00",
+    serviceTitle: "",
+    serviceDescription: "",
+    priceUsdc: 8,
   });
 
-  const [slug, setSlug] = useState("");
-
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://receipt-nine-kohl.vercel.app";
-  const link = `${origin}/hire/${slug}`;
-
-  const update = (f: string, v: string) => setForm(p => ({ ...p, [f]: v }));
-
-  const stepOrder: Step[] = ["profile", "service", "link"];
-  const stepIdx = stepOrder.indexOf(step);
-
-  async function handleNext() {
-    setError("");
-    if (step === "profile") {
-      if (!form.name.trim()) { setError("Please enter your name."); return; }
-      setStep("service");
-    } else if (step === "service") {
-      if (!form.title.trim())       { setError("Please add a service title."); return; }
-      if (!form.description.trim()) { setError("Please describe your service."); return; }
-      await handleGenerate();
-    }
-  }
-
-  async function handleGenerate() {
-    setLoading(true);
+  // Pre-populate from saved profile
+  useEffect(() => {
     try {
-      const res = await fetch("/api/service", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, priceUsdc: parseFloat(form.priceUsdc) || 8 }),
-      });
-      const data = await res.json();
-      if (data.slug) {
-        setSlug(data.slug);
-        setStep("link");
-      } else {
-        throw new Error("No slug returned");
+      const stored = localStorage.getItem("receipt_profile");
+      if (stored) {
+        const p = JSON.parse(stored);
+        setForm((prev) => ({
+          ...prev,
+          name: p.name || prev.name,
+          bio: p.bio || prev.bio,
+          walletAddress: p.walletAddress || prev.walletAddress,
+        }));
       }
+    } catch {}
+  }, []);
+
+  const update = (key: string, value: unknown) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleNextStep = () => {
+    if (step === 0) {
+      if (!form.name.trim()) { setError("Please enter your name."); return; }
+      if (!form.walletAddress.trim()) { setError("Please enter your USDC wallet address."); return; }
+    }
+    if (step === 1) {
+      if (!form.serviceTitle.trim()) { setError("Please describe your service."); return; }
+      if (!form.serviceDescription.trim()) { setError("Please add more detail."); return; }
+    }
+    setError("");
+    setStep((s) => s + 1);
+  };
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const slug = slugify(form.name) + "-" + slugify(form.serviceTitle).slice(0, 20) + "-" + Math.random().toString(36).slice(2, 6);
+      const service = {
+        id: Date.now().toString(),
+        slug,
+        title: form.serviceTitle,
+        description: form.serviceDescription,
+        priceUsdc: form.priceUsdc,
+        freelancerName: form.name,
+        freelancerBio: form.bio,
+        walletAddress: form.walletAddress,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Save profile
+      const existingProfile = JSON.parse(localStorage.getItem("receipt_profile") || "{}");
+      localStorage.setItem("receipt_profile", JSON.stringify({
+        ...existingProfile,
+        name: form.name,
+        bio: form.bio,
+        walletAddress: form.walletAddress,
+      }));
+
+      // Save service
+      const existingServices = JSON.parse(localStorage.getItem("receipt_services") || "[]");
+      existingServices.unshift(service);
+      localStorage.setItem("receipt_services", JSON.stringify(existingServices));
+
+      await new Promise((r) => setTimeout(r, 800));
+      setGeneratedSlug(slug);
+      setStep(3);
     } catch {
-      // Demo fallback
-      const s = slugify(form.name || "freelancer") + "-" + Date.now().toString(36).slice(-4);
-      setSlug(s);
-      setStep("link");
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  function copyLink() {
-    navigator.clipboard?.writeText(link).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
-  }
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/hire/${generatedSlug}`;
 
-  const priceNum = parseFloat(form.priceUsdc) || 0;
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 14px",
+    background: "rgba(0,0,0,0.3)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 10,
+    color: "#ffffff",
+    fontSize: 14,
+    fontFamily: "'Inter', sans-serif",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.4)",
+    transition: "border-color 0.15s ease",
+  };
 
-  const stepLabels = ["Your profile", "Your service", "Your link"];
+  const labelStyle = {
+    display: "block" as const,
+    fontSize: 12,
+    fontWeight: 600,
+    color: "rgba(255,255,255,0.4)",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase" as const,
+    marginBottom: 7,
+  };
+
+  const steps = [
+    { label: "Identity", icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      </svg>
+    )},
+    { label: "Service", icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+      </svg>
+    )},
+    { label: "Pricing", icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    )},
+  ];
 
   return (
-    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0f1e", color: "#ffffff" }}>
       <Nav />
+      <div style={{ maxWidth: 520, margin: "0 auto", padding: "100px 20px 60px" }}>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
-      <main style={{
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        minHeight: "100vh", padding: "100px 24px 60px",
-      }}>
+          {step < 3 && (
+            <>
+              <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
+                Create your service link
+              </h1>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginBottom: 32 }}>
+                Share it with clients. Get paid the moment they approve your work.
+              </p>
 
-        {/* Step progress */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: 0,
-          marginBottom: 40,
-        }}>
-          {stepLabels.map((label, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {/* Circle */}
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 12, fontWeight: 600,
-                  transition: "all 0.3s ease",
-                  background: i < stepIdx
-                    ? "var(--green)"
-                    : i === stepIdx
-                    ? "var(--green-dim)"
-                    : "rgba(255,255,255,0.04)",
-                  color: i < stepIdx
-                    ? "#060E0A"
-                    : i === stepIdx
-                    ? "var(--green)"
-                    : "var(--text-3)",
-                  border: i === stepIdx
-                    ? "1px solid var(--green-border)"
-                    : i < stepIdx
-                    ? "none"
-                    : "1px solid var(--line)",
-                }}>
-                  {i < stepIdx ? <CheckIcon /> : i + 1}
-                </div>
-                {/* Label */}
-                <span style={{
-                  fontSize: 13, fontWeight: i === stepIdx ? 500 : 400,
-                  color: i === stepIdx ? "var(--text-1)" : "var(--text-3)",
-                  transition: "color 0.3s ease",
-                }}>
-                  {label}
-                </span>
-              </div>
-              {/* Connector */}
-              {i < stepLabels.length - 1 && (
-                <div style={{
-                  width: 48, height: 1, margin: "0 12px",
-                  background: i < stepIdx ? "var(--green)" : "var(--line)",
-                  transition: "background 0.5s ease",
-                }} />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Card */}
-        <div style={{
-          width: "100%", maxWidth: 480,
-          background: "var(--card)",
-          border: "1px solid var(--line)",
-          borderRadius: "var(--r-xl)",
-          overflow: "hidden",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
-        }}>
-          <AnimatePresence mode="wait">
-
-            {/* STEP 1: PROFILE */}
-            {step === "profile" && (
-              <motion.div
-                key="profile"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.28 }}
-                style={{ padding: 36 }}
-              >
-                <h1 style={{
-                  fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em",
-                  marginBottom: 6, color: "var(--text-1)",
-                }}>
-                  Set up your profile
-                </h1>
-                <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 28, lineHeight: 1.6 }}>
-                  This is what clients see when they open your link.
-                </p>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <Field label="Your full name" placeholder="e.g. Amara Nwosu"
-                    value={form.name} onChange={v => update("name", v)} />
-                  <Field label="Short bio (optional)" placeholder="e.g. SEO writer, 5 years in fintech"
-                    value={form.bio} onChange={v => update("bio", v)} />
-                  <Field label="Your USDC wallet address" placeholder="0x..."
-                    value={form.walletAddress} onChange={v => update("walletAddress", v)} mono />
-                  <div style={{
-                    padding: "11px 14px", borderRadius: "var(--r-sm)",
-                    background: "var(--green-dim)",
-                    border: "1px solid var(--green-border)",
-                    fontSize: 12.5, color: "var(--green)", lineHeight: 1.55,
-                  }}>
-                    No wallet? Receipt will auto-provision a Circle custodial wallet for you on the next step.
-                  </div>
-                </div>
-
-                {error && <p style={{ fontSize: 12.5, color: "var(--red)", marginTop: 12 }}>{error}</p>}
-
-                <button
-                  onClick={handleNext}
-                  disabled={!form.name.trim()}
-                  className="btn-primary"
-                  style={{
-                    width: "100%", marginTop: 24, padding: "13px",
-                    borderRadius: "var(--r-sm)",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  }}
-                >
-                  Continue
-                  <ArrowRight />
-                </button>
-              </motion.div>
-            )}
-
-            {/* STEP 2: SERVICE */}
-            {step === "service" && (
-              <motion.div
-                key="service"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.28 }}
-                style={{ padding: 36 }}
-              >
-                <h1 style={{
-                  fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em",
-                  marginBottom: 6, color: "var(--text-1)",
-                }}>
-                  Describe your service
-                </h1>
-                <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 28, lineHeight: 1.6 }}>
-                  Be specific. The AI agent uses this to evaluate client briefs.
-                </p>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <Field label="Service title" placeholder="e.g. SEO blog post, 1000 words"
-                    value={form.title} onChange={v => update("title", v)} />
-                  <Field label="What you deliver" placeholder="Describe exactly what the client receives. Word count, format, revision policy, turnaround time..."
-                    value={form.description} onChange={v => update("description", v)} as="textarea" rows={4} />
-
-                  {/* Price field */}
-                  <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
-                      Your price (USDC)
-                    </label>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <div style={{
-                        padding: "12px 14px", borderRadius: "var(--r-sm)",
-                        background: "var(--card-2)", border: "1px solid var(--line)",
-                        fontSize: 13, fontWeight: 600, color: "var(--green)",
-                        fontFamily: '"DM Mono", monospace', whiteSpace: "nowrap",
-                      }}>
-                        USDC
-                      </div>
-                      <input
-                        type="number" step="0.01" min="0.01"
-                        value={form.priceUsdc}
-                        onChange={e => update("priceUsdc", e.target.value)}
-                        className="input font-mono"
-                        style={{ fontSize: 16, fontWeight: 500 }}
-                      />
-                    </div>
-                    {priceNum > 0 && (
-                      <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6 }}>
-                        You receive{" "}
-                        <span className="font-mono" style={{ color: "var(--green)" }}>
-                          ${netAmount(priceNum).toFixed(2)} USDC
-                        </span>{" "}
-                        after 10% platform fee.
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {error && <p style={{ fontSize: 12.5, color: "var(--red)", marginTop: 12 }}>{error}</p>}
-
-                <div style={{ display: "flex", gap: 8, marginTop: 24 }}>
-                  <button
-                    onClick={() => setStep("profile")}
-                    className="btn-ghost"
-                    style={{ padding: "13px 18px", borderRadius: "var(--r-sm)", fontSize: 14 }}
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    disabled={!form.title.trim() || !form.description.trim() || loading}
-                    className="btn-primary"
+              {/* Step progress */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+                {steps.map((s, i) => (
+                  <div
+                    key={s.label}
                     style={{
-                      flex: 1, padding: "13px", borderRadius: "var(--r-sm)",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      flex: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      background: i === step ? "rgba(16,217,138,0.1)" : i < step ? "rgba(16,217,138,0.05)" : "rgba(255,255,255,0.03)",
+                      border: i === step ? "1px solid rgba(16,217,138,0.25)" : "1px solid rgba(255,255,255,0.05)",
+                      transition: "all 0.2s ease",
                     }}
                   >
-                    {loading ? (
-                      <>
-                        <span style={{
-                          width: 14, height: 14, borderRadius: "50%",
-                          border: "2px solid rgba(6,14,10,0.4)", borderTopColor: "#060E0A",
-                          display: "inline-block", animation: "spin 0.7s linear infinite",
-                        }} />
-                        Generating...
-                      </>
-                    ) : (
-                      <>Generate my link <ArrowRight /></>
-                    )}
-                  </button>
+                    <span style={{ color: i <= step ? "#10d98a" : "rgba(255,255,255,0.25)" }}>
+                      {s.icon}
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: i === step ? "#10d98a" : i < step ? "rgba(16,217,138,0.6)" : "rgba(255,255,255,0.25)" }}>
+                      {s.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <AnimatePresence mode="wait">
+            {/* Step 0: Identity */}
+            {step === 0 && (
+              <motion.div
+                key="step0"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 16,
+                  padding: 24,
+                  display: "grid",
+                  gap: 16,
+                }}
+              >
+                <div>
+                  <label style={labelStyle}>Your name *</label>
+                  <input
+                    style={inputStyle}
+                    value={form.name}
+                    onChange={(e) => update("name", e.target.value)}
+                    placeholder="Emenike Johnson"
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Short bio (optional)</label>
+                  <textarea
+                    style={{ ...inputStyle, resize: "vertical" as const, minHeight: 70 }}
+                    value={form.bio}
+                    onChange={(e) => update("bio", e.target.value)}
+                    placeholder="I write SEO content for SaaS startups..."
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>USDC Wallet Address *</label>
+                  <input
+                    style={{ ...inputStyle, fontFamily: "'DM Mono', monospace", fontSize: 12 }}
+                    value={form.walletAddress}
+                    onChange={(e) => update("walletAddress", e.target.value)}
+                    placeholder="0x4565..."
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  />
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 6 }}>
+                    USDC will be sent here on Arc testnet when clients approve your work.
+                  </p>
                 </div>
               </motion.div>
             )}
 
-            {/* STEP 3: LINK */}
-            {step === "link" && (
+            {/* Step 1: Service */}
+            {step === 1 && (
               <motion.div
-                key="link"
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                style={{ padding: 36, textAlign: "center" }}
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 16,
+                  padding: 24,
+                  display: "grid",
+                  gap: 16,
+                }}
               >
-                {/* Success orb */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+                <div>
+                  <label style={labelStyle}>Service title *</label>
+                  <input
+                    style={inputStyle}
+                    value={form.serviceTitle}
+                    onChange={(e) => update("serviceTitle", e.target.value)}
+                    placeholder="SEO blog post, 1,000 words"
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>What you deliver *</label>
+                  <textarea
+                    style={{ ...inputStyle, resize: "vertical" as const, minHeight: 100 }}
+                    value={form.serviceDescription}
+                    onChange={(e) => update("serviceDescription", e.target.value)}
+                    placeholder="Research-backed, keyword-optimised article. Delivered in 48 hours with 2 revisions. Includes title, meta description, and internal links."
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 2: Pricing */}
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 16,
+                  padding: 24,
+                }}
+              >
+                <label style={labelStyle}>Price (USDC)</label>
+                <div
                   style={{
-                    width: 64, height: 64, borderRadius: "50%", margin: "0 auto 20px",
-                    background: "radial-gradient(circle at 35% 30%, rgba(18,232,154,0.5), rgba(18,232,154,0.15) 50%, transparent)",
-                    border: "1px solid var(--green-border)",
-                    boxShadow: "0 0 40px rgba(18,232,154,0.25)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 48,
+                    fontWeight: 700,
+                    color: "#10d98a",
+                    textAlign: "center",
+                    padding: "20px 0",
+                    letterSpacing: "-0.02em",
+                    fontVariantNumeric: "tabular-nums",
                   }}
                 >
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-                    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="#12E89A">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </motion.div>
+                  ${form.priceUsdc.toFixed(2)}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
+                  {CURRENCIES.map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => update("priceUsdc", p)}
+                      style={{
+                        padding: "9px 0",
+                        borderRadius: 8,
+                        border: form.priceUsdc === p ? "1px solid #10d98a" : "1px solid rgba(255,255,255,0.08)",
+                        background: form.priceUsdc === p ? "rgba(16,217,138,0.1)" : "rgba(255,255,255,0.03)",
+                        color: form.priceUsdc === p ? "#10d98a" : "rgba(255,255,255,0.5)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        fontFamily: "'DM Mono', monospace",
+                        transition: "all 0.12s ease",
+                      }}
+                    >
+                      ${p}
+                    </button>
+                  ))}
+                </div>
+                <div>
+                  <label style={labelStyle}>Or enter custom amount</label>
+                  <input
+                    type="number"
+                    style={{ ...inputStyle, fontFamily: "'DM Mono', monospace" }}
+                    value={form.priceUsdc}
+                    onChange={(e) => update("priceUsdc", Number(e.target.value))}
+                    min="1"
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  />
+                </div>
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: "12px 14px",
+                    background: "rgba(0,0,0,0.2)",
+                    borderRadius: 10,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 12,
+                    color: "rgba(255,255,255,0.35)",
+                  }}
+                >
+                  <span>Platform fee (10%)</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace" }}>-${(form.priceUsdc * 0.1).toFixed(2)}</span>
+                </div>
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#10d98a",
+                  }}
+                >
+                  <span>You receive</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace" }}>${(form.priceUsdc * 0.9).toFixed(2)} USDC</span>
+                </div>
+              </motion.div>
+            )}
 
-                <h1 style={{
-                  fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em",
-                  marginBottom: 8, color: "var(--text-1)",
-                }}>
-                  Your link is live.
-                </h1>
-                <p style={{
-                  fontSize: 14, color: "var(--text-2)", marginBottom: 24, lineHeight: 1.65,
-                }}>
-                  Share it with clients. They submit a brief, fund escrow, and your USDC
-                  arrives the moment they approve your work.
+            {/* Step 3: Generated link */}
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{
+                  background: "rgba(16,217,138,0.04)",
+                  border: "1px solid rgba(16,217,138,0.2)",
+                  borderRadius: 16,
+                  padding: 28,
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: "50%",
+                    background: "rgba(16,217,138,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 16px",
+                  }}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10d98a" strokeWidth="2.5" strokeLinecap="round">
+                    <polyline points="4,12 9,17 20,7" />
+                  </svg>
+                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 700, color: "#10d98a", marginBottom: 6 }}>
+                  Your link is ready
+                </h2>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>
+                  Share it with clients. When they approve your work, USDC lands in your wallet on Arc in under 500ms.
                 </p>
 
-                {/* Link box */}
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "12px 14px", borderRadius: "var(--r-sm)",
-                  background: "var(--card-2)", border: "1px solid var(--line)",
-                  marginBottom: 10, textAlign: "left",
-                }}>
-                  <span className="font-mono" style={{
-                    flex: 1, fontSize: 12, color: "var(--green)",
-                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }}>
-                    {link}
+                {/* Link display */}
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    background: "rgba(0,0,0,0.3)",
+                    borderRadius: 10,
+                    marginBottom: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 10,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 11,
+                      color: "#10d98a",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap" as const,
+                    }}
+                  >
+                    {shareUrl}
                   </span>
                   <button
-                    onClick={copyLink}
+                    onClick={() => navigator.clipboard.writeText(shareUrl)}
                     style={{
-                      display: "flex", alignItems: "center", gap: 5,
-                      padding: "5px 10px", borderRadius: 6,
-                      background: copied ? "var(--green-dim)" : "rgba(255,255,255,0.06)",
-                      border: `1px solid ${copied ? "var(--green-border)" : "var(--line)"}`,
-                      color: copied ? "var(--green)" : "var(--text-2)",
-                      fontSize: 11.5, fontWeight: 500, cursor: "pointer",
-                      transition: "all 0.2s ease", whiteSpace: "nowrap",
+                      padding: "5px 10px",
+                      background: "#10d98a",
+                      color: "#0a0f1e",
+                      border: "none",
+                      borderRadius: 6,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      flexShrink: 0,
                     }}
                   >
-                    <CopyIcon />
-                    {copied ? "Copied" : "Copy"}
+                    Copy
                   </button>
                 </div>
 
-                {/* Earnings preview */}
-                <div style={{
-                  padding: "12px 14px", borderRadius: "var(--r-sm)",
-                  background: "var(--green-dim)", border: "1px solid var(--green-border)",
-                  fontSize: 13, color: "var(--text-2)", textAlign: "left", marginBottom: 20,
-                }}>
-                  <span style={{ color: "var(--green)", fontWeight: 600 }}>
-                    Each client pays ${form.priceUsdc} USDC.
-                  </span>{" "}
-                  You receive{" "}
-                  <span className="font-mono" style={{ color: "var(--green)" }}>
-                    ${netAmount(priceNum).toFixed(2)} USDC
-                  </span>{" "}
-                  per approved delivery. Settlement on Arc: under 500ms.
-                </div>
+                <a
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "9px 18px",
+                    background: "rgba(255,255,255,0.07)",
+                    color: "rgba(255,255,255,0.7)",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    marginBottom: 20,
+                  }}
+                >
+                  Preview client view
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                  <a href="/worker-dashboard">
+                    <button
+                      style={{
+                        padding: "9px 16px",
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.6)",
+                        borderRadius: 10,
+                        fontSize: 13,
+                        cursor: "pointer",
+                      }}
+                    >
+                      My dashboard
+                    </button>
+                  </a>
                   <button
-                    onClick={() => router.push(`/hire/${slug}`)}
-                    className="btn-primary"
+                    onClick={() => { setStep(0); setGeneratedSlug(""); }}
                     style={{
-                      width: "100%", padding: "13px", borderRadius: "var(--r-sm)",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      padding: "9px 16px",
+                      background: "#10d98a",
+                      color: "#0a0f1e",
+                      border: "none",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
                     }}
                   >
-                    Preview as client
-                    <ArrowRight />
-                  </button>
-                  <button
-                    onClick={() => router.push("/dashboard")}
-                    className="btn-ghost"
-                    style={{ width: "100%", padding: "13px", borderRadius: "var(--r-sm)" }}
-                  >
-                    Go to dashboard
+                    Create another
                   </button>
                 </div>
               </motion.div>
             )}
-
           </AnimatePresence>
-        </div>
-      </main>
-    </div>
-  );
-}
 
-function Field({
-  label, placeholder, value, onChange, as = "input", rows = 3, mono = false,
-}: {
-  label: string; placeholder: string; value: string;
-  onChange: (v: string) => void; as?: "input" | "textarea"; rows?: number; mono?: boolean;
-}) {
-  return (
-    <div>
-      <label style={{
-        display: "block", fontSize: 12, fontWeight: 500,
-        color: "var(--text-2)", marginBottom: 7,
-      }}>
-        {label}
-      </label>
-      {as === "textarea" ? (
-        <textarea
-          rows={rows}
-          placeholder={placeholder}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          className="input"
-          style={{ resize: "none", fontFamily: mono ? '"DM Mono", monospace' : "inherit" }}
-        />
-      ) : (
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          className="input"
-          style={{ fontFamily: mono ? '"DM Mono", monospace' : "inherit", fontSize: mono ? 13 : 14 }}
-        />
-      )}
+          {/* Error */}
+          {error && (
+            <p style={{ color: "#e74c3c", fontSize: 13, marginTop: 10, textAlign: "center" }}>{error}</p>
+          )}
+
+          {/* Navigation */}
+          {step < 3 && (
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              {step > 0 && (
+                <button
+                  onClick={() => { setStep((s) => s - 1); setError(""); }}
+                  style={{
+                    flex: 1,
+                    padding: "13px",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "rgba(255,255,255,0.6)",
+                    borderRadius: 10,
+                    fontSize: 14,
+                    cursor: "pointer",
+                  }}
+                >
+                  Back
+                </button>
+              )}
+              <motion.button
+                onClick={step === 2 ? handleGenerate : handleNextStep}
+                disabled={loading}
+                whileTap={{ scale: 0.97, y: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                style={{
+                  flex: 2,
+                  padding: "13px",
+                  background: loading ? "rgba(16,217,138,0.5)" : "rgba(255,255,255,0.92)",
+                  color: "#0a0f1e",
+                  border: "none",
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: loading ? "default" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                {loading ? (
+                  <>
+                    <div
+                      style={{
+                        width: 16,
+                        height: 16,
+                        border: "2px solid rgba(0,0,0,0.3)",
+                        borderTopColor: "#0a0f1e",
+                        borderRadius: "50%",
+                        animation: "spin 0.7s linear infinite",
+                      }}
+                    />
+                    Generating...
+                  </>
+                ) : step === 2 ? "Generate my link" : "Continue"}
+              </motion.button>
+            </div>
+          )}
+        </motion.div>
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

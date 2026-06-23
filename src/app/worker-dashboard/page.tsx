@@ -1,177 +1,524 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import Nav from "@/components/layout/Nav";
-import Footer from "@/components/layout/Footer";
-import { loadProfile } from "@/lib/profile";
-import { timeAgo } from "@/lib/utils";
+import PaymentOrb from "@/components/shared/PaymentOrb";
 
-export default function WorkerDashboardPage() {
-  const router = useRouter();
-  const [profile, setProfile] = useState({ name: "Freelancer", walletAddress: "" });
-  const [contracts, setContracts] = useState<any[]>([]);
+interface Contract {
+  id: string;
+  serviceTitle: string;
+  clientName: string;
+  brief: string;
+  amount: number;
+  status: "pending" | "delivered" | "approved" | "disputed" | "settled";
+  score?: number;
+  txHash?: string;
+  createdAt: string;
+  settledAt?: string;
+}
+
+interface Profile {
+  name: string;
+  bio: string;
+  walletAddress: string;
+  avatarColor: string;
+  avatarImage: string;
+  availability: string;
+  skills: string[];
+  rate: string;
+}
+
+function StatusBadge({ status }: { status: Contract["status"] }) {
+  const map: Record<string, { label: string; color: string; bg: string }> = {
+    pending: { label: "Awaiting delivery", color: "#f0a500", bg: "rgba(240,165,0,0.1)" },
+    delivered: { label: "Under review", color: "#5090ff", bg: "rgba(80,144,255,0.1)" },
+    approved: { label: "Approved", color: "#10d98a", bg: "rgba(16,217,138,0.1)" },
+    disputed: { label: "Disputed", color: "#e74c3c", bg: "rgba(231,76,60,0.1)" },
+    settled: { label: "Settled", color: "#10d98a", bg: "rgba(16,217,138,0.08)" },
+  };
+  const s = map[status] || map.pending;
+  return (
+    <span
+      style={{
+        padding: "3px 10px",
+        borderRadius: 100,
+        fontSize: 11,
+        fontWeight: 600,
+        color: s.color,
+        background: s.bg,
+        letterSpacing: "0.04em",
+        whiteSpace: "nowrap" as const,
+      }}
+    >
+      {s.label}
+    </span>
+  );
+}
+
+export default function WorkerDashboard() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    const p = loadProfile();
-    if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress });
+    // Load profile
+    try {
+      const p = localStorage.getItem("receipt_profile");
+      if (p) setProfile(JSON.parse(p));
+    } catch {}
 
-    // Load contracts from API + localStorage
-    const stored: any[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith("receipt_contract_")) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key) || "{}");
-          stored.push(data);
-        } catch {}
+    // Load contracts where user is the worker
+    try {
+      const raw = localStorage.getItem("receipt_contracts");
+      if (raw) {
+        const all: Contract[] = JSON.parse(raw);
+        setContracts(all.filter((c) => c.status !== undefined));
       }
-    }
-    stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    setContracts(stored);
+    } catch {}
   }, []);
 
-  const totalEarned = contracts.filter(c => c.status === "settled").reduce((s, c) => s + (c.netAmountUsdc || 0), 0);
-  const pending     = contracts.filter(c => c.status === "pending" || c.status === "delivered");
-  const settled     = contracts.filter(c => c.status === "settled");
+  // Animated counter
+  useEffect(() => {
+    const total = settled.reduce((sum, c) => sum + c.amount * 0.9, 0);
+    let start = 0;
+    const step = total / 40;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= total) { setCount(total); clearInterval(timer); return; }
+      setCount(start);
+    }, 30);
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contracts]);
 
-  const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
-    pending:    { label: "Awaiting delivery", color: "var(--amber)", bg: "var(--amber-dim)" },
-    delivered:  { label: "Submitted",         color: "var(--blue)",  bg: "var(--blue-dim)" },
-    evaluating: { label: "Agent reviewing",   color: "var(--blue)",  bg: "var(--blue-dim)" },
-    settled:    { label: "Paid",              color: "var(--green)", bg: "var(--green-dim)" },
-    disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(240,82,82,0.1)" },
-  };
+  const settled = contracts.filter((c) => c.status === "settled" || c.status === "approved");
+  const pending = contracts.filter((c) => c.status === "pending" || c.status === "delivered");
+  const disputed = contracts.filter((c) => c.status === "disputed");
+
+  const totalEarned = settled.reduce((s, c) => s + c.amount * 0.9, 0);
+  const avgScore = settled.length
+    ? Math.round(settled.reduce((s, c) => s + (c.score || 90), 0) / settled.length)
+    : 0;
+
+  const avatarInitials = profile?.name
+    ? profile.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
+    : "W";
 
   return (
-    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0f1e", color: "#ffffff" }}>
       <Nav />
-      <main style={{ maxWidth: 820, margin: "0 auto", padding: "clamp(80px,12vw,100px) 20px 60px" }}>
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "100px 20px 60px" }}>
 
-          {/* Header */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
-              Freelancer dashboard
-            </div>
-            <h1 style={{ fontSize: "clamp(22px,4vw,30px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 4 }}>
-              Good day, {profile.name.split(" ")[0]}.
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 40 }}
+        >
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: profile?.avatarImage ? "transparent" : (profile?.avatarColor || "#10d98a"),
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              fontWeight: 700,
+              overflow: "hidden",
+              flexShrink: 0,
+            }}
+          >
+            {profile?.avatarImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.avatarImage} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : avatarInitials}
+          </div>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 2 }}>
+              {profile?.name || "Your Dashboard"}
             </h1>
-            <p style={{ fontSize: 14, color: "var(--text-2)" }}>
-              Your earnings and contract history.
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+              Worker dashboard
+              {profile?.availability && (
+                <span
+                  style={{
+                    marginLeft: 10,
+                    padding: "2px 8px",
+                    borderRadius: 100,
+                    fontSize: 11,
+                    background: profile.availability === "available" ? "rgba(16,217,138,0.12)" : "rgba(240,165,0,0.12)",
+                    color: profile.availability === "available" ? "#10d98a" : "#f0a500",
+                  }}
+                >
+                  {profile.availability === "available" ? "Available" : profile.availability}
+                </span>
+              )}
             </p>
           </div>
-
-          {/* Stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 10, marginBottom: 28 }}>
-            {[
-              { label: "Total earned",      value: `$${totalEarned.toFixed(2)}`, color: "var(--green)" },
-              { label: "Contracts settled", value: settled.length,               color: "var(--text-1)" },
-              { label: "Pending payment",   value: pending.length,               color: "var(--amber)" },
-              { label: "Avg. settlement",   value: "482ms",                      color: "var(--text-1)" },
-            ].map((s, i) => (
-              <div key={i} style={{ padding: "18px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)" }}>
-                <div style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
-                <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: s.color }}>{s.value}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Quick actions */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
-            <button onClick={() => router.push("/setup")} className="btn-primary"
-              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
-              Create new service
-            </button>
-            <button onClick={() => router.push("/profile")} className="btn-ghost"
-              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
-              Edit profile
-            </button>
-          </div>
-
-          {/* Wallet info */}
-          {profile.walletAddress && (
-            <div style={{ padding: "12px 16px", borderRadius: "var(--r-lg)", background: "var(--green-dim)", border: "1px solid var(--green-border)", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ fontSize: 11, color: "var(--green)", fontWeight: 600, marginBottom: 3 }}>Your payment wallet</div>
-                <div className="font-mono" style={{ fontSize: 12, color: "var(--text-2)", wordBreak: "break-all" }}>{profile.walletAddress}</div>
-              </div>
-              <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: "var(--green)", flexShrink: 0 }}>
-                ${totalEarned.toFixed(2)} USDC
-              </div>
-            </div>
-          )}
-
-          {/* Contract history */}
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Contract history</div>
-
-          {contracts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px" }}>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>📭</div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
-              <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24 }}>
-                Create a service link and share it with clients to start getting paid.
-              </p>
-              <button onClick={() => router.push("/setup")} className="btn-primary"
-                style={{ padding: "12px 24px", borderRadius: "var(--r-sm)" }}>
-                Create service link
+          <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
+            <Link href="/setup">
+              <button
+                style={{
+                  padding: "9px 16px",
+                  borderRadius: 10,
+                  background: "#10d98a",
+                  border: "none",
+                  color: "#0a0f1e",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                + New service
               </button>
+            </Link>
+            <Link href="/profile">
+              <button
+                style={{
+                  padding: "9px 16px",
+                  borderRadius: 10,
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "rgba(255,255,255,0.7)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Edit profile
+              </button>
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Stats row */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 32 }}>
+          {[
+            {
+              label: "Total earned",
+              value: `$${count.toFixed(2)}`,
+              sub: `${settled.length} settled`,
+              mono: true,
+              accent: totalEarned > 0,
+            },
+            {
+              label: "Avg agent score",
+              value: avgScore > 0 ? `${avgScore}%` : "--",
+              sub: "scope alignment",
+              mono: true,
+              accent: false,
+            },
+            {
+              label: "Pending",
+              value: String(pending.length),
+              sub: "jobs in progress",
+              mono: false,
+              accent: pending.length > 0,
+            },
+            {
+              label: "Disputes",
+              value: String(disputed.length),
+              sub: "under review",
+              mono: false,
+              accent: false,
+            },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              style={{
+                padding: "18px 16px",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 14,
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "rgba(255,255,255,0.35)",
+                  letterSpacing: "0.07em",
+                  textTransform: "uppercase" as const,
+                  marginBottom: 8,
+                }}
+              >
+                {stat.label}
+              </div>
+              <div
+                style={{
+                  fontFamily: stat.mono ? "'DM Mono', monospace" : "'Inter', sans-serif",
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: stat.accent ? "#10d98a" : "#ffffff",
+                  fontVariantNumeric: "tabular-nums lining-nums",
+                  letterSpacing: "-0.02em",
+                  marginBottom: 4,
+                }}
+              >
+                {stat.value}
+              </div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>{stat.sub}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Main content */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 20 }}>
+          {/* Contracts list */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>
+                Active &amp; Recent Contracts
+              </h2>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {contracts.map((c, i) => {
-                const st = STATUS_CFG[c.status] || STATUS_CFG.pending;
-                return (
-                  <motion.div
-                    key={c.id || i}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    onClick={() => router.push(`/escrow/${c.id}`)}
+
+            {contracts.length === 0 ? (
+              <div
+                style={{
+                  padding: "48px 24px",
+                  textAlign: "center",
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px dashed rgba(255,255,255,0.08)",
+                  borderRadius: 14,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" style={{ margin: "0 auto 12px" }}>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 14, marginBottom: 16 }}>
+                  No contracts yet. Create your first service to get started.
+                </p>
+                <Link href="/setup">
+                  <button
                     style={{
-                      display: "flex", alignItems: "center", gap: 14,
-                      padding: "14px 16px", borderRadius: "var(--r-lg)",
-                      background: "var(--card)", border: "1px solid var(--line)",
-                      cursor: "pointer", transition: "border-color 0.15s, background 0.15s",
-                    }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line-2)";
-                      (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line)";
-                      (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
+                      padding: "9px 18px",
+                      background: "#10d98a",
+                      color: "#0a0f1e",
+                      border: "none",
+                      borderRadius: 10,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: "pointer",
                     }}
                   >
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: st.bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: st.color, fontSize: 16 }}>
-                      {c.status === "settled" ? "✓" : "·"}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {c.serviceTitle || "Freelance service"}
+                    Create a service
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {contracts.map((c, i) => (
+                  <motion.div
+                    key={c.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                  >
+                    <Link href={`/escrow/${c.id}`} style={{ textDecoration: "none" }}>
+                      <div
+                        style={{
+                          padding: "14px 16px",
+                          background: "rgba(255,255,255,0.03)",
+                          border: "1px solid rgba(255,255,255,0.06)",
+                          borderRadius: 12,
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 14,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>
+                              {c.serviceTitle || "Contract"}
+                            </span>
+                            <StatusBadge status={c.status} />
+                          </div>
+                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
+                            From {c.clientName} &middot; {new Date(c.createdAt).toLocaleDateString()}
+                          </div>
+                          {c.score && (
+                            <div style={{ fontSize: 11, color: "#5090ff", marginTop: 3 }}>
+                              Agent score: {c.score}%
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ textAlign: "right", flexShrink: 0 }}>
+                          <div
+                            style={{
+                              fontFamily: "'DM Mono', monospace",
+                              fontSize: 14,
+                              fontWeight: 700,
+                              color: c.status === "settled" || c.status === "approved" ? "#10d98a" : "#ffffff",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            ${(c.amount * 0.9).toFixed(2)}
+                          </div>
+                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>USDC</div>
+                        </div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
                       </div>
-                      <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 2 }}>
-                        Client: {c.clientName || "Unknown"} · {timeAgo(new Date(c.createdAt || Date.now()))}
-                      </div>
-                    </div>
-                    <div style={{ padding: "2px 9px", borderRadius: 999, background: st.bg, color: st.color, fontSize: 10.5, fontWeight: 600, flexShrink: 0 }}>
-                      {st.label}
-                    </div>
-                    <div style={{ textAlign: "right", flexShrink: 0, minWidth: 72 }}>
-                      <div className="font-mono" style={{ fontSize: 13, color: c.status === "settled" ? "var(--green)" : "var(--amber)" }}>
-                        {c.status === "settled" ? "+" : ""}${(c.netAmountUsdc || 0).toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: 10, color: "var(--text-3)" }}>USDC</div>
-                    </div>
+                    </Link>
                   </motion.div>
-                );
-              })}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* Orb */}
+            <div
+              style={{
+                padding: "24px 16px",
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 16,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 16,
+              }}
+            >
+              <PaymentOrb
+                state={pending.length > 0 ? "locked" : totalEarned > 0 ? "settled" : "idle"}
+                amount={totalEarned}
+                size={140}
+              />
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em" }}>
+                  TOTAL EARNED
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 24,
+                    fontWeight: 700,
+                    color: "#10d98a",
+                    fontVariantNumeric: "tabular-nums",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  ${totalEarned.toFixed(2)}
+                </div>
+              </div>
+              {profile?.walletAddress && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "rgba(255,255,255,0.2)",
+                    fontFamily: "'DM Mono', monospace",
+                    wordBreak: "break-all",
+                    textAlign: "center",
+                  }}
+                >
+                  {profile.walletAddress.slice(0, 8)}...{profile.walletAddress.slice(-6)}
+                </div>
+              )}
             </div>
-          )}
-        </motion.div>
-      </main>
-      <Footer />
+
+            {/* Skills */}
+            {profile?.skills && profile.skills.length > 0 && (
+              <div
+                style={{
+                  padding: "16px",
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 14,
+                }}
+              >
+                <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.07em", textTransform: "uppercase" as const, marginBottom: 10 }}>
+                  Skills
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {profile.skills.map((s) => (
+                    <span
+                      key={s}
+                      style={{
+                        padding: "4px 9px",
+                        borderRadius: 100,
+                        fontSize: 11,
+                        background: "rgba(80,144,255,0.1)",
+                        color: "#5090ff",
+                      }}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quick links */}
+            <div
+              style={{
+                padding: "16px",
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 14,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {[
+                { href: "/setup", label: "Create new service" },
+                { href: "/marketplace", label: "Browse job board" },
+                { href: "/profile", label: "Edit profile" },
+              ].map((l) => (
+                <Link key={l.href} href={l.href} style={{ textDecoration: "none" }}>
+                  <div
+                    style={{
+                      padding: "9px 10px",
+                      borderRadius: 8,
+                      fontSize: 13,
+                      color: "rgba(255,255,255,0.55)",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      transition: "all 0.12s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                      e.currentTarget.style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.55)";
+                    }}
+                  >
+                    {l.label}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
