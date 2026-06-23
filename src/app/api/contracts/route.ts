@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isDemoMode } from "@/lib/utils";
+
+function isDemoMode() {
+  return !process.env.DATABASE_URL ||
+    process.env.DATABASE_URL.includes("localhost") ||
+    process.env.DATABASE_URL.includes("[YOUR-PASSWORD]");
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

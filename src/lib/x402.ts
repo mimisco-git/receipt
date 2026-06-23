@@ -13,12 +13,12 @@ function getSellerAccount() {
   return privateKeyToAccount(key);
 }
 
-export function getSellerAddress(): string {
+export async function getSellerAddress(): Promise<string> {
   return process.env.SELLER_ADDRESS ?? "";
 }
 
 // Build the x402 payment required response header
-export function buildPaymentRequiredResponse(
+export async function buildPaymentRequiredResponse(
   priceUsdc: number,
   resourcePath: string
 ) {
