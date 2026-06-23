@@ -40,7 +40,7 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState<ProfileData>({
-    name: "", bio: "", walletAddress: "",
+    role: "", name: "", bio: "", walletAddress: "",
     website: "", twitter: "", skills: "",
     avatarColor: "#12E89A", avatarUrl: null,
     hourlyRate: "", availability: "available",
@@ -108,13 +108,48 @@ export default function ProfilePage() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
 
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.025em", marginBottom: 6 }}>
-              Your profile
-            </h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.025em" }}>
+                Your profile
+              </h1>
+              {form.role && (
+                <span className={form.role === "worker" ? "pill pill-green" : "pill pill-blue"}>
+                  <span className="pill-dot" />
+                  {form.role === "worker" ? "Worker" : "Client"}
+                </span>
+              )}
+            </div>
             <p style={{ fontSize: 14, color: "var(--text-2)" }}>
               Saved automatically. Clients see this when they open your service link.
             </p>
           </div>
+
+          {/* ROLE */}
+          <Section title="I am a">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {([
+                { value: "worker" as const, label: "Worker / Freelancer", sub: "I deliver services and get paid" },
+                { value: "client" as const, label: "Client / Buyer", sub: "I hire and pay for work" },
+              ]).map(opt => {
+                const active = form.role === opt.value;
+                return (
+                  <button key={opt.value} onClick={() => update("role", opt.value)}
+                    style={{
+                      padding: "16px 14px", borderRadius: 12, textAlign: "left", cursor: "pointer",
+                      border: active ? "1.5px solid var(--green)" : "1.5px solid var(--line)",
+                      background: active ? "var(--green-dim)" : "rgba(255,255,255,0.02)",
+                      color: active ? "var(--green)" : "var(--text-2)",
+                      transition: "all 0.2s ease",
+                    }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 3, color: active ? "var(--green)" : "var(--text-1)" }}>
+                      {opt.label}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text-3)" }}>{opt.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </Section>
 
           {/* AVATAR */}
           <Section title="Photo">
@@ -203,7 +238,7 @@ export default function ProfilePage() {
 
           {/* ACTIONS */}
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={handleSave} disabled={saving || !form.name.trim()} className="btn-primary"
+            <button onClick={handleSave} disabled={saving || !form.name.trim() || !form.role} className="btn-primary"
               style={{ flex: 1, padding: "13px", borderRadius: "var(--r-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               {saving ? (
                 <><span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(6,14,10,0.3)", borderTopColor: "#060E0A", display: "inline-block", animation: "spin 0.7s linear infinite" }} />Saving...</>

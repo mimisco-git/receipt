@@ -17,7 +17,7 @@ export default function WorkerDashboardPage() {
     const p = loadProfile();
     if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress });
 
-    // Load contracts from API + localStorage
+    // Load contracts from localStorage first
     const stored: any[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -30,6 +30,34 @@ export default function WorkerDashboardPage() {
     }
     stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     setContracts(stored);
+
+    // Also fetch from API for real DB contracts
+    if (p.walletAddress) {
+      fetch(`/api/contracts?role=worker&wallet=${encodeURIComponent(p.walletAddress)}`)
+        .then(r => r.ok ? r.json() : { contracts: [] })
+        .then(data => {
+          if (data.contracts?.length) {
+            const ids = new Set(stored.map((c: any) => c.id));
+            const newContracts = data.contracts
+              .filter((c: any) => !ids.has(c.id))
+              .map((c: any) => ({
+                id: c.id,
+                clientName: c.clientName,
+                brief: c.brief,
+                amountUsdc: c.amountUsdc,
+                netAmountUsdc: c.netAmountUsdc,
+                serviceTitle: c.service?.title || "Service",
+                status: (c.status || "").toLowerCase().replace("pending_delivery", "pending"),
+                agentScore: c.agentScore,
+                createdAt: c.createdAt,
+              }));
+            if (newContracts.length) {
+              setContracts(prev => [...newContracts, ...prev]);
+            }
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const totalEarned = contracts.filter(c => c.status === "settled").reduce((s, c) => s + (c.netAmountUsdc || 0), 0);

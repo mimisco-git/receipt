@@ -70,17 +70,19 @@ export default function EscrowPage() {
       .then(r => r.json())
       .then(data => {
         if (data.clientName) {
+          const rawStatus = (data.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating") as Phase;
           const c: ContractData = {
             id,
             clientName: data.clientName,
             brief: data.brief,
-            amountUsdc: data.amountUsdc || 8,
-            netAmountUsdc: data.netAmountUsdc || 7.2,
+            amountUsdc: data.amountUsdc || 0,
+            netAmountUsdc: data.netAmountUsdc || 0,
             serviceTitle: data.service?.title || "Freelance service",
             freelancerName: data.freelancer?.name || "Freelancer",
-            status: (data.status?.toLowerCase() as Phase) || "pending",
+            status: rawStatus || "pending",
           };
           setContract(c);
+          if (rawStatus && rawStatus !== "pending") setPhase(rawStatus);
         }
       })
       .catch(() => {});
@@ -155,7 +157,6 @@ export default function EscrowPage() {
   async function approvePayment() {
     setPhase("approved");
 
-    // Call real payment release API
     try {
       const res = await fetch("/api/agent", {
         method: "PUT",
@@ -163,14 +164,13 @@ export default function EscrowPage() {
         body: JSON.stringify({
           contractId: id,
           action: "APPROVE",
-          freelancerAddress: contract.netAmountUsdc,
           netAmountUsdc: contract.netAmountUsdc,
         }),
       });
       const data = await res.json();
-      setTxHash(data.txHash || "0xarc_" + Date.now().toString(16));
-    } catch {
-      setTxHash("0xarc_" + Date.now().toString(16));
+      if (data.txHash) setTxHash(data.txHash);
+    } catch (err) {
+      console.error("Settlement failed:", err);
     }
 
     setTimeout(() => {
@@ -391,7 +391,7 @@ export default function EscrowPage() {
                         </div>
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 600 }}>Receipt Agent</div>
-                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>NVIDIA NIM · Llama 3.3-70b</div>
+                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>AI Escrow Arbiter</div>
                         </div>
                       </div>
 

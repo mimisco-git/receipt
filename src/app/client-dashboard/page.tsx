@@ -47,9 +47,41 @@ export default function ClientDashboardPage() {
         } catch {}
       }
     }
-    // Sort newest first
     stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     setContracts(stored);
+
+    // Also fetch from API
+    try {
+      const profile = JSON.parse(localStorage.getItem("receipt_profile") || "{}");
+      const clientName = profile.name;
+      if (clientName) {
+        setName(clientName);
+        fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(clientName)}`)
+          .then(r => r.ok ? r.json() : { contracts: [] })
+          .then(data => {
+            if (data.contracts?.length) {
+              const ids = new Set(stored.map(c => c.id));
+              const newContracts: ClientContract[] = data.contracts
+                .filter((c: any) => !ids.has(c.id))
+                .map((c: any) => ({
+                  id: c.id,
+                  serviceTitle: c.service?.title || "Service",
+                  freelancerName: c.service?.freelancer?.name || "Worker",
+                  brief: c.brief,
+                  amountUsdc: c.amountUsdc,
+                  status: (c.status || "").toLowerCase().replace("pending_delivery", "pending"),
+                  createdAt: c.createdAt,
+                  agentScore: c.agentScore,
+                  txHash: c.settleTxHash,
+                }));
+              if (newContracts.length) {
+                setContracts(prev => [...newContracts, ...prev]);
+              }
+            }
+          })
+          .catch(() => {});
+      }
+    } catch {}
   }, []);
 
   const total    = contracts.reduce((s, c) => s + (c.amountUsdc || 0), 0);
