@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
+import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Receipt: Get paid the moment your work is approved",
@@ -23,7 +24,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" href="/receipt-favicon.png" />
         <link rel="apple-touch-icon" href="/receipt-logo.png" />
       </head>
-      <body>{children}</body>
+      <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <div style={{ flex: 1 }}>{children}</div>
+        <Footer />
+      </body>
     </html>
   );
 }

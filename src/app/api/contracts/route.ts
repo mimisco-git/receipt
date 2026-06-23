@@ -41,6 +41,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ contracts });
     }
 
+    if (role === "open") {
+      const contracts = await db.contract.findMany({
+        where: { status: "PENDING_DELIVERY" },
+        include: { service: true },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      });
+      return NextResponse.json({ contracts });
+    }
+
     return NextResponse.json({ contracts: [] });
   } catch (err) {
     console.error("GET /api/contracts error:", err);

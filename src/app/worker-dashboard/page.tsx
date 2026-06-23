@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Nav from "@/components/layout/Nav";
-import Footer from "@/components/layout/Footer";
 import { loadProfile } from "@/lib/profile";
 import { timeAgo } from "@/lib/utils";
 
@@ -199,7 +198,6 @@ export default function WorkerDashboardPage() {
           )}
         </motion.div>
       </main>
-      <Footer />
     </div>
   );
 }

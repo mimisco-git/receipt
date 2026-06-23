@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Nav from "@/components/layout/Nav";
-import Footer from "@/components/layout/Footer";
 import { timeAgo } from "@/lib/utils";
 
 interface ClientContract {
@@ -182,7 +181,6 @@ export default function ClientDashboardPage() {
           )}
         </motion.div>
       </main>
-      <Footer />
     </div>
   );
 }

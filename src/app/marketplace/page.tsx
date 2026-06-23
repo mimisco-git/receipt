@@ -80,11 +80,23 @@ const SAMPLE_SERVICES: Service[] = [
 
 const CATEGORY_FILTERS = ["All", "Writing", "SEO", "Development", "Design", "Translation", "Marketing", "Data Analysis"];
 
+interface Job {
+  id: string;
+  clientName: string;
+  brief: string;
+  amountUsdc: number;
+  serviceTitle: string;
+  createdAt: string;
+  status: string;
+}
+
 export default function Marketplace() {
   const [role, setRole] = useState<string | null>(null);
+  const [tab, setTab] = useState<"workers" | "jobs">("workers");
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [userServices, setUserServices] = useState<Service[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   const [dbServices, setDbServices] = useState<Service[]>([]);
 
@@ -97,6 +109,24 @@ export default function Marketplace() {
       const raw = localStorage.getItem("receipt_services");
       if (raw) setUserServices(JSON.parse(raw));
     } catch {}
+
+    // Fetch open jobs (contracts with PENDING_DELIVERY)
+    fetch("/api/contracts?role=open")
+      .then(r => r.ok ? r.json() : { contracts: [] })
+      .then(data => {
+        if (data.contracts?.length) {
+          setJobs(data.contracts.map((c: Record<string, unknown>) => ({
+            id: c.id as string,
+            clientName: c.clientName as string,
+            brief: c.brief as string,
+            amountUsdc: c.amountUsdc as number,
+            serviceTitle: (c.service as Record<string, string>)?.title || "Job",
+            createdAt: c.createdAt as string,
+            status: c.status as string,
+          })));
+        }
+      })
+      .catch(() => {});
 
     // Fetch real services from API
     fetch("/api/service/list")
@@ -137,39 +167,130 @@ export default function Marketplace() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24 }}>
             <div>
-              <h1 style={{ fontSize: 30, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
-                {role === "worker" ? "Job board" : "Find a worker"}
+              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
+                Marketplace
               </h1>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>
                 {role === "worker"
-                  ? "Browse open briefs from clients. Apply and get paid instantly in USDC."
-                  : "Hire skilled workers. Pay on delivery. USDC settles in under 500ms."}
+                  ? "Find clients or list your services."
+                  : "Hire skilled workers or post a job."}
               </p>
             </div>
             {role === "worker" && (
               <Link href="/setup">
-                <button
-                  style={{
-                    padding: "9px 18px",
-                    background: "var(--green)",
-                    color: "#0a0f1e",
-                    border: "none",
-                    borderRadius: 10,
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    flexShrink: 0,
-                  }}
-                >
+                <button className="btn-primary" style={{ padding: "9px 18px", borderRadius: 10, fontSize: 13 }}>
                   + List my service
                 </button>
               </Link>
             )}
+            {role === "client" && (
+              <Link href="/setup">
+                <button className="btn-primary" style={{ padding: "9px 18px", borderRadius: 10, fontSize: 13 }}>
+                  + Post a job
+                </button>
+              </Link>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 4, marginBottom: 28 }}>
+            {(["workers", "jobs"] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 100,
+                  border: "none",
+                  background: tab === t ? "rgba(255,255,255,0.08)" : "transparent",
+                  color: tab === t ? "var(--text-1)" : "var(--text-3)",
+                  fontSize: 13,
+                  fontWeight: tab === t ? 600 : 500,
+                  cursor: "pointer",
+                  transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
+                }}
+              >
+                {t === "workers" ? "Workers" : "Open Jobs"}
+                {t === "jobs" && jobs.length > 0 && (
+                  <span style={{ marginLeft: 6, fontSize: 11, color: "var(--green)", fontWeight: 600 }}>{jobs.length}</span>
+                )}
+              </button>
+            ))}
           </div>
         </motion.div>
 
+        {/* ─── JOBS TAB ─── */}
+        {tab === "jobs" && (
+          <div>
+            {jobs.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "64px 0" }}>
+                <div style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 12 }}>No open jobs yet.</div>
+                {role === "client" && (
+                  <Link href="/setup">
+                    <button className="btn-primary" style={{ padding: "10px 20px", borderRadius: 10, fontSize: 13 }}>
+                      Post the first job
+                    </button>
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {jobs.map((job, i) => (
+                  <motion.div
+                    key={job.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                  >
+                    <Link href={`/escrow/${job.id}`} style={{ textDecoration: "none" }}>
+                      <div
+                        style={{
+                          padding: "18px 20px",
+                          background: "rgba(255,255,255,0.025)",
+                          borderRadius: 14,
+                          cursor: "pointer",
+                          transition: "background 0.2s ease",
+                          display: "flex", alignItems: "center", gap: 14,
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.045)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.025)"; }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 4 }}>
+                            {job.serviceTitle}
+                          </div>
+                          <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 6 }}>
+                            Posted by {job.clientName} · {new Date(job.createdAt).toLocaleDateString()}
+                          </div>
+                          <div style={{
+                            fontSize: 13, color: "var(--text-2)", lineHeight: 1.5,
+                            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                          }}>
+                            {job.brief}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right", flexShrink: 0 }}>
+                          <div className="font-mono" style={{ fontSize: 16, fontWeight: 600, color: "var(--green)" }}>
+                            ${job.amountUsdc.toFixed(2)}
+                          </div>
+                          <div style={{ fontSize: 10, color: "var(--text-3)" }}>USDC</div>
+                        </div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── WORKERS TAB ─── */}
+        {tab === "workers" && (<div>
         {/* Search + filters */}
         <div style={{ marginBottom: 28, marginTop: 28 }}>
           <input
@@ -389,10 +510,11 @@ export default function Marketplace() {
         {filtered.length === 0 && (
           <div style={{ textAlign: "center", padding: "48px 0" }}>
             <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}>
-              No services match your search. Try a different keyword or filter.
+              No services match your search.
             </p>
           </div>
         )}
+        </div>)}
       </div>
     </div>
   );

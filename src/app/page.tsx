@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Nav from "@/components/layout/Nav";
-import Footer from "@/components/layout/Footer";
 import HeroStats from "@/components/shared/HeroStats";
 import HowItWorks from "@/components/shared/HowItWorks";
 import PaymentOrbDemo from "@/components/shared/PaymentOrbDemo";
@@ -355,7 +354,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
