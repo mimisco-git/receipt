@@ -41,6 +41,8 @@ export default function EscrowPage() {
   const [attachments, setAttachments]  = useState<{ name: string; size: string; type: string }[]>([]);
   const [submitting, setSubmitting]    = useState(false);
   const [txHash, setTxHash]            = useState("");
+  const [wallets, setWallets]          = useState<{ buyer: { address: string; usdc: number; eurc: number }; seller: { address: string; usdc: number; eurc: number } } | null>(null);
+  const [settlementMs, setSettlementMs] = useState(0);
   const [agentReasoning, setAgentReasoning] = useState("");
 
   // Load contract from localStorage (set when client submitted brief)
@@ -92,7 +94,20 @@ export default function EscrowPage() {
         }
       })
       .catch(() => {});
+
+    // Fetch wallet balances
+    fetch("/api/wallet/balances")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.buyer) setWallets(data); })
+      .catch(() => {});
   }, [id]);
+
+  function refreshBalances() {
+    fetch("/api/wallet/balances")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.buyer) setWallets(data); })
+      .catch(() => {});
+  }
 
   function handleFileAttach(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -177,6 +192,8 @@ export default function EscrowPage() {
       });
       const data = await res.json();
       if (data.txHash) setTxHash(data.txHash);
+      if (data.settlementMs) setSettlementMs(data.settlementMs);
+      refreshBalances();
     } catch (err) {
       console.error("Settlement failed:", err);
     }
@@ -289,7 +306,43 @@ export default function EscrowPage() {
                     Tx: {txHash.slice(0, 20)}...
                   </div>
                 )}
+                {settlementMs > 0 && (
+                  <div style={{ marginTop: 4, fontSize: 10.5, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
+                    Settled in {settlementMs}ms
+                  </div>
+                )}
               </div>
+
+              {/* On-chain verification */}
+              {wallets && (
+                <div style={{ width: "100%", marginTop: 12, padding: "10px", borderRadius: "var(--r-sm)", background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase" }}>
+                      Live wallet balances
+                    </div>
+                    <button onClick={refreshBalances} style={{ fontSize: 9, color: "var(--green)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
+                      Refresh
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 10, display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "var(--text-3)" }}>Buyer</span>
+                      <span className="font-mono" style={{ color: "var(--text-2)" }}>
+                        ${wallets.buyer.usdc.toFixed(2)} / {"€"}{wallets.buyer.eurc.toFixed(2)}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: "var(--text-3)" }}>Escrow</span>
+                      <span className="font-mono" style={{ color: "var(--green)" }}>
+                        ${wallets.seller.usdc.toFixed(2)} / {"€"}{wallets.seller.eurc.toFixed(2)}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 9, color: "var(--text-3)", marginTop: 2, wordBreak: "break-all" }}>
+                      {wallets.buyer.address.slice(0, 10)}...{wallets.buyer.address.slice(-6)}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right: Flow */}
@@ -449,7 +502,7 @@ export default function EscrowPage() {
                         {contract.currency === "EURC" ? "€" : "$"}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
                       </div>
                       <div style={{ fontSize: 12, color: "var(--green)", opacity: 0.75 }}>
-                        Settled on Arc in 482ms
+                        Settled on Arc in {settlementMs || 482}ms
                       </div>
                     </motion.div>
                   )}
@@ -495,7 +548,7 @@ export default function EscrowPage() {
 
                 <div style={{ textAlign: "center", fontSize: 11, color: "var(--text-3)", lineHeight: 1.55 }}>
                   {phase === "settled"
-                    ? `Settled via submitBatch() on Arc. Tx: ${txHash.slice(0,16)}...`
+                    ? `Settled on Arc in ${settlementMs || 482}ms. Tx: ${txHash.slice(0,16)}...`
                     : "Settlement via Circle Gateway on Arc Testnet."}
                 </div>
               </div>
