@@ -218,7 +218,7 @@ export default function SetupPage() {
                 </p>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <Field label="Your full name" placeholder="e.g. Amara Nwosu"
+                  <Field label="Your full name" placeholder="Your full name"
                     value={form.name} onChange={v => update("name", v)} />
                   <Field label="Short bio (optional)" placeholder="e.g. SEO writer, 5 years in fintech"
                     value={form.bio} onChange={v => update("bio", v)} />

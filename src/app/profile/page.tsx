@@ -213,29 +213,33 @@ export default function ProfilePage() {
 
           {/* BASIC INFO */}
           <Section title="Basic info">
-            <Field label="Full name" placeholder="e.g. Amara Nwosu" value={form.name} onChange={v => update("name", v)} />
-            <Field label="Bio" placeholder="What you do, your specialty, years of experience..." value={form.bio} onChange={v => update("bio", v)} as="textarea" rows={3} />
+            <Field label="Full name" placeholder="Your full name" value={form.name} onChange={v => update("name", v)} />
+            <Field label={form.role === "client" ? "Company or about" : "Bio"} placeholder={form.role === "client" ? "Your company or what you need done..." : "What you do, your specialty, years of experience..."} value={form.bio} onChange={v => update("bio", v)} as="textarea" rows={3} />
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: 12 }}>
               <Field label="Website" placeholder="https://yoursite.com" value={form.website} onChange={v => update("website", v)} />
               <Field label="Twitter / X" placeholder="@yourhandle" value={form.twitter} onChange={v => update("twitter", v)} />
             </div>
-            <Field label="Skills (comma separated)" placeholder="SEO writing, copywriting, technical docs" value={form.skills} onChange={v => update("skills", v)} />
+            {form.role === "worker" && (
+              <Field label="Skills (comma separated)" placeholder="SEO writing, copywriting, technical docs" value={form.skills} onChange={v => update("skills", v)} />
+            )}
           </Section>
 
           {/* PAYMENT */}
-          <Section title="Payment details">
+          <Section title={form.role === "client" ? "Wallet" : "Payment details"}>
             <Field label="USDC wallet address on Arc" placeholder="0x..." value={form.walletAddress} onChange={v => update("walletAddress", v)} mono />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: 12 }}>
-              <Field label="Default hourly rate (USDC)" placeholder="e.g. 25.00" value={form.hourlyRate} onChange={v => update("hourlyRate", v)} />
-              <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Availability</label>
-                <select value={form.availability} onChange={e => update("availability", e.target.value)} style={SELECT_STYLE}>
-                  <option value="available">Available for work</option>
-                  <option value="busy">Currently busy</option>
-                  <option value="closed">Not taking projects</option>
-                </select>
+            {form.role === "worker" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: 12 }}>
+                <Field label="Default hourly rate (USDC)" placeholder="e.g. 25.00" value={form.hourlyRate} onChange={v => update("hourlyRate", v)} />
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Availability</label>
+                  <select value={form.availability} onChange={e => update("availability", e.target.value)} style={SELECT_STYLE}>
+                    <option value="available">Available for work</option>
+                    <option value="busy">Currently busy</option>
+                    <option value="closed">Not taking projects</option>
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
           </Section>
 
           {/* ACTIONS */}
@@ -248,16 +252,24 @@ export default function ProfilePage() {
                 <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>Saved</>
               ) : "Save profile"}
             </button>
-            <button onClick={() => router.push("/setup")} className="btn-ghost"
-              style={{ padding: "13px 18px", borderRadius: "var(--r-sm)" }}>
-              Create service
-            </button>
+            {form.role === "worker" && (
+              <button onClick={() => router.push("/setup")} className="btn-ghost"
+                style={{ padding: "13px 18px", borderRadius: "var(--r-sm)" }}>
+                Create service
+              </button>
+            )}
+            {form.role === "client" && (
+              <button onClick={() => router.push("/marketplace")} className="btn-ghost"
+                style={{ padding: "13px 18px", borderRadius: "var(--r-sm)" }}>
+                Browse workers
+              </button>
+            )}
           </div>
 
           {saved && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: 12, padding: "11px 14px", background: "var(--green-dim)", border: "1px solid var(--green-border)", borderRadius: "var(--r-sm)", fontSize: 13, color: "var(--green)", textAlign: "center" }}>
-              Profile saved. Your details will appear in your service links automatically.
+              style={{ marginTop: 12, padding: "11px 14px", background: "var(--green-dim)", borderRadius: "var(--r-sm)", fontSize: 13, color: "var(--green)", textAlign: "center" }}>
+              Profile saved.
             </motion.div>
           )}
 

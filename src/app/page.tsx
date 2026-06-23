@@ -155,13 +155,6 @@ export default function HomePage() {
             Create your service link
             <ArrowRight />
           </button>
-          <button
-            className="btn-ghost"
-            onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
-            style={{ padding: "13px 24px", borderRadius: 12 }}
-          >
-            Watch the demo
-          </button>
         </motion.div>
 
         <motion.div

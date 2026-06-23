@@ -9,30 +9,29 @@ import { formatUsdc, netAmount, getInitials } from "@/lib/utils";
 
 type Phase = "browse" | "brief" | "funding" | "success";
 
-// Demo service data for when no API is available
-const DEMO_SERVICE = {
-  id: "demo",
-  slug: "amara-seo",
-  title: "SEO blog post, 1000 words",
-  description:
-    "Original, well-researched article optimized for search. Includes keyword strategy, meta description, and one revision within 48 hours. Delivered as Google Doc or Markdown.",
-  priceUsdc: 8.0,
+interface ServiceData {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  priceUsdc: number;
   freelancer: {
-    id: "demo-freelancer",
-    name: "Amara Nwosu",
-    walletAddress: "0xdemo",
-    avatarColor: "#667eea",
-    bio: "SEO writer with 5 years in fintech and sustainability sectors.",
-  },
-  isActive: true,
-  createdAt: new Date().toISOString(),
-};
+    id: string;
+    name: string;
+    walletAddress: string;
+    avatarColor: string;
+    bio: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+}
 
 export default function HirePage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
 
-  const [service, setService] = useState<typeof DEMO_SERVICE | null>(null);
+  const [service, setService] = useState<ServiceData | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState<Phase>("browse");
 
@@ -51,12 +50,16 @@ export default function HirePage() {
         const res = await fetch(`/api/service?slug=${slug}`);
         if (res.ok) {
           const data = await res.json();
-          setService(data);
+          if (data.id) {
+            setService(data);
+          } else {
+            setNotFound(true);
+          }
         } else {
-          setService(DEMO_SERVICE);
+          setNotFound(true);
         }
       } catch {
-        setService(DEMO_SERVICE);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -93,7 +96,7 @@ export default function HirePage() {
   }
 
   if (loading) return <LoadingScreen />;
-  if (!service) return <NotFound />;
+  if (notFound || !service) return <NotFound />;
 
   const price = service.priceUsdc;
   const initials = getInitials(service.freelancer.name);
@@ -246,7 +249,7 @@ export default function HirePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <BriefField
                       label="Your name"
-                      placeholder="James Adeyemi"
+                      placeholder="Your name"
                       value={form.clientName}
                       onChange={(v) => setForm((f) => ({ ...f, clientName: v }))}
                     />
