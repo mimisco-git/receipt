@@ -69,13 +69,32 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.role) { alert("Please select your role first."); return; }
     if (!form.name.trim()) { alert("Please enter your name."); return; }
     localStorage.setItem("receipt_profile", JSON.stringify(form));
     setSaved(true);
+
+    // Provision Circle wallet if not already provisioned
+    if (!form.walletAddress) {
+      try {
+        const res = await fetch("/api/wallet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: form.name.replace(/\s/g, "-").toLowerCase(), role: form.role }),
+        });
+        if (res.ok) {
+          const wallet = await res.json();
+          if (wallet.walletAddress) {
+            const updated = { ...form, walletAddress: wallet.walletAddress, circleWalletId: wallet.walletId };
+            localStorage.setItem("receipt_profile", JSON.stringify(updated));
+            setForm(updated);
+          }
+        }
+      } catch {}
+    }
+
     setTimeout(() => setSaved(false), 2500);
-    // Reload so nav updates
     setTimeout(() => window.location.reload(), 300);
   };
 
@@ -123,16 +142,26 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1
-            style={{
-              fontSize: 28,
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-              marginBottom: 6,
-            }}
-          >
-            Your Profile
-          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 700,
+                letterSpacing: "-0.03em",
+              }}
+            >
+              Your Profile
+            </h1>
+            {form.role && (
+              <span
+                className={form.role === "worker" ? "pill pill-green" : "pill pill-blue"}
+                style={{ fontSize: 11 }}
+              >
+                <span className="pill-dot" />
+                {form.role === "worker" ? "Worker" : "Client"}
+              </span>
+            )}
+          </div>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, marginBottom: 32 }}>
             Saved locally. Loads automatically across Receipt.
           </p>

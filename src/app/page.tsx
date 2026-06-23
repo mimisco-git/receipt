@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import HeroStats from "@/components/shared/HeroStats";
 import HowItWorks from "@/components/shared/HowItWorks";
 import PaymentOrbDemo from "@/components/shared/PaymentOrbDemo";
+import PaymentOrb from "@/components/shared/PaymentOrb";
 import LeptonLogo from "@/components/shared/LeptonLogo";
 
 function ZapSVG() {
@@ -76,6 +77,16 @@ export default function HomePage() {
         padding: "120px 20px 60px",
         position: "relative", zIndex: 1,
       }}>
+        {/* Hero Orb */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.05, duration: 0.7, ease: "easeOut" }}
+          style={{ marginBottom: 32 }}
+        >
+          <PaymentOrb variant="hero" state="idle" size={200} interactive={true} />
+        </motion.div>
+
         {/* Eyebrow pill with Lepton logo */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -333,7 +344,7 @@ export default function HomePage() {
             "EIP-3009",
             "Arc L1 Testnet",
             "USDC",
-            "NVIDIA NIM · Llama 3.3-70b",
+            "Claude Sonnet 4.6 · Receipt Agent",
             "Next.js · Supabase",
           ].map(t => (
             <span key={t} className="font-mono" style={{

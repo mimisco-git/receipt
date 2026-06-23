@@ -214,7 +214,7 @@ export default function Marketplace() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
               >
-                <Link href={service.id.startsWith("demo-") ? "#" : `/hire/${service.slug}`} style={{ textDecoration: "none" }}>
+                <Link href={`/hire/${service.slug}`} style={{ textDecoration: "none" }}>
                   <div
                     style={{
                       padding: "20px",

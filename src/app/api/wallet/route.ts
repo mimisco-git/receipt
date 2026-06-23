@@ -1,8 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 
-// POST /api/wallet
-// Provisions a new Circle custodial wallet for a user (freelancer or client)
+// GET /api/wallet?walletId=xxx — check wallet balance
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const walletId = searchParams.get("walletId");
+
+  if (!walletId) {
+    return NextResponse.json({ error: "walletId required" }, { status: 400 });
+  }
+
+  const circleKey = process.env.CIRCLE_API_KEY || "";
+  if (!circleKey || circleKey.includes("your-") || circleKey.includes("YOUR")) {
+    return NextResponse.json({ balance: 100.0, currency: "USDC", mode: "demo" });
+  }
+
+  try {
+    const { getWalletBalance } = await import("@/lib/circle");
+    const balance = await getWalletBalance(walletId);
+    return NextResponse.json({ balance, currency: "USDC" });
+  } catch (err) {
+    console.error("GET /api/wallet error:", err);
+    return NextResponse.json({ balance: 0, currency: "USDC", error: "Failed to fetch balance" });
+  }
+}
+
+// POST /api/wallet — provisions a new Circle custodial wallet
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

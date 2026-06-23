@@ -54,10 +54,84 @@ export default function ClientDashboard() {
       const p = localStorage.getItem("receipt_profile");
       if (p) setProfile(JSON.parse(p));
     } catch {}
+
+    const contractMap = new Map<string, Contract>();
+
+    // Source 1: receipt_client_contracts array
     try {
       const raw = localStorage.getItem("receipt_client_contracts");
-      if (raw) setContracts(JSON.parse(raw));
+      if (raw) {
+        const all: Contract[] = JSON.parse(raw);
+        all.forEach((c) => { if (c.id) contractMap.set(c.id, c); });
+      }
     } catch {}
+
+    // Source 2: individual receipt_contract_* keys where user is client
+    try {
+      const profileRaw = localStorage.getItem("receipt_profile");
+      const profileName = profileRaw ? JSON.parse(profileRaw).name : null;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("receipt_contract_")) {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const c = JSON.parse(raw);
+            if (c.id && !contractMap.has(c.id) && (!profileName || c.clientName === profileName)) {
+              contractMap.set(c.id, {
+                id: c.id,
+                serviceTitle: c.serviceTitle || c.service?.title || "Contract",
+                workerName: c.freelancerName || c.freelancer?.name || "Worker",
+                brief: c.brief || "",
+                amount: c.amountUsdc || c.amount || 0,
+                status: (c.status || "pending").toLowerCase().replace("pending_delivery", "pending") as Contract["status"],
+                score: c.agentScore || c.score,
+                txHash: c.settleTxHash || c.txHash,
+                createdAt: c.createdAt || new Date().toISOString(),
+                workerWallet: c.workerWallet || c.freelancer?.walletAddress,
+              });
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // Source 3: try API
+    (async () => {
+      try {
+        const profileRaw = localStorage.getItem("receipt_profile");
+        const profileData = profileRaw ? JSON.parse(profileRaw) : null;
+        if (profileData?.name) {
+          const res = await fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(profileData.name)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.contracts?.length) {
+              data.contracts.forEach((c: Record<string, unknown>) => {
+                const id = c.id as string;
+                if (!contractMap.has(id)) {
+                  const svc = c.service as Record<string, unknown> | undefined;
+                  const freelancer = svc?.freelancer as Record<string, string> | undefined;
+                  contractMap.set(id, {
+                    id,
+                    serviceTitle: svc?.title as string || "Contract",
+                    workerName: freelancer?.name || "Worker",
+                    brief: c.brief as string || "",
+                    amount: c.amountUsdc as number || 0,
+                    status: ((c.status as string) || "pending").toLowerCase().replace("pending_delivery", "pending") as Contract["status"],
+                    score: c.agentScore as number,
+                    txHash: c.settleTxHash as string,
+                    createdAt: c.createdAt as string,
+                    workerWallet: freelancer?.walletAddress,
+                  });
+                }
+              });
+            }
+          }
+        }
+      } catch {}
+      setContracts(Array.from(contractMap.values()).sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ));
+    })();
   }, []);
 
   useEffect(() => {
@@ -116,7 +190,7 @@ export default function ClientDashboard() {
           </div>
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 2 }}>
-              {profile?.name ? `${profile.name}&apos;s Contracts` : "Client Dashboard"}
+              {profile?.name ? `${profile.name}'s Contracts` : "Client Dashboard"}
             </h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
               All jobs you have commissioned

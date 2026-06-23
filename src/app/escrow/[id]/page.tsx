@@ -175,13 +175,42 @@ export default function EscrowPage() {
 
     setTimeout(() => {
       setPhase("settled");
-      const updatedContract = { ...contract, status: "settled" as Phase };
+      const updatedContract = { ...contract, status: "settled" as Phase, agentScore, settleTxHash: txHash };
       localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updatedContract));
+
+      // Update worker contracts array
+      try {
+        const arr = JSON.parse(localStorage.getItem("receipt_contracts") || "[]");
+        const idx = arr.findIndex((c: { id: string }) => c.id === id);
+        if (idx >= 0) {
+          arr[idx].status = "settled";
+          arr[idx].score = agentScore;
+          arr[idx].txHash = txHash;
+          arr[idx].settledAt = new Date().toISOString();
+          localStorage.setItem("receipt_contracts", JSON.stringify(arr));
+        }
+      } catch {}
+
+      // Update client contracts array
+      try {
+        const arr = JSON.parse(localStorage.getItem("receipt_client_contracts") || "[]");
+        const idx = arr.findIndex((c: { id: string }) => c.id === id);
+        if (idx >= 0) {
+          arr[idx].status = "settled";
+          arr[idx].score = agentScore;
+          arr[idx].txHash = txHash;
+          arr[idx].settledAt = new Date().toISOString();
+          localStorage.setItem("receipt_client_contracts", JSON.stringify(arr));
+        }
+      } catch {}
     }, 600);
   }
 
-  const orbState = phase === "settled" || phase === "approved" ? "released"
-    : (phase === "pending" || phase === "delivered" || phase === "evaluating") ? "locked"
+  const orbState = phase === "settled" ? "settled"
+    : phase === "approved" ? "settled"
+    : phase === "evaluating" ? "evaluating"
+    : phase === "disputed" ? "disputed"
+    : phase === "pending" || phase === "delivered" ? "locked"
     : "idle";
 
   return (
@@ -391,7 +420,7 @@ export default function EscrowPage() {
                         </div>
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 600 }}>Receipt Agent</div>
-                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>NVIDIA NIM · Llama 3.3-70b</div>
+                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>Claude Sonnet 4.6 · Anthropic</div>
                         </div>
                       </div>
 

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import PaymentOrb from "@/components/shared/PaymentOrb";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -80,19 +80,7 @@ export default function Nav() {
         >
           {/* Logo */}
           <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ position: "relative", width: 28, height: 28 }}>
-              <Image
-                src="/receipt-logo.png"
-                alt="Receipt"
-                fill
-                style={{ objectFit: "contain" }}
-                onError={(e) => {
-                  // Fallback SVG logo if image not found
-                  const target = e.currentTarget as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            </div>
+            <PaymentOrb variant="nav" state="idle" size={28} interactive={false} />
             <span
               style={{
                 fontFamily: "'Inter', sans-serif",

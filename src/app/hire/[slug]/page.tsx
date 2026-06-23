@@ -45,6 +45,18 @@ export default function HirePage() {
   const [contractId, setContractId] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Pre-fill client info from profile
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("receipt_profile");
+      if (stored) {
+        const p = JSON.parse(stored);
+        if (p.name) setForm((f) => ({ ...f, clientName: f.clientName || p.name }));
+        if (p.twitter) setForm((f) => ({ ...f, clientEmail: f.clientEmail || p.twitter }));
+      }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     async function load() {
       try {
@@ -53,6 +65,27 @@ export default function HirePage() {
           const data = await res.json();
           setService(data);
         } else {
+          // Try localStorage services
+          try {
+            const stored = localStorage.getItem("receipt_services");
+            if (stored) {
+              const services = JSON.parse(stored);
+              const found = services.find((s: Record<string, string>) => s.slug === slug);
+              if (found) {
+                setService({
+                  ...DEMO_SERVICE,
+                  ...found,
+                  freelancer: {
+                    ...DEMO_SERVICE.freelancer,
+                    name: found.freelancerName || DEMO_SERVICE.freelancer.name,
+                    bio: found.freelancerBio || DEMO_SERVICE.freelancer.bio,
+                  },
+                });
+                setLoading(false);
+                return;
+              }
+            }
+          } catch {}
           setService(DEMO_SERVICE);
         }
       } catch {
@@ -63,6 +96,58 @@ export default function HirePage() {
     }
     load();
   }, [slug]);
+
+  function saveContractToLocalStorage(id: string) {
+    if (!service) return;
+    const contractData = {
+      id,
+      clientName: form.clientName,
+      clientEmail: form.clientEmail,
+      brief: form.brief,
+      amountUsdc: service.priceUsdc,
+      netAmountUsdc: service.priceUsdc * 0.9,
+      platformFee: service.priceUsdc * 0.1,
+      serviceTitle: service.title,
+      freelancerName: service.freelancer?.name || "Freelancer",
+      freelancerWallet: service.freelancer?.walletAddress,
+      status: "PENDING_DELIVERY",
+      createdAt: new Date().toISOString(),
+    };
+
+    // Save individual contract
+    localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(contractData));
+
+    // Add to worker contracts array
+    try {
+      const existing = JSON.parse(localStorage.getItem("receipt_contracts") || "[]");
+      existing.unshift({
+        id,
+        serviceTitle: service.title,
+        clientName: form.clientName,
+        brief: form.brief,
+        amount: service.priceUsdc,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem("receipt_contracts", JSON.stringify(existing));
+    } catch {}
+
+    // Add to client contracts array
+    try {
+      const existing = JSON.parse(localStorage.getItem("receipt_client_contracts") || "[]");
+      existing.unshift({
+        id,
+        serviceTitle: service.title,
+        workerName: service.freelancer?.name || "Freelancer",
+        brief: form.brief,
+        amount: service.priceUsdc,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+        workerWallet: service.freelancer?.walletAddress,
+      });
+      localStorage.setItem("receipt_client_contracts", JSON.stringify(existing));
+    } catch {}
+  }
 
   async function submitBrief() {
     if (!service) return;
@@ -79,30 +164,16 @@ export default function HirePage() {
       const data = await res.json();
       if (data.id) {
         setContractId(data.id);
+        saveContractToLocalStorage(data.id);
         setPhase("funding");
         setTimeout(() => setPhase("success"), 2000);
       } else {
         throw new Error("No contract ID");
       }
     } catch {
-      // Demo mode
       const id = "demo-" + Date.now().toString(36);
       setContractId(id);
-      // Save contract to localStorage for dashboards and escrow page
-      if (service) {
-        localStorage.setItem(`receipt_contract_${id}`, JSON.stringify({
-          id,
-          clientName: form.clientName,
-          clientEmail: form.clientEmail,
-          brief: form.brief,
-          amountUsdc: service.priceUsdc,
-          netAmountUsdc: service.priceUsdc * 0.9,
-          serviceTitle: service.title,
-          freelancerName: service.freelancer?.name || "Freelancer",
-          status: "pending",
-          createdAt: new Date().toISOString(),
-        }));
-      }
+      saveContractToLocalStorage(id);
       setPhase("funding");
       setTimeout(() => setPhase("success"), 2200);
     } finally {

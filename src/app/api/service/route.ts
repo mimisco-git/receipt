@@ -5,7 +5,12 @@ import { slugify } from "@/lib/utils";
 // For demo mode (no DATABASE_URL), it returns mock data.
 
 function isDemoMode() {
-  return !process.env.DATABASE_URL || process.env.DATABASE_URL.includes("localhost");
+  const url = process.env.DATABASE_URL || "";
+  return !url ||
+    url.includes("localhost") ||
+    url.includes("[YOUR-PASSWORD]") ||
+    url.includes("USER:PASSWORD") ||
+    url.includes("HOST:5432");
 }
 
 export async function POST(req: NextRequest) {

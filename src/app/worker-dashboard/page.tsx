@@ -68,14 +68,80 @@ export default function WorkerDashboard() {
       if (p) setProfile(JSON.parse(p));
     } catch {}
 
-    // Load contracts where user is the worker
+    // Load contracts from multiple sources
+    const contractMap = new Map<string, Contract>();
+
+    // Source 1: receipt_contracts array
     try {
       const raw = localStorage.getItem("receipt_contracts");
       if (raw) {
         const all: Contract[] = JSON.parse(raw);
-        setContracts(all.filter((c) => c.status !== undefined));
+        all.forEach((c) => { if (c.id) contractMap.set(c.id, c); });
       }
     } catch {}
+
+    // Source 2: individual receipt_contract_* keys
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("receipt_contract_")) {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const c = JSON.parse(raw);
+            if (c.id && !contractMap.has(c.id)) {
+              contractMap.set(c.id, {
+                id: c.id,
+                serviceTitle: c.serviceTitle || c.service?.title || "Contract",
+                clientName: c.clientName || "Client",
+                brief: c.brief || "",
+                amount: c.amountUsdc || c.amount || 0,
+                status: (c.status || "pending").toLowerCase().replace("pending_delivery", "pending"),
+                score: c.agentScore || c.score,
+                txHash: c.settleTxHash || c.txHash,
+                createdAt: c.createdAt || new Date().toISOString(),
+                settledAt: c.settledAt,
+              });
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // Source 3: try API
+    (async () => {
+      try {
+        const profileRaw = localStorage.getItem("receipt_profile");
+        const profile = profileRaw ? JSON.parse(profileRaw) : null;
+        if (profile?.walletAddress) {
+          const res = await fetch(`/api/contracts?role=worker&wallet=${encodeURIComponent(profile.walletAddress)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.contracts?.length) {
+              data.contracts.forEach((c: Record<string, unknown>) => {
+                const id = c.id as string;
+                if (!contractMap.has(id)) {
+                  contractMap.set(id, {
+                    id,
+                    serviceTitle: (c.service as Record<string, string>)?.title || "Contract",
+                    clientName: c.clientName as string || "Client",
+                    brief: c.brief as string || "",
+                    amount: c.amountUsdc as number || 0,
+                    status: ((c.status as string) || "pending").toLowerCase().replace("pending_delivery", "pending") as Contract["status"],
+                    score: c.agentScore as number,
+                    txHash: c.settleTxHash as string,
+                    createdAt: c.createdAt as string,
+                    settledAt: c.settledAt as string,
+                  });
+                }
+              });
+            }
+          }
+        }
+      } catch {}
+      setContracts(Array.from(contractMap.values()).sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ));
+    })();
   }, []);
 
   // Animated counter
@@ -401,9 +467,10 @@ export default function WorkerDashboard() {
               }}
             >
               <PaymentOrb
+                variant="dashboard"
                 state={pending.length > 0 ? "locked" : totalEarned > 0 ? "settled" : "idle"}
                 amount={totalEarned}
-                size={140}
+                size={180}
               />
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", letterSpacing: "0.06em" }}>
