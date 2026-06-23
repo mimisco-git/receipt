@@ -226,7 +226,7 @@ export default function EscrowPage() {
         }}>
           {/* Settlement strip */}
           <div className="strip">
-            {["Circle Gateway","Arc Testnet","USDC","x402 Protocol"].map(s => (
+            {["Circle Gateway","Arc Testnet","USDC · EURC","x402 Protocol"].map(s => (
               <span key={s}><span className="strip-dot"/>{s}</span>
             ))}
           </div>
@@ -249,7 +249,7 @@ export default function EscrowPage() {
                 {phase === "disputed"   && "Under review"}
               </div>
 
-              <PaymentOrb amount={contract.amountUsdc} state={orbState} size={150} />
+              <PaymentOrb amount={contract.amountUsdc} state={orbState} size={150} currency={contract.currency} />
 
               {/* Status pill */}
               <div className={

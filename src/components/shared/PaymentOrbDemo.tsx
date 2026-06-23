@@ -79,7 +79,7 @@ export default function PaymentOrbDemo() {
 
       {/* Settlement strip */}
       <div className="strip">
-        {["Circle Gateway", "Arc Testnet", "USDC · EIP-3009", "x402 Protocol"].map(s => (
+        {["Circle Gateway", "Arc Testnet", "USDC · EURC", "x402 Protocol"].map(s => (
           <span key={s}><span className="strip-dot" />{s}</span>
         ))}
       </div>
@@ -154,7 +154,7 @@ export default function PaymentOrbDemo() {
                     <span className="font-mono" style={{
                       fontSize: 10.5, fontWeight: 400,
                       color: k === "You receive" ? "var(--ledger)" : "var(--ink-2)",
-                    }}>{v} USDC</span>
+                    }}>{v}</span>
                   </div>
                 ))}
               </motion.div>
@@ -304,7 +304,7 @@ export default function PaymentOrbDemo() {
                   onMouseEnter={e => e.currentTarget.style.opacity = "0.88"}
                   onMouseLeave={e => e.currentTarget.style.opacity = "1"}
                 >
-                  Fund escrow · $8.00 USDC
+                  Fund escrow · $8.00
                 </motion.button>
               )}
 

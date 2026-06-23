@@ -39,7 +39,7 @@ Freelancer delivery:
 ${delivery}
 """
 
-Contract value: $${priceUsdc} USDC
+Contract value: ${priceUsdc}
 
 Return a JSON object:
 {

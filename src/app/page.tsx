@@ -48,7 +48,7 @@ function ArrowRight() {
 const features = [
   { icon: <ZapSVG />,   iconBg: "rgba(18,232,154,0.08)", title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
   { icon: <AgentSVG />, iconBg: "rgba(74,158,248,0.08)", title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
-  { icon: <LockSVG />,  iconBg: "rgba(245,166,35,0.08)", title: "Zero invoice chasing",   desc: "USDC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
+  { icon: <LockSVG />,  iconBg: "rgba(245,166,35,0.08)", title: "Zero invoice chasing",   desc: "USDC or EURC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
 ];
 
 export default function HomePage() {
@@ -84,7 +84,7 @@ export default function HomePage() {
           style={{ marginBottom: 28, fontSize: 11, gap: 8 }}
         >
           <span className="pill-dot" style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
-          Circle · Arc · USDC
+          Circle · Arc · USDC · EURC
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <LeptonLogo size={14} />
             Lepton Hackathon 2026
@@ -132,7 +132,7 @@ export default function HomePage() {
             padding: "0 4px",
           }}
         >
-          AI-mediated freelance escrow on Arc. Client deposits USDC.
+          AI-mediated freelance escrow on Arc. Client deposits USDC or EURC.
           You deliver. The agent verifies scope. Payment clears in under 500ms.
         </motion.p>
 
@@ -242,7 +242,7 @@ export default function HomePage() {
           textAlign: "center", maxWidth: 360, marginBottom: 40, lineHeight: 1.65,
           padding: "0 4px",
         }}>
-          Real interface. Real orb. The ripple is exactly what your client sees when USDC settles.
+          Real interface. Real orb. The ripple is exactly what your client sees when payment settles.
         </p>
         <PaymentOrbDemo />
       </section>
@@ -281,7 +281,7 @@ export default function HomePage() {
             Ready to get paid?
           </h3>
           <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.65, marginBottom: 24 }}>
-            Set up your service in 60 seconds. Share the link. Get paid in USDC the moment your client approves.
+            Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
           <button
             className="btn-primary"
@@ -324,7 +324,7 @@ export default function HomePage() {
             "x402 Protocol",
             "EIP-3009",
             "Arc L1 Testnet",
-            "USDC",
+            "USDC · EURC",
             "NVIDIA NIM · Llama 3.3-70b",
             "EURC",
             "Next.js · Supabase",

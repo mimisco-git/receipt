@@ -9,9 +9,10 @@ interface Props {
   amount: number;
   state: OrbState;
   size?: number;
+  currency?: string;
 }
 
-export default function PaymentOrb({ amount, state, size = 180 }: Props) {
+export default function PaymentOrb({ amount, state, size = 180, currency = "USDC" }: Props) {
   const orbRef = useRef<HTMLDivElement>(null);
 
   const mouseX = useSpring(38, { stiffness: 80, damping: 18 });
@@ -256,7 +257,7 @@ export default function PaymentOrb({ amount, state, size = 180 }: Props) {
                   fontSize: size * 0.07, fontWeight: 400,
                   letterSpacing: "0.10em",
                   color: t.label, textTransform: "uppercase",
-                }}>USDC</span>
+                }}>{currency}</span>
               </motion.div>
             )}
           </AnimatePresence>

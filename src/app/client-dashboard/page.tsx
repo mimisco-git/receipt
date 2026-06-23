@@ -163,7 +163,7 @@ export default function ClientDashboardPage() {
                       {st.label}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className="font-mono" style={{ fontSize: 13, color: "var(--text-1)" }}>${c.amountUsdc?.toFixed(2)} USDC</div>
+                      <div className="font-mono" style={{ fontSize: 13, color: "var(--text-1)" }}>${c.amountUsdc?.toFixed(2)}</div>
                     </div>
                   </motion.div>
                 );

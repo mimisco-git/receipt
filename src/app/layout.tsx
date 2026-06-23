@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Receipt: Get paid the moment your work is approved",
-  description: "AI-mediated freelance escrow on Arc. Client deposits USDC. You deliver. Agent verifies. Payment clears in under 500ms.",
+  description: "AI-mediated freelance escrow on Arc. Client deposits USDC or EURC. You deliver. Agent verifies. Payment clears in under 500ms.",
   icons: { icon: "/receipt-favicon.png", shortcut: "/receipt-favicon.png" },
   openGraph: {
     title: "Receipt",

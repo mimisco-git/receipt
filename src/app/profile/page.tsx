@@ -226,10 +226,10 @@ export default function ProfilePage() {
 
           {/* PAYMENT */}
           <Section title={form.role === "client" ? "Wallet" : "Payment details"}>
-            <Field label="USDC wallet address on Arc" placeholder="0x..." value={form.walletAddress} onChange={v => update("walletAddress", v)} mono />
+            <Field label="Wallet address on Arc (USDC / EURC)" placeholder="0x..." value={form.walletAddress} onChange={v => update("walletAddress", v)} mono />
             {form.role === "worker" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: 12 }}>
-                <Field label="Default hourly rate (USDC)" placeholder="e.g. 25.00" value={form.hourlyRate} onChange={v => update("hourlyRate", v)} />
+                <Field label="Default hourly rate (USDC / EURC)" placeholder="e.g. 25.00" value={form.hourlyRate} onChange={v => update("hourlyRate", v)} />
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Availability</label>
                   <select value={form.availability} onChange={e => update("availability", e.target.value)} style={SELECT_STYLE}>

@@ -240,7 +240,7 @@ export function SettlementStrip() {
         color: "var(--text-muted)",
       }}
     >
-      {["Circle Gateway", "Arc Testnet", "USDC · EIP-3009", "x402 Protocol"].map((s) => (
+      {["Circle Gateway", "Arc Testnet", "USDC · EURC", "x402 Protocol"].map((s) => (
         <div key={s} className="flex items-center gap-1.5">
           <div
             className="w-1 h-1 rounded-full"

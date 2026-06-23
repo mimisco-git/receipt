@@ -33,7 +33,7 @@ function Counter({ target, prefix = "", suffix = "", dec = 0, delay = 0 }: {
 const stats = [
   { label: "Settlement speed",  special: "<500ms" },
   { label: "Chain",             special: "Arc L1" },
-  { label: "Currency",          special: "USDC" },
+  { label: "Currencies",        special: "USDC · EURC" },
   { label: "Chargebacks",       special: "0%" },
 ];
 

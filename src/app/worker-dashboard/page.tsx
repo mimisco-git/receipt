@@ -122,7 +122,7 @@ export default function WorkerDashboardPage() {
                 <div className="font-mono" style={{ fontSize: 12, color: "var(--text-2)", wordBreak: "break-all" }}>{profile.walletAddress}</div>
               </div>
               <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: "var(--green)", flexShrink: 0 }}>
-                ${totalEarned.toFixed(2)} USDC
+                ${totalEarned.toFixed(2)}
               </div>
             </div>
           )}
@@ -186,7 +186,7 @@ export default function WorkerDashboardPage() {
                       <div className="font-mono" style={{ fontSize: 13, color: c.status === "settled" ? "var(--green)" : "var(--amber)" }}>
                         {c.status === "settled" ? "+" : ""}${(c.netAmountUsdc || 0).toFixed(2)}
                       </div>
-                      <div style={{ fontSize: 10, color: "var(--text-3)" }}>USDC</div>
+                      <div style={{ fontSize: 10, color: "var(--text-3)" }}>{c.currency || "USDC"}</div>
                     </div>
                   </motion.div>
                 );
