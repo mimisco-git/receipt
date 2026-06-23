@@ -7,6 +7,8 @@ import { motion, LayoutGroup } from "framer-motion";
 const links = [
   { label: "Marketplace",  href: "/marketplace" },
   { label: "Dashboard",    href: "/dashboard" },
+  { label: "Faucet",       href: "/faucet" },
+  { label: "Docs",         href: "/docs" },
 ];
 
 export default function Nav() {
