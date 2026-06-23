@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getOrCreateWalletSet, createWallet, getWalletBalance } from "@/lib/circle-wallets";
 
-// POST /api/wallet — provisions a Circle custodial wallet for a user
+// POST /api/wallet — provisions a real Circle developer-controlled wallet for a user
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -10,19 +11,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "userId required" }, { status: 400 });
     }
 
-    const { createUserWallet } = await import("@/lib/circle");
+    const walletSetId = await getOrCreateWalletSet();
+    const wallet = await createWallet(walletSetId);
 
-    const idempotencyKey = `receipt-wallet-${userId}-${Date.now()}`;
-    const circleUser = await createUserWallet(idempotencyKey);
+    // Update freelancer record with Circle wallet ID
+    try {
+      const { db } = await import("@/lib/db");
+      await db.freelancer.updateMany({
+        where: { id: userId },
+        data: {
+          circleWalletId: wallet.walletId,
+          walletAddress: wallet.address,
+        },
+      });
+    } catch {}
 
     return NextResponse.json({
-      walletId: circleUser.id,
+      walletId: wallet.walletId,
+      walletAddress: wallet.address,
       userId,
       role: role || "freelancer",
       chain: "ARC-TESTNET",
     });
-  } catch (err) {
-    console.error("POST /api/wallet error:", err);
-    return NextResponse.json({ error: "Wallet provisioning failed" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("POST /api/wallet error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+// GET /api/wallet?id=xxx — get wallet balance
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const walletId = searchParams.get("id");
+
+    if (!walletId) {
+      return NextResponse.json({ error: "wallet id required" }, { status: 400 });
+    }
+
+    const balance = await getWalletBalance(walletId);
+    return NextResponse.json({ walletId, ...balance });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { platformFee, netAmount } from "@/lib/utils";
 
-// POST /api/escrow — client creates a contract and locks escrow with real on-chain deposit
+export const dynamic = "force-dynamic";
+
+// POST /api/escrow — client creates a contract and locks escrow
+// Uses Circle developer-controlled wallets for real fund transfers
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -15,9 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cur = currency === "EURC" ? "EURC" : "USDC";
-
     const { db } = await import("@/lib/db");
-    const { depositEscrow } = await import("@/lib/x402");
 
     const service = await db.service.findUnique({
       where: { id: serviceId },
@@ -31,11 +32,21 @@ export async function POST(req: NextRequest) {
     const fee = platformFee(service.priceUsdc);
     const net = netAmount(service.priceUsdc);
 
-    // Execute real on-chain deposit: buyer → escrow wallet
-    const deposit = await depositEscrow({
-      amount: service.priceUsdc,
-      currency: cur,
-    });
+    // Try Circle wallet transfer for real escrow deposit
+    let escrowTxHash = "";
+    let depositSuccess = false;
+
+    try {
+      const { depositEscrow } = await import("@/lib/x402");
+      const deposit = await depositEscrow({
+        amount: service.priceUsdc,
+        currency: cur,
+      });
+      escrowTxHash = deposit.txHash;
+      depositSuccess = deposit.success;
+    } catch (err) {
+      console.error("Escrow deposit error:", err);
+    }
 
     const contract = await db.contract.create({
       data: {
@@ -49,19 +60,21 @@ export async function POST(req: NextRequest) {
         platformFee: fee,
         netAmountUsdc: net,
         status: "PENDING_DELIVERY",
-        escrowTxHash: deposit.txHash || null,
+        escrowTxHash: escrowTxHash || null,
       },
       include: { service: { include: { freelancer: true } } },
     });
 
     return NextResponse.json({
       ...contract,
-      escrowDeposited: deposit.success,
+      escrowDeposited: depositSuccess,
+      escrowTxHash,
       chain: "Arc Testnet",
     });
-  } catch (err) {
-    console.error("POST /api/escrow error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("POST /api/escrow error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -90,8 +103,9 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(contract);
-  } catch (err) {
-    console.error("GET /api/escrow error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("GET /api/escrow error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

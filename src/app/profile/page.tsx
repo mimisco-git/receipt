@@ -72,13 +72,30 @@ export default function ProfilePage() {
   async function handleSave() {
     setSaving(true);
     try {
-      const toSave: ProfileData = { ...form, avatarUrl };
+      let walletAddress = form.walletAddress;
+
+      // Auto-provision a Circle wallet if user doesn't have one
+      if (!walletAddress || walletAddress.startsWith("pending")) {
+        try {
+          const res = await fetch("/api/wallet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: form.name, role: form.role }),
+          });
+          const data = await res.json();
+          if (data.walletAddress) {
+            walletAddress = data.walletAddress;
+            setForm(p => ({ ...p, walletAddress }));
+          }
+        } catch (err) {
+          console.error("Wallet provisioning failed:", err);
+        }
+      }
+
+      const toSave: ProfileData = { ...form, walletAddress, avatarUrl };
       saveProfile(toSave);
-      await new Promise(r => setTimeout(r, 600));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      // Reload page so nav picks up new role
-      setTimeout(() => window.location.reload(), 800);
     } finally {
       setSaving(false);
     }
