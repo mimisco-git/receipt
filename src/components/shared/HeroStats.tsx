@@ -1,50 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-function Counter({ target, prefix = "", suffix = "", dec = 0, delay = 0 }: {
-  target: number; prefix?: string; suffix?: string; dec?: number; delay?: number;
-}) {
-  const [v, setV] = useState(0);
-  const frame = useRef(0);
-
-  useEffect(() => {
-    const tid = setTimeout(() => {
-      const dur = 1000;
-      const t0  = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min((now - t0) / dur, 1);
-        const e = 1 - Math.pow(2, -10 * p);
-        setV(target * e);
-        if (p < 1) frame.current = requestAnimationFrame(tick);
-      };
-      frame.current = requestAnimationFrame(tick);
-    }, delay);
-    return () => { clearTimeout(tid); cancelAnimationFrame(frame.current); };
-  }, [target, delay]);
-
-  const formatted = dec > 0
-    ? v.toFixed(dec)
-    : Math.round(v).toLocaleString();
-
-  return <span>{prefix}{formatted}{suffix}</span>;
+interface Stats {
+  services: number;
+  contracts: number;
+  settled: number;
+  volume: number;
 }
 
-const stats = [
-  { label: "Settlement speed",  special: "<500ms" },
-  { label: "Chain",             special: "Arc L1" },
-  { label: "Currencies",        special: "USDC · EURC" },
-  { label: "Chargebacks",       special: "0%" },
-];
-
 export default function HeroStats() {
+  const [stats, setStats] = useState<Stats | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setStats(data); })
+      .catch(() => {});
+  }, []);
+
+  const items = [
+    { label: "Settlement speed",  value: "<500ms" },
+    { label: "Currencies",        value: "USDC · EURC" },
+    { label: "Services live",     value: stats ? String(stats.services) : "—" },
+    { label: "Contracts settled", value: stats ? String(stats.settled) : "—" },
+    { label: "Volume (USDC)",     value: stats ? `$${stats.volume.toFixed(2)}` : "—" },
+  ];
+
   return (
     <div style={{
       display: "flex", flexWrap: "wrap",
       alignItems: "center", justifyContent: "center", gap: 32,
       opacity: 0.6,
     }}>
-      {stats.map((s, i) => (
+      {items.map((s, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <div style={{ textAlign: "center" }}>
             <div style={{
@@ -54,13 +43,13 @@ export default function HeroStats() {
               color: "var(--text-1)",
               fontVariantNumeric: "tabular-nums",
             }}>
-              {s.special}
+              {s.value}
             </div>
             <div style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.03em" }}>
               {s.label}
             </div>
           </div>
-          {i < stats.length - 1 && (
+          {i < items.length - 1 && (
             <span style={{ color: "rgba(255,255,255,0.12)", fontSize: 10 }}>·</span>
           )}
         </div>
