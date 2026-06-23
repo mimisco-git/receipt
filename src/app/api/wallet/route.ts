@@ -1,31 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
-import { hasCircleKey } from "@/lib/utils";
 
-// GET /api/wallet?walletId=xxx — check wallet balance
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const walletId = searchParams.get("walletId");
-
-  if (!walletId) {
-    return NextResponse.json({ error: "walletId required" }, { status: 400 });
-  }
-
-  if (!hasCircleKey()) {
-    return NextResponse.json({ balance: 100.0, currency: "USDC", mode: "demo" });
-  }
-
-  try {
-    const { getWalletBalance } = await import("@/lib/circle");
-    const balance = await getWalletBalance(walletId);
-    return NextResponse.json({ balance, currency: "USDC" });
-  } catch (err) {
-    console.error("GET /api/wallet error:", err);
-    return NextResponse.json({ balance: 0, currency: "USDC", error: "Failed to fetch balance" });
-  }
-}
-
-// POST /api/wallet — provisions a new Circle custodial wallet
+// POST /api/wallet
+// Provisions a new Circle custodial wallet for a user (freelancer or client)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -35,7 +12,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "userId required" }, { status: 400 });
     }
 
-    if (!hasCircleKey()) {
+    const circleApiKey = process.env.CIRCLE_API_KEY;
+
+    if (!circleApiKey) {
       // Demo mode: return a fake wallet
       return NextResponse.json({
         walletId: "demo-wallet-" + nanoid(8),

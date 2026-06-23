@@ -49,17 +49,3 @@ export function timeAgo(date: Date): string {
 export function truncate(str: string, n = 24): string {
   return str.length > n ? str.slice(0, n) + "..." : str;
 }
-
-export function isDemoMode(): boolean {
-  const url = process.env.DATABASE_URL || "";
-  return !url ||
-    url.includes("localhost") ||
-    url.includes("[YOUR-PASSWORD]") ||
-    url.includes("USER:PASSWORD") ||
-    url.includes("HOST:5432");
-}
-
-export function hasCircleKey(): boolean {
-  const key = process.env.CIRCLE_API_KEY || "";
-  return !!key && !key.includes("your-") && !key.includes("YOUR");
-}

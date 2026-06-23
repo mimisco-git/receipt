@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { slugify, isDemoMode } from "@/lib/utils";
+import { slugify } from "@/lib/utils";
+
+// In production, this uses Prisma/Supabase.
+// For demo mode (no DATABASE_URL), it returns mock data.
+
+function isDemoMode() {
+  return !process.env.DATABASE_URL || process.env.DATABASE_URL.includes("localhost");
+}
 
 export async function POST(req: NextRequest) {
   try {

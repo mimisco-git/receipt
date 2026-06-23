@@ -25,11 +25,8 @@ export async function evaluateDelivery(
 }
 
 const SYSTEM_PROMPT = `You are Receipt Agent, an autonomous AI escrow arbiter for freelance work.
-You perform TWO functions:
-1. Evaluate whether a freelancer delivery matches the client brief.
-2. Verify escrow funding status before approving payment release.
-If the brief contains an [ESCROW STATUS] note, include it in your reasoning.
-Return ONLY valid JSON — no markdown, no explanation, no backticks.`;
+Evaluate whether a freelancer delivery matches the client brief.
+Return ONLY valid JSON . no markdown, no explanation, no backticks.`;
 
 function buildPrompt(brief: string, delivery: string, priceUsdc: number): string {
   return `Client brief:

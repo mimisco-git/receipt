@@ -41,8 +41,9 @@ export default function HeroStats() {
   return (
     <div style={{
       display: "flex", flexWrap: "wrap",
-      alignItems: "center", justifyContent: "center", gap: 32,
-      paddingTop: 0,
+      alignItems: "center", justifyContent: "center", gap: 28,
+      paddingTop: 28,
+      borderTop: "1px solid var(--line)",
     }}>
       {stats.map((s, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: 28 }}>
@@ -64,7 +65,7 @@ export default function HeroStats() {
             </div>
           </div>
           {i < stats.length - 1 && (
-            <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.06)" }} />
+            <div style={{ width: 1, height: 32, background: "var(--line)" }} />
           )}
         </div>
       ))}

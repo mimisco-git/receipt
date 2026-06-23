@@ -2,7 +2,6 @@
 // Used by profile page AND setup page so they share the same data
 
 export interface ProfileData {
-  role: "worker" | "client" | "";
   name: string;
   bio: string;
   walletAddress: string;
@@ -13,11 +12,9 @@ export interface ProfileData {
   avatarUrl: string | null;
   hourlyRate: string;
   availability: string;
-  circleWalletId?: string;
 }
 
 export const DEFAULT_PROFILE: ProfileData = {
-  role: "",
   name: "",
   bio: "",
   walletAddress: "",

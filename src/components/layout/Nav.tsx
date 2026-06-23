@@ -1,266 +1,163 @@
 "use client";
+
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
+import { motion, LayoutGroup } from "framer-motion";
+
+const links = [
+  { label: "How it works", href: "/#how" },
+  { label: "My jobs",      href: "/worker-dashboard" },
+  { label: "Profile",      href: "/profile" },
+];
+
+function ReceiptLogo({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ borderRadius: 10 }}>
+      <defs>
+        <radialGradient id="nb" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#1A3D32"/>
+          <stop offset="100%" stopColor="#061A14"/>
+        </radialGradient>
+        <radialGradient id="nr" cx="55%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#12E89A"/>
+          <stop offset="60%" stopColor="#0A9E6A"/>
+          <stop offset="100%" stopColor="#065A3C"/>
+        </radialGradient>
+        <linearGradient id="nrp" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.55)"/>
+          <stop offset="100%" stopColor="rgba(255,255,255,0.15)"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="url(#nb)"/>
+      <rect width="100" height="100" rx="22" fill="none" stroke="rgba(18,232,154,0.4)" strokeWidth="1.5"/>
+      <path d="M24 22 L24 78 L35 78 L35 57 L52 78 L65 78 L47 55 C56 52 62 45 62 35 C62 27 56 22 46 22 Z M35 32 L44 32 C49 32 52 35 52 39 C52 43 49 46 44 46 L35 46 Z"
+        fill="url(#nr)"/>
+      <rect x="26" y="48" width="22" height="28" rx="3" fill="url(#nrp)" opacity="0.7"/>
+      <rect x="30" y="55" width="14" height="1.5" rx="1" fill="rgba(18,232,154,0.5)"/>
+      <rect x="30" y="60" width="11" height="1.5" rx="1" fill="rgba(18,232,154,0.4)"/>
+      <rect x="30" y="65" width="13" height="1.5" rx="1" fill="rgba(18,232,154,0.3)"/>
+      <path d="M26 76 L28 74 L30 76 L32 74 L34 76 L36 74 L38 76 L40 74 L42 76 L44 74 L46 76 L48 76 L48 78 L26 78 Z"
+        fill="url(#nrp)" opacity="0.6"/>
+    </svg>
+  );
+}
 
 export default function Nav() {
+  const router   = useRouter();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [role, setRole] = useState<string | null>(null);
+  const [hovered, setHovered]   = useState<string | null>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    try {
-      const stored = localStorage.getItem("receipt_profile");
-      if (stored) {
-        const p = JSON.parse(stored);
-        setRole(p.role || null);
-      }
-    } catch {}
-
-    return () => window.removeEventListener("scroll", onScroll);
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
   }, []);
 
-  const workerLinks = [
-    { href: "/setup", label: "Create Service" },
-    { href: "/marketplace", label: "Find Jobs" },
-    { href: "/worker-dashboard", label: "My Work" },
-  ];
-
-  const clientLinks = [
-    { href: "/marketplace", label: "Browse Workers" },
-    { href: "/client-dashboard", label: "My Contracts" },
-  ];
-
-  const defaultLinks = [
-    { href: "/#how", label: "How it works" },
-    { href: "/marketplace", label: "Marketplace" },
-  ];
-
-  const links = role === "worker" ? workerLinks : role === "client" ? clientLinks : defaultLinks;
-
-  const spring = { type: "spring" as const, stiffness: 260, damping: 20 };
-
   return (
-    <>
+    <div style={{
+      position: "fixed", top: 16, left: 0, right: 0, zIndex: 100,
+      display: "flex", justifyContent: "center", pointerEvents: "none",
+    }}>
       <motion.nav
-        initial={{ y: -80, opacity: 0 }}
+        initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ type: "spring", stiffness: 280, damping: 28, delay: 0.1 }}
         style={{
-          position: "fixed",
-          top: 16,
-          left: 0,
-          right: 0,
-          margin: "0 auto",
-          zIndex: 100,
-          width: "calc(100% - 32px)",
-          maxWidth: 720,
+          pointerEvents: "auto",
+          display: "flex", alignItems: "center", gap: 2,
+          padding: "5px 6px",
+          borderRadius: 999,
+          background: scrolled ? "rgba(10,15,30,0.96)" : "rgba(10,15,30,0.78)",
+          backdropFilter: "blur(32px) saturate(180%)",
+          WebkitBackdropFilter: "blur(32px) saturate(180%)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)",
+          transition: "background 0.3s ease, box-shadow 0.3s ease",
         }}
       >
-        <div
+        {/* Logo */}
+        <button
+          onClick={() => router.push("/")}
           style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "0 6px 0 16px",
-            height: 52,
-            background: scrolled
-              ? "rgba(10,15,30,0.92)"
-              : "rgba(10,15,30,0.7)",
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            borderRadius: 100,
-            border: "1px solid rgba(255,255,255,0.05)",
-            boxShadow: scrolled
-              ? "0 8px 32px rgba(0,0,0,0.5)"
-              : "0 2px 12px rgba(0,0,0,0.15)",
-            transition: "background 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s cubic-bezier(0.16,1,0.3,1)",
+            display: "flex", alignItems: "center", gap: 8,
+            background: "none", border: "none", cursor: "pointer",
+            padding: "4px 10px 4px 4px",
+            borderRadius: 999,
+            fontSize: 14, fontWeight: 600, color: "var(--text-1)",
+            letterSpacing: "-0.02em",
           }}
         >
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
-            <div style={{ position: "relative", width: 26, height: 26, flexShrink: 0 }}>
-              <Image src="/receipt-logo.png" alt="Receipt" fill style={{ objectFit: "contain" }} />
-            </div>
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.02em" }}>
-              Receipt
-            </span>
-          </Link>
+          <img
+            src="/receipt-logo.png"
+            alt="Receipt"
+            width={28}
+            height={28}
+            style={{ borderRadius: 7, display: "block", objectFit: "cover" }}
+            onError={e => {
+              // Fallback to inline SVG if image not found
+              e.currentTarget.style.display = "none";
+            }}
+          />
+          Receipt
+        </button>
 
-          {/* Desktop links */}
-          <div className="nav-desktop" style={{ display: "flex", alignItems: "center", gap: 0 }}>
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
+        <div style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
+
+        {/* Links with sliding pill */}
+        <div className="hide-mobile" style={{ display: "flex" }}><LayoutGroup>
+          {links.map(l => {
+            const active   = pathname === l.href;
+            const hovering = hovered === l.label;
+            return (
+              <button
+                key={l.label}
+                onClick={() => l.href.startsWith("http") ? window.open(l.href, "_blank") : router.push(l.href)}
+                onMouseEnter={() => setHovered(l.label)}
+                onMouseLeave={() => setHovered(null)}
                 style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "rgba(255,255,255,0.45)",
-                  textDecoration: "none",
-                  padding: "8px 14px",
-                  borderRadius: 100,
-                  transition: "color 0.3s cubic-bezier(0.16,1,0.3,1)",
-                  whiteSpace: "nowrap" as const,
+                  position: "relative", background: "none", border: "none",
+                  cursor: "pointer", padding: "6px 13px", borderRadius: 999,
+                  fontSize: 13, fontWeight: active ? 500 : 400,
+                  color: active || hovering ? "var(--text-1)" : "var(--text-2)",
+                  transition: "color 0.15s ease", zIndex: 0,
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.9)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.45)"; }}
               >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop CTA */}
-          <Link
-            href="/profile"
-            className="nav-desktop-cta"
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#0a0f1e",
-              background: "#ffffff",
-              textDecoration: "none",
-              padding: "8px 18px",
-              borderRadius: 100,
-              marginLeft: 6,
-              transition: "opacity 0.3s cubic-bezier(0.16,1,0.3,1)",
-              whiteSpace: "nowrap" as const,
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-          >
-            {role ? "My Profile" : "Get started"}
-          </Link>
-
-          {/* Mobile: menu trigger only */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="nav-mobile-trigger"
-            style={{
-              display: "none",
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              padding: 0,
-            }}
-            aria-label="Menu"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              {/* Top line → morphs to X */}
-              <motion.line
-                x1="4" x2="16"
-                animate={menuOpen ? { y1: 10, y2: 10, rotate: 45 } : { y1: 6, y2: 6, rotate: 0 }}
-                transition={spring}
-                stroke="white" strokeWidth="1.5" strokeLinecap="round"
-                style={{ transformOrigin: "center" }}
-              />
-              {/* Middle line → fades */}
-              <motion.line
-                x1="4" y1="10" x2="16" y2="10"
-                animate={{ opacity: menuOpen ? 0 : 1, scaleX: menuOpen ? 0 : 1 }}
-                transition={spring}
-                stroke="white" strokeWidth="1.5" strokeLinecap="round"
-                style={{ transformOrigin: "center" }}
-              />
-              {/* Bottom line → morphs to X */}
-              <motion.line
-                x1="4" x2="16"
-                animate={menuOpen ? { y1: 10, y2: 10, rotate: -45 } : { y1: 14, y2: 14, rotate: 0 }}
-                transition={spring}
-                stroke="white" strokeWidth="1.5" strokeLinecap="round"
-                style={{ transformOrigin: "center" }}
-              />
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile overlay menu */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                marginTop: 8,
-                padding: "12px",
-                background: "rgba(10,15,30,0.96)",
-                backdropFilter: "blur(24px)",
-                borderRadius: 20,
-                border: "1px solid rgba(255,255,255,0.05)",
-                boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
-              }}
-            >
-              {links.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05, ...spring }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
+                {(active || hovering) && (
+                  <motion.div
+                    layoutId="nav-bg"
                     style={{
-                      display: "block",
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "rgba(255,255,255,0.7)",
-                      textDecoration: "none",
-                      padding: "14px 16px",
-                      borderRadius: 12,
+                      position: "absolute", inset: 0, borderRadius: 999,
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      zIndex: -1,
                     }}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-              <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "4px 12px" }} />
-              <motion.div
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: links.length * 0.05, ...spring }}
-              >
-                <Link
-                  href="/profile"
-                  onClick={() => setMenuOpen(false)}
-                  style={{
-                    display: "block",
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: "var(--green)",
-                    textDecoration: "none",
-                    padding: "14px 16px",
-                    borderRadius: 12,
-                  }}
-                >
-                  {role ? "My Profile" : "Get started"}
-                </Link>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.nav>
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                {l.label}
+              </button>
+            );
+          })}
+        </LayoutGroup></div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          .nav-desktop { display: none !important; }
-          .nav-desktop-cta { display: none !important; }
-          .nav-mobile-trigger { display: flex !important; }
-        }
-      `}</style>
-    </>
+        <div className="hide-mobile" style={{ width: 1, height: 16, background: "var(--line)", margin: "0 4px" }} />
+
+        <button
+          onClick={() => router.push("/setup")}
+          style={{
+            padding: "7px 16px", borderRadius: 999,
+            fontSize: 13, fontWeight: 600,
+            background: "rgba(255,255,255,0.92)", color: "#080C14",
+            border: "none", cursor: "pointer",
+            transition: "opacity 0.15s ease",
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = "0.82"}
+          onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+        >
+          Get started
+        </button>
+      </motion.nav>
+    </div>
   );
 }
