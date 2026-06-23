@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function isDemoMode() {
-  return !process.env.DATABASE_URL ||
-    process.env.DATABASE_URL.includes("localhost") ||
-    process.env.DATABASE_URL.includes("[YOUR-PASSWORD]");
-}
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const role = searchParams.get("role");
   const wallet = searchParams.get("wallet");
   const clientName = searchParams.get("clientName");
-
-  if (isDemoMode()) {
-    return NextResponse.json({ contracts: [], mode: "demo" });
-  }
 
   try {
     const { db } = await import("@/lib/db");
@@ -45,6 +35,16 @@ export async function GET(req: NextRequest) {
       const contracts = await db.contract.findMany({
         where: { status: "PENDING_DELIVERY" },
         include: { service: true },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      });
+      return NextResponse.json({ contracts });
+    }
+
+    // Return all contracts (for general dashboard)
+    if (role === "all") {
+      const contracts = await db.contract.findMany({
+        include: { service: { include: { freelancer: true } } },
         orderBy: { createdAt: "desc" },
         take: 50,
       });

@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { platformFee, netAmount } from "@/lib/utils";
 
-function isDemoMode() {
-  return !process.env.DATABASE_URL ||
-    process.env.DATABASE_URL.includes("localhost") ||
-    process.env.DATABASE_URL.includes("[YOUR-PASSWORD]");
-}
-
 // POST /api/escrow — client creates a contract and locks escrow with real on-chain deposit
 export async function POST(req: NextRequest) {
   try {
@@ -21,32 +15,6 @@ export async function POST(req: NextRequest) {
     }
 
     const cur = currency === "EURC" ? "EURC" : "USDC";
-
-    if (isDemoMode()) {
-      const { depositEscrow } = await import("@/lib/x402");
-      const price = 8.0;
-
-      const deposit = await depositEscrow({ amount: price, currency: cur });
-
-      return NextResponse.json({
-        id: "contract_" + Date.now().toString(36),
-        serviceId,
-        clientName,
-        clientEmail: clientEmail || null,
-        brief,
-        currency: cur,
-        amountUsdc: price,
-        platformFee: platformFee(price),
-        netAmountUsdc: netAmount(price),
-        status: "PENDING_DELIVERY",
-        escrowTxHash: deposit.txHash,
-        escrowDeposited: deposit.success,
-        buyerAddress: deposit.from,
-        escrowAddress: deposit.to,
-        createdAt: new Date().toISOString(),
-        chain: "Arc Testnet",
-      });
-    }
 
     const { db } = await import("@/lib/db");
     const { depositEscrow } = await import("@/lib/x402");
@@ -89,8 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ...contract,
       escrowDeposited: deposit.success,
-      buyerAddress: deposit.from,
-      escrowAddress: deposit.to,
       chain: "Arc Testnet",
     });
   } catch (err) {
@@ -109,29 +75,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "id required" }, { status: 400 });
     }
 
-    if (isDemoMode()) {
-      return NextResponse.json({
-        id,
-        clientName: "James Adeyemi",
-        brief:
-          "Write a 1000-word blog post about the benefits of solar panel installation for homeowners in Lagos, Nigeria. Focus on cost savings and the new government incentive program.",
-        amountUsdc: 8.0,
-        currency: "USDC",
-        netAmountUsdc: 7.2,
-        platformFee: 0.8,
-        status: "PENDING_DELIVERY",
-        service: { title: "SEO blog post, 1000 words" },
-        freelancer: { name: "Amara Nwosu", avatarColor: "#667eea", walletAddress: "" },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-    }
-
     const { db } = await import("@/lib/db");
 
     const contract = await db.contract.findUnique({
       where: { id },
-      include: { service: { include: { freelancer: true } } },
+      include: {
+        service: { include: { freelancer: true } },
+        freelancer: true,
+      },
     });
 
     if (!contract) {

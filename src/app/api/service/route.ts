@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { slugify } from "@/lib/utils";
 
-// In production, this uses Prisma/Supabase.
-// For demo mode (no DATABASE_URL), it returns mock data.
-
-function isDemoMode() {
-  return !process.env.DATABASE_URL ||
-    process.env.DATABASE_URL.includes("localhost") ||
-    process.env.DATABASE_URL.includes("[YOUR-PASSWORD]");
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -27,19 +18,6 @@ export async function POST(req: NextRequest) {
       "-" +
       Date.now().toString(36).slice(-4);
 
-    if (isDemoMode()) {
-      return NextResponse.json({
-        id: "demo-" + Date.now().toString(36),
-        slug,
-        title,
-        description,
-        priceUsdc,
-        currency: cur,
-        freelancer: { name, bio, walletAddress, avatarColor: "#667eea" },
-      });
-    }
-
-    // Production: use Prisma
     const { db } = await import("@/lib/db");
 
     let freelancer = await db.freelancer.findFirst({
@@ -83,27 +61,6 @@ export async function GET(req: NextRequest) {
 
     if (!slug) {
       return NextResponse.json({ error: "slug required" }, { status: 400 });
-    }
-
-    if (isDemoMode()) {
-      // Return demo data
-      return NextResponse.json({
-        id: "demo",
-        slug,
-        title: "SEO blog post, 1000 words",
-        description:
-          "Original, well-researched article optimized for search. Includes keyword strategy, meta description, and one revision within 48 hours.",
-        priceUsdc: 8.0,
-        freelancer: {
-          id: "demo-freelancer",
-          name: "Amara Nwosu",
-          walletAddress: "0xdemo",
-          avatarColor: "#667eea",
-          bio: "SEO writer with 5 years in fintech and sustainability sectors.",
-        },
-        isActive: true,
-        createdAt: new Date().toISOString(),
-      });
     }
 
     const { db } = await import("@/lib/db");

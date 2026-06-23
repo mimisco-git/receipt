@@ -3,10 +3,11 @@ import { evaluateDelivery } from "@/lib/agent";
 import { releaseEscrow } from "@/lib/x402";
 import type { Currency } from "@/lib/x402";
 
-function isDemoMode() {
-  return !process.env.DATABASE_URL ||
-    process.env.DATABASE_URL.includes("localhost") ||
-    process.env.DATABASE_URL.includes("[YOUR-PASSWORD]");
+function getAgentModel(): string {
+  if (process.env.NVIDIA_API_KEY) return "nvidia/llama-3.3-70b-instruct";
+  if (process.env.GROQ_API_KEY) return "groq/llama-3.3-70b-versatile";
+  if (process.env.ANTHROPIC_API_KEY) return "claude-sonnet-4-6";
+  return "mock";
 }
 
 // POST /api/agent — submit delivery for AI evaluation
@@ -22,25 +23,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const briefText = brief ||
-      "Write a 1000-word blog post about solar panel installation in Lagos, Nigeria.";
-    const price = priceUsdc || 8.0;
-
-    if (isDemoMode()) {
-      const evaluation = await evaluateDelivery(briefText, deliveryNote, price);
-      return NextResponse.json({
-        contractId,
-        evaluation,
-        agentModel: process.env.NVIDIA_API_KEY
-          ? "nvidia/llama-3.3-70b-instruct"
-          : process.env.GROQ_API_KEY
-          ? "groq/llama-3.3-70b-versatile"
-          : process.env.ANTHROPIC_API_KEY
-          ? "claude-sonnet-4-6"
-          : "mock",
-      });
-    }
-
     const { db } = await import("@/lib/db");
 
     const contract = await db.contract.findUnique({
@@ -49,7 +31,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (!contract) {
-      return NextResponse.json({ error: "Contract not found" }, { status: 404 });
+      // Fallback for contracts not in DB (e.g. localStorage-only)
+      const briefText = brief || "Evaluate this delivery.";
+      const price = priceUsdc || 8.0;
+      const evaluation = await evaluateDelivery(briefText, deliveryNote, price);
+      return NextResponse.json({ contractId, evaluation, agentModel: getAgentModel() });
     }
 
     await db.contract.update({
@@ -74,20 +60,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      contractId,
-      evaluation,
-      agentModel: process.env.NVIDIA_API_KEY
-        ? "nvidia/llama-3.3-70b-instruct"
-        : process.env.GROQ_API_KEY
-        ? "groq/llama-3.3-70b-versatile"
-        : process.env.ANTHROPIC_API_KEY
-        ? "claude-sonnet-4-6"
-        : "mock",
-    });
+    return NextResponse.json({ contractId, evaluation, agentModel: getAgentModel() });
   } catch (err) {
     console.error("POST /api/agent error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    // Still try to evaluate even if DB fails
+    try {
+      const body = await req.clone().json().catch(() => ({}));
+      const evaluation = await evaluateDelivery(
+        body.brief || "Evaluate this delivery.",
+        body.deliveryNote || "",
+        body.priceUsdc || 8.0
+      );
+      return NextResponse.json({ contractId: body.contractId, evaluation, agentModel: getAgentModel() });
+    } catch {
+      return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    }
   }
 }
 
@@ -119,40 +106,32 @@ export async function PUT(req: NextRequest) {
         currency: cur,
       });
 
-      if (isDemoMode()) {
-        return NextResponse.json({
-          contractId,
-          action: "APPROVE",
-          settled: result.success,
-          settlementMs: result.settlementMs,
-          txHash: result.txHash,
-          currency: cur,
-          chain: "Arc Testnet",
-        });
-      }
-
-      const { db } = await import("@/lib/db");
-
-      await db.contract.update({
-        where: { id: contractId },
-        data: {
-          status: result.success ? "SETTLED" : "DISPUTED",
-          settledAt: result.success ? new Date() : null,
-          settleTxHash: result.txHash || null,
-        },
-      });
-
-      if (result.success) {
-        await db.transaction.create({
+      // Update DB
+      try {
+        const { db } = await import("@/lib/db");
+        await db.contract.update({
+          where: { id: contractId },
           data: {
-            contractId,
-            type: "SETTLEMENT",
-            amountUsdc: amount,
-            txHash: result.txHash,
-            status: "CONFIRMED",
-            chain: "ARC-TESTNET",
+            status: result.success ? "SETTLED" : "DISPUTED",
+            settledAt: result.success ? new Date() : null,
+            settleTxHash: result.txHash || null,
           },
         });
+
+        if (result.success) {
+          await db.transaction.create({
+            data: {
+              contractId,
+              type: "SETTLEMENT",
+              amountUsdc: amount,
+              txHash: result.txHash,
+              status: "CONFIRMED",
+              chain: "ARC-TESTNET",
+            },
+          });
+        }
+      } catch (dbErr) {
+        console.error("DB update after settlement:", dbErr);
       }
 
       return NextResponse.json({
@@ -167,12 +146,14 @@ export async function PUT(req: NextRequest) {
     }
 
     if (action === "DISPUTE") {
-      if (!isDemoMode()) {
+      try {
         const { db } = await import("@/lib/db");
         await db.contract.update({
           where: { id: contractId },
           data: { status: "DISPUTED", disputedAt: new Date() },
         });
+      } catch (dbErr) {
+        console.error("DB update for dispute:", dbErr);
       }
       return NextResponse.json({
         contractId,
@@ -193,13 +174,7 @@ export async function PUT(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     status: "online",
-    model: process.env.NVIDIA_API_KEY
-      ? "nvidia/llama-3.3-70b-instruct"
-      : process.env.GROQ_API_KEY
-      ? "groq/llama-3.3-70b-versatile"
-      : process.env.ANTHROPIC_API_KEY
-      ? "claude-sonnet-4-6"
-      : "mock-evaluation",
+    model: getAgentModel(),
     sellerAddress: process.env.SELLER_ADDRESS || "not-configured",
     buyerAddress: process.env.BUYER_ADDRESS || "not-configured",
     currencies: ["USDC", "EURC"],

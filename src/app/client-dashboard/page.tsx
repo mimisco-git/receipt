@@ -32,55 +32,46 @@ export default function ClientDashboardPage() {
   const [name, setName] = useState("Client");
 
   useEffect(() => {
-    // Load all contracts from localStorage where client submitted briefs
-    const stored: ClientContract[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith("receipt_contract_")) {
-        try {
-          const data = JSON.parse(localStorage.getItem(key) || "{}");
-          if (data.clientName) {
-            stored.push(data);
-            if (data.clientName && data.clientName !== "Client") setName(data.clientName);
-          }
-        } catch {}
-      }
-    }
-    stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    setContracts(stored);
-
-    // Also fetch from API
+    // Get profile for client name
     try {
       const profile = JSON.parse(localStorage.getItem("receipt_profile") || "{}");
-      const clientName = profile.name;
-      if (clientName) {
-        setName(clientName);
-        fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(clientName)}`)
-          .then(r => r.ok ? r.json() : { contracts: [] })
-          .then(data => {
-            if (data.contracts?.length) {
-              const ids = new Set(stored.map(c => c.id));
-              const newContracts: ClientContract[] = data.contracts
-                .filter((c: any) => !ids.has(c.id))
-                .map((c: any) => ({
-                  id: c.id,
-                  serviceTitle: c.service?.title || "Service",
-                  freelancerName: c.service?.freelancer?.name || "Worker",
-                  brief: c.brief,
-                  amountUsdc: c.amountUsdc,
-                  status: (c.status || "").toLowerCase().replace("pending_delivery", "pending"),
-                  createdAt: c.createdAt,
-                  agentScore: c.agentScore,
-                  txHash: c.settleTxHash,
-                }));
-              if (newContracts.length) {
-                setContracts(prev => [...newContracts, ...prev]);
-              }
-            }
-          })
-          .catch(() => {});
-      }
+      if (profile.name) setName(profile.name);
     } catch {}
+
+    // Fetch contracts from API (primary source)
+    fetch(`/api/contracts?role=all`)
+      .then(r => r.ok ? r.json() : { contracts: [] })
+      .then(data => {
+        if (data.contracts?.length) {
+          const apiContracts: ClientContract[] = data.contracts.map((c: any) => ({
+            id: c.id,
+            serviceTitle: c.service?.title || "Service",
+            freelancerName: c.service?.freelancer?.name || "Worker",
+            brief: c.brief,
+            amountUsdc: c.amountUsdc,
+            status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
+            createdAt: c.createdAt,
+            agentScore: c.agentScore,
+            txHash: c.settleTxHash,
+          }));
+          setContracts(apiContracts);
+        } else {
+          // Fallback to localStorage
+          const stored: ClientContract[] = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key?.startsWith("receipt_contract_")) {
+              try {
+                const d = JSON.parse(localStorage.getItem(key) || "{}");
+                if (d.clientName) stored.push(d);
+              } catch {}
+            }
+          }
+          stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+          setContracts(stored);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const total    = contracts.reduce((s, c) => s + (c.amountUsdc || 0), 0);

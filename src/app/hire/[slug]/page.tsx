@@ -84,10 +84,26 @@ export default function HirePage() {
       const data = await res.json();
       if (data.id) {
         setContractId(data.id);
+        // Save contract to localStorage so escrow page + dashboards can find it
+        const contractData = {
+          id: data.id,
+          clientName: form.clientName,
+          brief: form.brief,
+          amountUsdc: service.priceUsdc,
+          netAmountUsdc: data.netAmountUsdc || service.priceUsdc * 0.9,
+          currency: service.currency || "USDC",
+          serviceTitle: service.title,
+          freelancerName: service.freelancer.name,
+          freelancerAddress: service.freelancer.walletAddress,
+          status: "pending",
+          escrowTxHash: data.escrowTxHash || "",
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem(`receipt_contract_${data.id}`, JSON.stringify(contractData));
         setPhase("funding");
         setTimeout(() => setPhase("success"), 2000);
       } else {
-        throw new Error("No contract ID");
+        throw new Error(data.error || "No contract ID");
       }
     } catch (err) {
       console.error("Failed to create contract:", err);

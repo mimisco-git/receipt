@@ -104,11 +104,9 @@ export default function SetupPage() {
       } else {
         throw new Error("No slug returned");
       }
-    } catch {
-      // Demo fallback
-      const s = slugify(form.name || "freelancer") + "-" + Date.now().toString(36).slice(-4);
-      setSlug(s);
-      setStep("link");
+    } catch (err) {
+      console.error("Service creation failed:", err);
+      setError("Failed to create service. Please try again.");
     } finally {
       setLoading(false);
     }
