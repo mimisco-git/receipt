@@ -147,10 +147,11 @@ export default function EscrowPage() {
           }),
         });
         const data = await res.json();
-        const score = data.evaluation?.score || 88;
-        const reasoning = data.evaluation?.reasoning || "Delivery reviewed successfully.";
+        const score = data.evaluation?.score || 50;
+        const reasoning = data.evaluation?.reasoning || "Delivery reviewed.";
+        const model = data.evaluation?.model || "unknown";
 
-        setAgentReasoning(reasoning);
+        setAgentReasoning(`${reasoning}\n\nModel: ${model}`);
 
         // Animate score counting up
         let s = 0;
@@ -158,17 +159,26 @@ export default function EscrowPage() {
         const timer = setInterval(() => {
           s = Math.min(s + 1.5, target);
           setAgentScore(Math.round(s));
-          if (s >= target) { clearInterval(timer); setScoreRunning(false); }
+          if (s >= target) {
+            clearInterval(timer);
+            setScoreRunning(false);
+
+            // If agent auto-settled, skip to settled state
+            if (data.autoSettled) {
+              if (data.txHash) setTxHash(data.txHash);
+              if (data.settlementMs) setSettlementMs(data.settlementMs);
+              setPhase("settled");
+              refreshBalances();
+              const updated = { ...contract, status: "settled" as Phase };
+              localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updated));
+            }
+          }
         }, 22);
-      } catch {
-        // Fallback
-        let s = 0;
-        const timer = setInterval(() => {
-          s = Math.min(s + 1.5, 88);
-          setAgentScore(Math.round(s));
-          if (s >= 88) { clearInterval(timer); setScoreRunning(false); }
-        }, 22);
-        setAgentReasoning("Delivery reviewed. Content meets brief requirements.");
+      } catch (err) {
+        console.error("Agent evaluation failed:", err);
+        setAgentReasoning("Evaluation encountered an error. You can manually approve or dispute.");
+        setAgentScore(50);
+        setScoreRunning(false);
       }
 
       setSubmitting(false);

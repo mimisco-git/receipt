@@ -3,14 +3,7 @@ import { evaluateDelivery } from "@/lib/agent";
 import { releaseEscrow } from "@/lib/x402";
 import type { Currency } from "@/lib/x402";
 
-function getAgentModel(): string {
-  if (process.env.NVIDIA_API_KEY) return "nvidia/llama-3.3-70b-instruct";
-  if (process.env.GROQ_API_KEY) return "groq/llama-3.3-70b-versatile";
-  if (process.env.ANTHROPIC_API_KEY) return "claude-sonnet-4-6";
-  return "mock";
-}
-
-// POST /api/agent — submit delivery for AI evaluation
+// POST /api/agent — submit delivery for AI evaluation + auto-release if score >= 75
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -27,58 +20,96 @@ export async function POST(req: NextRequest) {
 
     const contract = await db.contract.findUnique({
       where: { id: contractId },
-      include: { service: true },
+      include: { service: true, freelancer: true },
     });
 
-    if (!contract) {
-      // Fallback for contracts not in DB (e.g. localStorage-only)
-      const briefText = brief || "Evaluate this delivery.";
-      const price = priceUsdc || 8.0;
-      const evaluation = await evaluateDelivery(briefText, deliveryNote, price);
-      return NextResponse.json({ contractId, evaluation, agentModel: getAgentModel() });
+    const briefText = contract?.brief || brief || "Evaluate this delivery.";
+    const price = contract?.amountUsdc || priceUsdc || 8.0;
+    const currency = (contract?.currency || "USDC") as Currency;
+    const freelancerAddress = contract?.freelancer?.walletAddress || "";
+
+    // Update status to evaluating
+    if (contract) {
+      await db.contract.update({
+        where: { id: contractId },
+        data: { status: "AGENT_EVALUATING" },
+      });
     }
 
-    await db.contract.update({
-      where: { id: contractId },
-      data: { status: "AGENT_EVALUATING" },
-    });
+    // Run AI evaluation
+    const evaluation = await evaluateDelivery(briefText, deliveryNote, price);
 
-    const evaluation = await evaluateDelivery(
-      contract.brief,
-      deliveryNote,
-      contract.amountUsdc
-    );
-
-    await db.contract.update({
-      where: { id: contractId },
-      data: {
-        agentScore: evaluation.score,
-        agentReasoning: evaluation.reasoning,
-        deliveryNote,
-        deliveredAt: new Date(),
-        status: evaluation.recommendation === "DISPUTE" ? "DISPUTED" : "DELIVERED",
-      },
-    });
-
-    return NextResponse.json({ contractId, evaluation, agentModel: getAgentModel() });
-  } catch (err) {
-    console.error("POST /api/agent error:", err);
-    // Still try to evaluate even if DB fails
-    try {
-      const body = await req.clone().json().catch(() => ({}));
-      const evaluation = await evaluateDelivery(
-        body.brief || "Evaluate this delivery.",
-        body.deliveryNote || "",
-        body.priceUsdc || 8.0
-      );
-      return NextResponse.json({ contractId: body.contractId, evaluation, agentModel: getAgentModel() });
-    } catch {
-      return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    // Update contract with evaluation results
+    if (contract) {
+      await db.contract.update({
+        where: { id: contractId },
+        data: {
+          agentScore: evaluation.score,
+          agentReasoning: evaluation.reasoning,
+          deliveryNote,
+          deliveredAt: new Date(),
+          status: evaluation.recommendation === "DISPUTE" ? "DISPUTED" : "DELIVERED",
+        },
+      });
     }
+
+    // AUTO-RELEASE: if agent approves (score >= 75), release payment automatically
+    let autoSettled = false;
+    let txHash = "";
+    let settlementMs = 0;
+
+    if (evaluation.recommendation === "APPROVE" && freelancerAddress && !freelancerAddress.startsWith("pending")) {
+      try {
+        const netAmount = price * 0.9;
+        const result = await releaseEscrow({
+          toAddress: freelancerAddress,
+          amount: netAmount,
+          currency,
+        });
+
+        if (result.success && contract) {
+          await db.contract.update({
+            where: { id: contractId },
+            data: {
+              status: "SETTLED",
+              settledAt: new Date(),
+              settleTxHash: result.txHash || null,
+            },
+          });
+          await db.transaction.create({
+            data: {
+              contractId,
+              type: "AUTO_SETTLEMENT",
+              amountUsdc: netAmount,
+              txHash: result.txHash,
+              status: "CONFIRMED",
+              chain: "ARC-TESTNET",
+            },
+          });
+          autoSettled = true;
+          txHash = result.txHash;
+          settlementMs = result.settlementMs;
+        }
+      } catch (err) {
+        console.error("Auto-release failed:", err);
+      }
+    }
+
+    return NextResponse.json({
+      contractId,
+      evaluation,
+      autoSettled,
+      txHash,
+      settlementMs,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("POST /api/agent error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// PUT /api/agent — approve or dispute, triggering real on-chain payment release
+// PUT /api/agent — manual approve or dispute
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
@@ -94,19 +125,31 @@ export async function PUT(req: NextRequest) {
     const cur: Currency = currency === "EURC" ? "EURC" : "USDC";
 
     if (action === "APPROVE") {
-      const toAddress = freelancerAddress ||
-        process.env.SELLER_ADDRESS ||
-        "0x0000000000000000000000000000000000000000";
+      // Get the real freelancer address from DB if not provided
+      let toAddress = freelancerAddress;
+      if (!toAddress || toAddress.startsWith("pending")) {
+        try {
+          const { db } = await import("@/lib/db");
+          const contract = await db.contract.findUnique({
+            where: { id: contractId },
+            include: { freelancer: true },
+          });
+          toAddress = contract?.freelancer?.walletAddress;
+        } catch {}
+      }
+
+      if (!toAddress || toAddress.startsWith("pending")) {
+        toAddress = process.env.SELLER_ADDRESS || "";
+      }
+
       const amount = netAmountUsdc || 7.2;
 
-      // Real on-chain release: escrow wallet → freelancer
       const result = await releaseEscrow({
         toAddress,
         amount,
         currency: cur,
       });
 
-      // Update DB
       try {
         const { db } = await import("@/lib/db");
         await db.contract.update({
@@ -122,7 +165,7 @@ export async function PUT(req: NextRequest) {
           await db.transaction.create({
             data: {
               contractId,
-              type: "SETTLEMENT",
+              type: "MANUAL_SETTLEMENT",
               amountUsdc: amount,
               txHash: result.txHash,
               status: "CONFIRMED",
@@ -140,6 +183,7 @@ export async function PUT(req: NextRequest) {
         settled: result.success,
         settlementMs: result.settlementMs,
         txHash: result.txHash,
+        toAddress,
         currency: cur,
         chain: "Arc Testnet",
       });
@@ -159,24 +203,31 @@ export async function PUT(req: NextRequest) {
         contractId,
         action: "DISPUTE",
         settled: false,
-        message: "Dispute opened. The Receipt Agent will re-evaluate within 60 seconds.",
       });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (err) {
-    console.error("PUT /api/agent error:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("PUT /api/agent error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// GET /api/agent — check agent model status
+// GET /api/agent — agent status
 export async function GET() {
+  const model = process.env.NVIDIA_API_KEY
+    ? "nvidia/llama-3.3-70b-instruct"
+    : process.env.GROQ_API_KEY
+    ? "groq/llama-3.3-70b-versatile"
+    : process.env.ANTHROPIC_API_KEY
+    ? "claude-sonnet-4-6"
+    : "receipt-local-eval";
+
   return NextResponse.json({
     status: "online",
-    model: getAgentModel(),
-    sellerAddress: process.env.SELLER_ADDRESS || "not-configured",
-    buyerAddress: process.env.BUYER_ADDRESS || "not-configured",
+    model,
+    autoRelease: "score >= 75",
     currencies: ["USDC", "EURC"],
     chain: "Arc Testnet",
   });

@@ -6,6 +6,7 @@ export interface AgentEvaluation {
   wordCount?: number;
   recommendation: "APPROVE" | "DISPUTE" | "PARTIAL";
   partialPercent?: number;
+  model: string;
 }
 
 export async function evaluateDelivery(
@@ -13,20 +14,30 @@ export async function evaluateDelivery(
   delivery: string,
   priceUsdc: number
 ): Promise<AgentEvaluation> {
-  // Try NVIDIA NIM first, then Groq, then Anthropic, then mock
   const nvidiaKey = process.env.NVIDIA_API_KEY;
   const groqKey   = process.env.GROQ_API_KEY;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
-  if (nvidiaKey) return callNvidia(nvidiaKey, brief, delivery, priceUsdc);
-  if (groqKey)   return callGroq(groqKey, brief, delivery, priceUsdc);
-  if (anthropicKey) return callAnthropic(anthropicKey, brief, delivery, priceUsdc);
-  return mockEvaluation(brief, delivery);
+  if (nvidiaKey) {
+    const result = await callNvidia(nvidiaKey, brief, delivery, priceUsdc);
+    if (result) return result;
+  }
+  if (groqKey) {
+    const result = await callGroq(groqKey, brief, delivery, priceUsdc);
+    if (result) return result;
+  }
+  if (anthropicKey) {
+    const result = await callAnthropic(anthropicKey, brief, delivery, priceUsdc);
+    if (result) return result;
+  }
+
+  // Real evaluation without external API — analyze the delivery directly
+  return localEvaluation(brief, delivery);
 }
 
 const SYSTEM_PROMPT = `You are Receipt Agent, an autonomous AI escrow arbiter for freelance work.
 Evaluate whether a freelancer delivery matches the client brief.
-Return ONLY valid JSON . no markdown, no explanation, no backticks.`;
+Return ONLY valid JSON — no markdown, no explanation, no backticks.`;
 
 function buildPrompt(brief: string, delivery: string, priceUsdc: number): string {
   return `Client brief:
@@ -44,7 +55,7 @@ Contract value: ${priceUsdc}
 Return a JSON object:
 {
   "score": <0-100, how well delivery matches brief>,
-  "reasoning": "<1-2 sentence verdict>",
+  "reasoning": "<2-3 sentence detailed verdict explaining what was delivered and how it matches or misses the brief>",
   "wordCount": <estimated word count of delivery>,
   "recommendation": "<APPROVE if score>=75, PARTIAL if 40-74, DISPUTE if <40>",
   "partialPercent": <percentage to release if PARTIAL, null otherwise>
@@ -56,7 +67,7 @@ async function callNvidia(
   brief: string,
   delivery: string,
   priceUsdc: number
-): Promise<AgentEvaluation> {
+): Promise<AgentEvaluation | null> {
   try {
     const res = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
@@ -76,16 +87,17 @@ async function callNvidia(
     });
 
     if (!res.ok) {
-      console.error("NVIDIA API error:", res.status, await res.text());
-      return mockEvaluation(brief, delivery);
+      console.error("NVIDIA API error:", res.status);
+      return null;
     }
 
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content ?? "{}";
-    return parseEvaluation(text);
+    const result = parseEvaluation(text);
+    return { ...result, model: "nvidia/llama-3.3-70b-instruct" };
   } catch (err) {
     console.error("NVIDIA agent error:", err);
-    return mockEvaluation(brief, delivery);
+    return null;
   }
 }
 
@@ -94,7 +106,7 @@ async function callGroq(
   brief: string,
   delivery: string,
   priceUsdc: number
-): Promise<AgentEvaluation> {
+): Promise<AgentEvaluation | null> {
   try {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -115,15 +127,16 @@ async function callGroq(
 
     if (!res.ok) {
       console.error("Groq API error:", res.status);
-      return mockEvaluation(brief, delivery);
+      return null;
     }
 
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content ?? "{}";
-    return parseEvaluation(text);
+    const result = parseEvaluation(text);
+    return { ...result, model: "groq/llama-3.3-70b-versatile" };
   } catch (err) {
     console.error("Groq agent error:", err);
-    return mockEvaluation(brief, delivery);
+    return null;
   }
 }
 
@@ -132,7 +145,7 @@ async function callAnthropic(
   brief: string,
   delivery: string,
   priceUsdc: number
-): Promise<AgentEvaluation> {
+): Promise<AgentEvaluation | null> {
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -144,16 +157,18 @@ async function callAnthropic(
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 512,
+        system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: buildPrompt(brief, delivery, priceUsdc) }],
       }),
     });
 
-    if (!res.ok) return mockEvaluation(brief, delivery);
+    if (!res.ok) return null;
     const data = await res.json();
     const text = data.content?.[0]?.text ?? "{}";
-    return parseEvaluation(text);
+    const result = parseEvaluation(text);
+    return { ...result, model: "claude-sonnet-4-6" };
   } catch {
-    return mockEvaluation(brief, delivery);
+    return null;
   }
 }
 
@@ -165,31 +180,51 @@ function parseEvaluation(text: string): AgentEvaluation {
       .replace(/[^}]*$/, "}")
       .trim();
     const parsed = JSON.parse(clean);
-    const score = Math.min(100, Math.max(0, Number(parsed.score) || 80));
+    const score = Math.min(100, Math.max(0, Number(parsed.score) || 50));
     return {
       score,
-      reasoning: parsed.reasoning || "Delivery reviewed successfully.",
+      reasoning: parsed.reasoning || "Delivery reviewed.",
       wordCount: parsed.wordCount,
       recommendation:
         score >= 75 ? "APPROVE" : score >= 40 ? "PARTIAL" : "DISPUTE",
       partialPercent: parsed.partialPercent ?? undefined,
+      model: "unknown",
     };
   } catch {
-    return mockEvaluation("", "fallback");
+    return localEvaluation("", "");
   }
 }
 
-function mockEvaluation(brief: string, delivery: string): AgentEvaluation {
+// Smart local evaluation when no API keys work
+function localEvaluation(brief: string, delivery: string): AgentEvaluation {
   const words = delivery.trim().split(/\s+/).filter(Boolean).length;
-  const hasContent = delivery.length > 50;
-  const score = hasContent ? 88 : 30;
+  const briefWords = brief.trim().split(/\s+/).filter(Boolean).length;
+  const briefKeywords = brief.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  const deliveryLower = delivery.toLowerCase();
+  const keywordMatches = briefKeywords.filter(k => deliveryLower.includes(k)).length;
+  const keywordRatio = briefKeywords.length > 0 ? keywordMatches / briefKeywords.length : 0;
+
+  let score = 40;
+  if (words >= 100) score += 15;
+  if (words >= 300) score += 10;
+  if (words >= 500) score += 5;
+  if (keywordRatio >= 0.3) score += 10;
+  if (keywordRatio >= 0.5) score += 10;
+  if (delivery.length > 200) score += 5;
+  score = Math.min(95, Math.max(10, score));
+
+  const reasoning = words < 20
+    ? `Delivery is only ${words} words. The brief requested substantially more content. Insufficient to evaluate.`
+    : words < 100
+    ? `Delivery contains ${words} words with ${Math.round(keywordRatio * 100)}% keyword alignment to the brief. Content is present but may be insufficient for the scope requested.`
+    : `Delivery contains ${words} words with ${Math.round(keywordRatio * 100)}% keyword alignment to the brief. Content scope appears adequate for the contract requirements.`;
+
   return {
     score,
-    reasoning: hasContent
-      ? `Delivery reviewed. Word count: ${words}. Brief requirements assessed. Content meets expectations.`
-      : "Delivery appears incomplete. Content is too short to meet brief requirements.",
+    reasoning,
     wordCount: words,
     recommendation: score >= 75 ? "APPROVE" : score >= 40 ? "PARTIAL" : "DISPUTE",
-    partialPercent: score >= 75 ? undefined : score >= 40 ? 60 : undefined,
+    partialPercent: score >= 75 ? undefined : score >= 40 ? Math.round(score) : undefined,
+    model: "receipt-local-eval",
   };
 }
