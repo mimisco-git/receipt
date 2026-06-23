@@ -49,8 +49,13 @@ export default function Marketplace() {
       .finally(() => setLoading(false));
   }, []);
 
-  const services = listings.filter(l => l.type !== "job");
-  const jobs = listings.filter(l => l.type === "job");
+  // Filter out own listings
+  const myName = (() => {
+    try { return JSON.parse(localStorage.getItem("receipt_profile") || "{}").name || ""; } catch { return ""; }
+  })();
+  const others = listings.filter(l => !myName || l.freelancerName.toLowerCase() !== myName.toLowerCase());
+  const services = others.filter(l => l.type !== "job");
+  const jobs = others.filter(l => l.type === "job");
   const current = tab === "services" ? services : jobs;
 
   const filtered = current.filter(s => {
