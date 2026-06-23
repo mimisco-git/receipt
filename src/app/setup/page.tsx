@@ -24,7 +24,6 @@ export default function SetupPage() {
     priceUsdc: 8,
   });
 
-  // Pre-populate from saved profile
   useEffect(() => {
     try {
       const stored = localStorage.getItem("receipt_profile");
@@ -73,7 +72,6 @@ export default function SetupPage() {
         createdAt: new Date().toISOString(),
       };
 
-      // Save profile
       const existingProfile = JSON.parse(localStorage.getItem("receipt_profile") || "{}");
       localStorage.setItem("receipt_profile", JSON.stringify({
         ...existingProfile,
@@ -82,7 +80,6 @@ export default function SetupPage() {
         walletAddress: form.walletAddress,
       }));
 
-      // Save service
       const existingServices = JSON.parse(localStorage.getItem("receipt_services") || "[]");
       existingServices.unshift(service);
       localStorage.setItem("receipt_services", JSON.stringify(existingServices));
@@ -99,90 +96,75 @@ export default function SetupPage() {
 
   const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/hire/${generatedSlug}`;
 
+  const slow = { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const };
+
   const inputStyle = {
     width: "100%",
-    padding: "12px 14px",
-    background: "rgba(0,0,0,0.3)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 10,
+    padding: "14px 16px",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 12,
     color: "#ffffff",
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "'Inter', sans-serif",
     outline: "none",
     boxSizing: "border-box" as const,
-    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.4)",
-    transition: "border-color 0.15s ease",
+    transition: "border-color 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s cubic-bezier(0.16,1,0.3,1)",
   };
 
   const labelStyle = {
     display: "block" as const,
-    fontSize: 12,
-    fontWeight: 600,
-    color: "rgba(255,255,255,0.4)",
-    letterSpacing: "0.08em",
-    textTransform: "uppercase" as const,
-    marginBottom: 7,
+    fontSize: 13,
+    fontWeight: 500,
+    color: "rgba(255,255,255,0.35)",
+    marginBottom: 8,
   };
 
-  const steps = [
-    { label: "Identity", icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-      </svg>
-    )},
-    { label: "Service", icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-      </svg>
-    )},
-    { label: "Pricing", icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-      </svg>
-    )},
+  const stepTitles = [
+    { title: "Who are you?", sub: "Your identity appears on your service link." },
+    { title: "What do you offer?", sub: "Describe the work your clients will pay for." },
+    { title: "Set your price.", sub: "Choose how much you charge per delivery." },
   ];
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0f1e", color: "#ffffff" }}>
       <Nav />
-      <div style={{ maxWidth: 520, margin: "0 auto", padding: "100px 20px 60px" }}>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "140px 24px 80px" }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={slow}>
 
           {step < 3 && (
             <>
-              <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
-                Create your service link
-              </h1>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginBottom: 32 }}>
-                Share it with clients. Get paid the moment they approve your work.
-              </p>
-
-              {/* Step progress */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
-                {steps.map((s, i) => (
+              {/* Step indicator — minimal dots */}
+              <div style={{ display: "flex", gap: 6, marginBottom: 48, justifyContent: "center" }}>
+                {[0, 1, 2].map((i) => (
                   <div
-                    key={s.label}
+                    key={i}
                     style={{
-                      flex: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      background: i === step ? "rgba(16,217,138,0.1)" : i < step ? "rgba(16,217,138,0.05)" : "rgba(255,255,255,0.03)",
-                      border: i === step ? "1px solid rgba(16,217,138,0.25)" : "1px solid rgba(255,255,255,0.05)",
-                      transition: "all 0.2s ease",
+                      width: i === step ? 24 : 6,
+                      height: 6,
+                      borderRadius: 999,
+                      background: i <= step ? "var(--green)" : "rgba(255,255,255,0.08)",
+                      opacity: i === step ? 1 : i < step ? 0.4 : 1,
+                      transition: "all 0.5s cubic-bezier(0.16,1,0.3,1)",
                     }}
-                  >
-                    <span style={{ color: i <= step ? "#10d98a" : "rgba(255,255,255,0.25)" }}>
-                      {s.icon}
-                    </span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: i === step ? "#10d98a" : i < step ? "rgba(16,217,138,0.6)" : "rgba(255,255,255,0.25)" }}>
-                      {s.label}
-                    </span>
-                  </div>
+                  />
                 ))}
               </div>
+
+              <motion.div
+                key={`header-${step}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={slow}
+                style={{ textAlign: "center", marginBottom: 40 }}
+              >
+                <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 8 }}>
+                  {stepTitles[step].title}
+                </h1>
+                <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)" }}>
+                  {stepTitles[step].sub}
+                </p>
+              </motion.div>
             </>
           )}
 
@@ -191,52 +173,46 @@ export default function SetupPage() {
             {step === 0 && (
               <motion.div
                 key="step0"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: 16,
-                  padding: 24,
-                  display: "grid",
-                  gap: 16,
-                }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={slow}
+                style={{ display: "grid", gap: 20 }}
               >
                 <div>
-                  <label style={labelStyle}>Your name *</label>
+                  <label style={labelStyle}>Full name</label>
                   <input
                     style={inputStyle}
                     value={form.name}
                     onChange={(e) => update("name", e.target.value)}
                     placeholder="Emenike Johnson"
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(52,211,153,0.06)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
                 <div>
-                  <label style={labelStyle}>Short bio (optional)</label>
+                  <label style={labelStyle}>Short bio</label>
                   <textarea
-                    style={{ ...inputStyle, resize: "vertical" as const, minHeight: 70 }}
+                    style={{ ...inputStyle, resize: "vertical" as const, minHeight: 80 }}
                     value={form.bio}
                     onChange={(e) => update("bio", e.target.value)}
                     placeholder="I write SEO content for SaaS startups..."
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(52,211,153,0.06)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
                 <div>
-                  <label style={labelStyle}>USDC Wallet Address *</label>
+                  <label style={labelStyle}>USDC wallet address</label>
                   <input
-                    style={{ ...inputStyle, fontFamily: "'DM Mono', monospace", fontSize: 12 }}
+                    style={{ ...inputStyle, fontFamily: "'DM Mono', monospace", fontSize: 13 }}
                     value={form.walletAddress}
                     onChange={(e) => update("walletAddress", e.target.value)}
                     placeholder="0x4565..."
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(52,211,153,0.06)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 6 }}>
-                    USDC will be sent here on Arc testnet when clients approve your work.
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.18)", marginTop: 8 }}>
+                    USDC lands here when clients approve your work.
                   </p>
                 </div>
               </motion.div>
@@ -246,38 +222,32 @@ export default function SetupPage() {
             {step === 1 && (
               <motion.div
                 key="step1"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: 16,
-                  padding: 24,
-                  display: "grid",
-                  gap: 16,
-                }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={slow}
+                style={{ display: "grid", gap: 20 }}
               >
                 <div>
-                  <label style={labelStyle}>Service title *</label>
+                  <label style={labelStyle}>Service title</label>
                   <input
                     style={inputStyle}
                     value={form.serviceTitle}
                     onChange={(e) => update("serviceTitle", e.target.value)}
                     placeholder="SEO blog post, 1,000 words"
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(52,211,153,0.06)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
                 <div>
-                  <label style={labelStyle}>What you deliver *</label>
+                  <label style={labelStyle}>What you deliver</label>
                   <textarea
-                    style={{ ...inputStyle, resize: "vertical" as const, minHeight: 100 }}
+                    style={{ ...inputStyle, resize: "vertical" as const, minHeight: 120 }}
                     value={form.serviceDescription}
                     onChange={(e) => update("serviceDescription", e.target.value)}
                     placeholder="Research-backed, keyword-optimised article. Delivered in 48 hours with 2 revisions. Includes title, meta description, and internal links."
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(52,211,153,0.06)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
               </motion.div>
@@ -287,47 +257,41 @@ export default function SetupPage() {
             {step === 2 && (
               <motion.div
                 key="step2"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: 16,
-                  padding: 24,
-                }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={slow}
               >
-                <label style={labelStyle}>Price (USDC)</label>
                 <div
                   style={{
                     fontFamily: "'DM Mono', monospace",
-                    fontSize: 48,
+                    fontSize: 56,
                     fontWeight: 700,
-                    color: "#10d98a",
+                    color: "var(--green)",
                     textAlign: "center",
-                    padding: "20px 0",
-                    letterSpacing: "-0.02em",
+                    padding: "32px 0",
+                    letterSpacing: "-0.03em",
                     fontVariantNumeric: "tabular-nums",
                   }}
                 >
                   ${form.priceUsdc.toFixed(2)}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
                   {CURRENCIES.map((p) => (
                     <button
                       key={p}
                       onClick={() => update("priceUsdc", p)}
                       style={{
-                        padding: "9px 0",
-                        borderRadius: 8,
-                        border: form.priceUsdc === p ? "1px solid #10d98a" : "1px solid rgba(255,255,255,0.08)",
-                        background: form.priceUsdc === p ? "rgba(16,217,138,0.1)" : "rgba(255,255,255,0.03)",
-                        color: form.priceUsdc === p ? "#10d98a" : "rgba(255,255,255,0.5)",
-                        fontSize: 13,
+                        padding: "11px 0",
+                        borderRadius: 10,
+                        border: "none",
+                        background: form.priceUsdc === p ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.03)",
+                        color: form.priceUsdc === p ? "var(--green)" : "rgba(255,255,255,0.4)",
+                        fontSize: 14,
                         fontWeight: 600,
                         cursor: "pointer",
                         fontFamily: "'DM Mono', monospace",
-                        transition: "all 0.12s ease",
+                        transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
                       }}
                     >
                       ${p}
@@ -335,44 +299,26 @@ export default function SetupPage() {
                   ))}
                 </div>
                 <div>
-                  <label style={labelStyle}>Or enter custom amount</label>
+                  <label style={labelStyle}>Custom amount</label>
                   <input
                     type="number"
                     style={{ ...inputStyle, fontFamily: "'DM Mono', monospace" }}
                     value={form.priceUsdc}
                     onChange={(e) => update("priceUsdc", Number(e.target.value))}
                     min="1"
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(16,217,138,0.4)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(52,211,153,0.3)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(52,211,153,0.06)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
-                <div
-                  style={{
-                    marginTop: 16,
-                    padding: "12px 14px",
-                    background: "rgba(0,0,0,0.2)",
-                    borderRadius: 10,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: 12,
-                    color: "rgba(255,255,255,0.35)",
-                  }}
-                >
-                  <span>Platform fee (10%)</span>
-                  <span style={{ fontFamily: "'DM Mono', monospace" }}>-${(form.priceUsdc * 0.1).toFixed(2)}</span>
-                </div>
-                <div
-                  style={{
-                    padding: "12px 14px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: "#10d98a",
-                  }}
-                >
-                  <span>You receive</span>
-                  <span style={{ fontFamily: "'DM Mono', monospace" }}>${(form.priceUsdc * 0.9).toFixed(2)} USDC</span>
+                <div style={{ marginTop: 24, padding: "16px 0", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "rgba(255,255,255,0.25)", marginBottom: 8 }}>
+                    <span>Platform fee</span>
+                    <span className="font-mono">10%</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 16, fontWeight: 600, color: "var(--green)" }}>
+                    <span>You receive</span>
+                    <span className="font-mono">${(form.priceUsdc * 0.9).toFixed(2)} USDC</span>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -383,44 +329,41 @@ export default function SetupPage() {
                 key="step3"
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{
-                  background: "rgba(16,217,138,0.04)",
-                  border: "1px solid rgba(16,217,138,0.2)",
-                  borderRadius: 16,
-                  padding: 28,
-                  textAlign: "center",
-                }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                style={{ textAlign: "center" }}
               >
-                <div
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   style={{
-                    width: 52,
-                    height: 52,
+                    width: 56,
+                    height: 56,
                     borderRadius: "50%",
-                    background: "rgba(16,217,138,0.12)",
+                    background: "rgba(52,211,153,0.1)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    margin: "0 auto 16px",
+                    margin: "0 auto 24px",
                   }}
                 >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10d98a" strokeWidth="2.5" strokeLinecap="round">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.5" strokeLinecap="round">
                     <polyline points="4,12 9,17 20,7" />
                   </svg>
-                </div>
-                <h2 style={{ fontSize: 20, fontWeight: 700, color: "#10d98a", marginBottom: 6 }}>
-                  Your link is ready
+                </motion.div>
+                <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--text-1)", marginBottom: 8 }}>
+                  Your link is ready.
                 </h2>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 24 }}>
-                  Share it with clients. When they approve your work, USDC lands in your wallet on Arc in under 500ms.
+                <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", marginBottom: 32, lineHeight: 1.6 }}>
+                  Share it with clients. USDC lands in your wallet when they approve.
                 </p>
 
-                {/* Link display */}
                 <div
                   style={{
-                    padding: "12px 14px",
-                    background: "rgba(0,0,0,0.3)",
-                    borderRadius: 10,
-                    marginBottom: 12,
+                    padding: "14px 16px",
+                    background: "rgba(255,255,255,0.03)",
+                    borderRadius: 12,
+                    marginBottom: 16,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
@@ -430,8 +373,8 @@ export default function SetupPage() {
                   <span
                     style={{
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: 11,
-                      color: "#10d98a",
+                      fontSize: 12,
+                      color: "var(--green)",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap" as const,
@@ -441,15 +384,12 @@ export default function SetupPage() {
                   </span>
                   <button
                     onClick={() => navigator.clipboard.writeText(shareUrl)}
+                    className="btn-primary"
                     style={{
-                      padding: "5px 10px",
-                      background: "#10d98a",
-                      color: "#0a0f1e",
-                      border: "none",
-                      borderRadius: 6,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: "pointer",
+                      padding: "6px 14px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 600,
                       flexShrink: 0,
                     }}
                   >
@@ -457,59 +397,48 @@ export default function SetupPage() {
                   </button>
                 </div>
 
-                <a
-                  href={shareUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "9px 18px",
-                    background: "rgba(255,255,255,0.07)",
-                    color: "rgba(255,255,255,0.7)",
-                    borderRadius: 10,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    marginBottom: 20,
-                  }}
-                >
-                  Preview client view
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </a>
-
-                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                  <a href="/worker-dashboard">
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 24 }}>
+                  <a
+                    href={shareUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      padding: "12px 20px",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "rgba(255,255,255,0.6)",
+                      borderRadius: 12,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      textDecoration: "none",
+                      transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
+                    }}
+                  >
+                    Preview
+                  </a>
+                  <a href="/worker-dashboard" style={{ textDecoration: "none" }}>
                     <button
                       style={{
-                        padding: "9px 16px",
-                        background: "rgba(255,255,255,0.06)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        padding: "12px 20px",
+                        background: "rgba(255,255,255,0.04)",
+                        border: "none",
                         color: "rgba(255,255,255,0.6)",
-                        borderRadius: 10,
-                        fontSize: 13,
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 500,
                         cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
                       }}
                     >
-                      My dashboard
+                      Dashboard
                     </button>
                   </a>
                   <button
                     onClick={() => { setStep(0); setGeneratedSlug(""); }}
+                    className="btn-primary"
                     style={{
-                      padding: "9px 16px",
-                      background: "#10d98a",
-                      color: "#0a0f1e",
-                      border: "none",
-                      borderRadius: 10,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: "pointer",
+                      padding: "12px 20px",
+                      borderRadius: 12,
+                      fontSize: 14,
                     }}
                   >
                     Create another
@@ -519,26 +448,31 @@ export default function SetupPage() {
             )}
           </AnimatePresence>
 
-          {/* Error */}
           {error && (
-            <p style={{ color: "#e74c3c", fontSize: 13, marginTop: 10, textAlign: "center" }}>{error}</p>
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ color: "#F87171", fontSize: 13, marginTop: 12, textAlign: "center" }}
+            >
+              {error}
+            </motion.p>
           )}
 
-          {/* Navigation */}
           {step < 3 && (
-            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+            <div style={{ display: "flex", gap: 10, marginTop: 32 }}>
               {step > 0 && (
                 <button
                   onClick={() => { setStep((s) => s - 1); setError(""); }}
                   style={{
                     flex: 1,
-                    padding: "13px",
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    color: "rgba(255,255,255,0.6)",
-                    borderRadius: 10,
-                    fontSize: 14,
+                    padding: "14px",
+                    background: "rgba(255,255,255,0.04)",
+                    border: "none",
+                    color: "rgba(255,255,255,0.5)",
+                    borderRadius: 12,
+                    fontSize: 15,
                     cursor: "pointer",
+                    transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
                   }}
                 >
                   Back
@@ -547,18 +481,14 @@ export default function SetupPage() {
               <motion.button
                 onClick={step === 2 ? handleGenerate : handleNextStep}
                 disabled={loading}
-                whileTap={{ scale: 0.97, y: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="btn-primary"
                 style={{
                   flex: 2,
-                  padding: "13px",
-                  background: loading ? "rgba(16,217,138,0.5)" : "rgba(255,255,255,0.92)",
-                  color: "#0a0f1e",
-                  border: "none",
-                  borderRadius: 10,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: loading ? "default" : "pointer",
+                  padding: "14px",
+                  borderRadius: 12,
+                  fontSize: 15,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -571,10 +501,10 @@ export default function SetupPage() {
                       style={{
                         width: 16,
                         height: 16,
-                        border: "2px solid rgba(0,0,0,0.3)",
+                        border: "2px solid rgba(0,0,0,0.2)",
                         borderTopColor: "#0a0f1e",
                         borderRadius: "50%",
-                        animation: "spin 0.7s linear infinite",
+                        animation: "spin 0.8s linear infinite",
                       }}
                     />
                     Generating...

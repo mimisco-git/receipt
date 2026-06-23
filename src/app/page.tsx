@@ -10,34 +10,6 @@ import PaymentOrbDemo from "@/components/shared/PaymentOrbDemo";
 import PaymentOrb from "@/components/shared/PaymentOrb";
 import LeptonLogo from "@/components/shared/LeptonLogo";
 
-function ZapSVG() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
-      strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
-function AgentSVG() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
-      strokeLinecap="round" strokeLinejoin="round" stroke="var(--blue)">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M6 20v-2a6 6 0 0 1 12 0v2" />
-      <path d="M16 3.5a4 4 0 0 1 0 9" />
-      <path d="M19 20v-2a6 6 0 0 0-3-5.2" />
-    </svg>
-  );
-}
-function LockSVG() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
-      strokeLinecap="round" strokeLinejoin="round" stroke="var(--amber)">
-      <rect x="3" y="11" width="18" height="11" rx="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
 function ArrowRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -48,13 +20,24 @@ function ArrowRight() {
 }
 
 const features = [
-  { icon: <ZapSVG />,   iconBg: "rgba(18,232,154,0.08)", title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
-  { icon: <AgentSVG />, iconBg: "rgba(74,158,248,0.08)", title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
-  { icon: <LockSVG />,  iconBg: "rgba(245,166,35,0.08)", title: "Zero invoice chasing",   desc: "USDC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
+  {
+    title: "Sub-500ms settlement",
+    desc: "Arc finalizes faster than your bank sends a confirmation SMS.",
+  },
+  {
+    title: "Agent-verified scope",
+    desc: "The Receipt Agent reads brief vs delivery and releases funds autonomously.",
+  },
+  {
+    title: "Zero invoice chasing",
+    desc: "USDC locks in escrow before work begins. Payment is guaranteed.",
+  },
 ];
 
 export default function HomePage() {
   const router = useRouter();
+
+  const slow = { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const };
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
@@ -63,9 +46,9 @@ export default function HomePage() {
       {/* Ambient glow */}
       <div style={{
         position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
-        width: "min(900px, 100vw)", height: 500, pointerEvents: "none", zIndex: 0,
-        background: "radial-gradient(ellipse, rgba(18,232,154,0.05) 0%, rgba(74,158,248,0.02) 50%, transparent 70%)",
-        filter: "blur(60px)",
+        width: "min(900px, 100vw)", height: 600, pointerEvents: "none", zIndex: 0,
+        background: "radial-gradient(ellipse, rgba(52,211,153,0.04) 0%, rgba(74,158,248,0.015) 50%, transparent 70%)",
+        filter: "blur(80px)",
       }} />
 
       {/* HERO */}
@@ -74,54 +57,54 @@ export default function HomePage() {
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
-        padding: "120px 20px 60px",
+        padding: "140px 24px 80px",
         position: "relative", zIndex: 1,
       }}>
         {/* Hero Orb */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.05, duration: 0.7, ease: "easeOut" }}
-          style={{ marginBottom: 32 }}
+          transition={{ delay: 0.1, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          style={{ marginBottom: 48 }}
         >
-          <PaymentOrb variant="hero" state="idle" size={200} interactive={true} />
+          <PaymentOrb variant="hero" state="idle" size={180} interactive={true} />
         </motion.div>
 
-        {/* Eyebrow pill with Lepton logo */}
+        {/* Eyebrow */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08, duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
           className="pill pill-green"
-          style={{ marginBottom: 28, fontSize: 11, gap: 8 }}
+          style={{ marginBottom: 32, fontSize: 11, gap: 8 }}
         >
-          <span className="pill-dot" style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
+          <span className="pill-dot" style={{ animation: "pulse-dot 2.5s ease-in-out infinite" }} />
           Circle · Arc · USDC
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <LeptonLogo size={14} />
-            Lepton Hackathon 2026
+            Lepton 2026
           </span>
         </motion.div>
 
         {/* Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.6 }}
+          transition={{ delay: 0.2, ...slow }}
           style={{
-            fontSize: "clamp(32px, 7vw, 80px)",
+            fontSize: "clamp(36px, 7.5vw, 88px)",
             fontWeight: 700,
-            letterSpacing: "-0.04em",
-            lineHeight: 1.05,
-            maxWidth: 800,
-            marginBottom: 20,
+            letterSpacing: "-0.045em",
+            lineHeight: 1.02,
+            maxWidth: 820,
+            marginBottom: 28,
             color: "var(--text-1)",
           }}
         >
           Get paid the moment<br />
           your work is{" "}
           <span style={{
-            background: "linear-gradient(135deg, #12E89A 0%, #0BBFFF 100%)",
+            background: "linear-gradient(135deg, #34D399 0%, #38BDF8 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -130,37 +113,37 @@ export default function HomePage() {
           </span>
         </motion.h1>
 
-        {/* Sub */}
+        {/* Sub — shorter, less text */}
         <motion.p
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.22, duration: 0.55 }}
+          transition={{ delay: 0.35, ...slow }}
           style={{
-            fontSize: "clamp(14px, 2vw, 17px)",
-            color: "var(--text-2)",
-            lineHeight: 1.7,
-            maxWidth: 460,
-            marginBottom: 36,
-            padding: "0 4px",
+            fontSize: "clamp(15px, 2vw, 18px)",
+            color: "var(--text-3)",
+            lineHeight: 1.6,
+            maxWidth: 420,
+            marginBottom: 48,
           }}
         >
-          AI-mediated freelance escrow on Arc. Client deposits USDC.
-          You deliver. The agent verifies scope. Payment clears in under 500ms.
+          AI-mediated freelance escrow. Client deposits USDC.
+          Agent verifies. Payment clears in under 500ms.
         </motion.p>
 
         {/* CTAs */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 60 }}
+          transition={{ delay: 0.45, ...slow }}
+          style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center", marginBottom: 80 }}
         >
           <button
             className="btn-primary"
             onClick={() => router.push("/setup")}
             style={{
-              padding: "13px 24px", borderRadius: 12,
+              padding: "14px 28px", borderRadius: 14,
               display: "flex", alignItems: "center", gap: 8,
+              fontSize: 15,
             }}
           >
             Create your service link
@@ -169,7 +152,7 @@ export default function HomePage() {
           <button
             className="btn-ghost"
             onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
-            style={{ padding: "13px 24px", borderRadius: 12 }}
+            style={{ padding: "14px 28px", borderRadius: 14, fontSize: 15 }}
           >
             Watch the demo
           </button>
@@ -178,7 +161,7 @@ export default function HomePage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          transition={{ delay: 0.6, duration: 1 }}
         >
           <HeroStats />
         </motion.div>
@@ -187,49 +170,31 @@ export default function HomePage() {
       {/* HOW IT WORKS */}
       <HowItWorks />
 
-      {/* FEATURE CARDS */}
-      <section style={{ padding: "0 20px 80px", position: "relative", zIndex: 1 }}>
+      {/* FEATURE CARDS — borderless, more spacing */}
+      <section style={{ padding: "0 24px 160px", position: "relative", zIndex: 1 }}>
         <div style={{
           maxWidth: 860, margin: "0 auto",
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: 10,
+          gap: 16,
         }}>
           {features.map((f, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.45 }}
+              transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                padding: "24px",
-                background: "var(--card)",
-                border: "1px solid var(--line)",
-                borderRadius: "var(--r-lg)",
-                transition: "border-color 0.2s, background 0.2s",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line-2)";
-                (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line)";
-                (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
+                padding: "32px 28px",
+                background: "rgba(255,255,255,0.025)",
+                borderRadius: 20,
               }}
             >
-              <div style={{
-                width: 36, height: 36, borderRadius: 9,
-                background: f.iconBg,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                marginBottom: 14,
-              }}>
-                {f.icon}
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--text-1)" }}>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10, color: "var(--text-1)", letterSpacing: "-0.01em" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.65 }}>
+              <div style={{ fontSize: 14, color: "var(--text-3)", lineHeight: 1.7 }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -239,129 +204,106 @@ export default function HomePage() {
 
       {/* LIVE DEMO */}
       <section id="demo" style={{
-        padding: "40px 20px 80px",
+        padding: "80px 24px 160px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
-        <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
-          color: "var(--text-3)", textTransform: "uppercase", marginBottom: 12,
-        }}>
-          Live demo
-        </div>
-        <h2 style={{
-          fontSize: "clamp(20px,3vw,34px)", fontWeight: 700,
-          letterSpacing: "-0.03em", textAlign: "center", marginBottom: 10,
-          color: "var(--text-1)",
-        }}>
-          Watch a payment clear
-        </h2>
-        <p style={{
-          fontSize: 14, color: "var(--text-2)",
-          textAlign: "center", maxWidth: 360, marginBottom: 40, lineHeight: 1.65,
-          padding: "0 4px",
-        }}>
-          Real interface. Real orb. The ripple is exactly what your client sees when USDC settles.
-        </p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          style={{ textAlign: "center", marginBottom: 56 }}
+        >
+          <h2 style={{
+            fontSize: "clamp(28px,4vw,48px)", fontWeight: 700,
+            letterSpacing: "-0.035em", marginBottom: 14,
+            color: "var(--text-1)",
+          }}>
+            Watch a payment clear.
+          </h2>
+          <p style={{
+            fontSize: 15, color: "var(--text-3)",
+            maxWidth: 380, margin: "0 auto", lineHeight: 1.6,
+          }}>
+            The ripple is exactly what your client sees when USDC settles on Arc.
+          </p>
+        </motion.div>
         <PaymentOrbDemo />
       </section>
 
-      {/* CTA SECTION */}
+      {/* CTA SECTION — borderless */}
       <section style={{
-        padding: "20px 20px 80px",
+        padding: "0 24px 160px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
         <div style={{
-          maxWidth: 520, width: "100%",
-          background: "var(--card)",
-          border: "1px solid var(--line)",
-          borderRadius: "var(--r-xl)",
-          padding: "clamp(24px, 5vw, 40px)",
+          maxWidth: 480, width: "100%",
+          background: "rgba(255,255,255,0.025)",
+          borderRadius: 24,
+          padding: "clamp(32px, 6vw, 56px)",
           textAlign: "center",
-          boxShadow: "0 0 0 1px rgba(18,232,154,0.05), 0 24px 48px rgba(0,0,0,0.3)",
         }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: "var(--green-dim)",
-            border: "1px solid var(--green-border)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 18px",
-          }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </div>
           <h3 style={{
-            fontSize: "clamp(18px,3vw,22px)", fontWeight: 700, letterSpacing: "-0.02em",
-            marginBottom: 10, color: "var(--text-1)",
+            fontSize: "clamp(22px,3.5vw,32px)", fontWeight: 700, letterSpacing: "-0.03em",
+            marginBottom: 14, color: "var(--text-1)",
           }}>
             Ready to get paid?
           </h3>
-          <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.65, marginBottom: 24 }}>
-            Set up your service in 60 seconds. Share the link. Get paid in USDC the moment your client approves.
+          <p style={{ fontSize: 15, color: "var(--text-3)", lineHeight: 1.6, marginBottom: 32 }}>
+            Set up your service in 60 seconds. Share the link. Get paid the moment your client approves.
           </p>
           <button
             className="btn-primary"
             onClick={() => router.push("/setup")}
             style={{
-              padding: "13px 28px", borderRadius: 12, fontSize: 14,
+              padding: "14px 32px", borderRadius: 14, fontSize: 15,
               display: "inline-flex", alignItems: "center", gap: 8,
             }}
           >
             Create your service link
             <ArrowRight />
           </button>
-          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12 }}>
-            Free to use. No subscription. 10% platform fee per settled contract.
+          <div style={{ fontSize: 13, color: "var(--text-3)", marginTop: 16, opacity: 0.6 }}>
+            10% platform fee per settled contract.
           </div>
         </div>
       </section>
 
-      {/* TECH STACK */}
+      {/* TECH STACK — reduced to 4 items, no borders */}
       <section style={{
-        padding: "20px 20px 60px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+        padding: "0 24px 80px",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
         position: "relative", zIndex: 1,
       }}>
         <div style={{
-          width: "100%", maxWidth: 820,
-          height: 1, background: "linear-gradient(90deg, transparent, var(--line), transparent)",
-          marginBottom: 20,
-        }} />
-        <div style={{
-          fontSize: 10.5, color: "var(--text-3)",
-          fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
+          fontSize: 11, color: "var(--text-3)",
+          fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase",
+          opacity: 0.6,
         }}>
           Built on
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", padding: "0 8px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
           {[
-            "Circle Programmable Wallets",
-            "Circle Gateway",
-            "x402 Protocol",
-            "EIP-3009",
-            "Arc L1 Testnet",
+            "Circle Wallets",
+            "Arc L1",
             "USDC",
-            "Claude Sonnet 4.6 · Receipt Agent",
-            "Next.js · Supabase",
+            "Claude Sonnet 4.6",
           ].map(t => (
             <span key={t} className="font-mono" style={{
-              padding: "4px 12px", borderRadius: 999, fontSize: 11,
-              background: "var(--card)",
-              border: "1px solid var(--line)",
-              color: "var(--text-2)",
+              padding: "6px 14px", borderRadius: 999, fontSize: 12,
+              background: "rgba(255,255,255,0.03)",
+              color: "var(--text-3)",
             }}>{t}</span>
           ))}
         </div>
-        {/* Lepton attribution */}
         <div style={{
           display: "flex", alignItems: "center", gap: 6,
-          fontSize: 12, color: "var(--text-3)", marginTop: 8,
+          fontSize: 12, color: "var(--text-3)", marginTop: 4, opacity: 0.5,
         }}>
           Built for
-          <LeptonLogo size={16} />
+          <LeptonLogo size={14} />
           <a
             href="https://lepton.thecanteenapp.com"
             target="_blank" rel="noreferrer"
@@ -369,7 +311,6 @@ export default function HomePage() {
           >
             Lepton by Canteen
           </a>
-          · June 2026
         </div>
       </section>
 
