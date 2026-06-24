@@ -32,44 +32,32 @@ export default function ClientDashboardPage() {
   const [name, setName] = useState("Client");
 
   useEffect(() => {
-    // Get profile for client name
+    let clientName = "Client";
     try {
       const profile = JSON.parse(localStorage.getItem("receipt_profile") || "{}");
-      if (profile.name) setName(profile.name);
+      if (profile.name) {
+        clientName = profile.name;
+        setName(clientName);
+      }
     } catch {}
 
-    // Fetch contracts from API (primary source)
-    fetch(`/api/contracts?role=all`)
+    if (!clientName || clientName === "Client") return;
+
+    fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(clientName)}`)
       .then(r => r.ok ? r.json() : { contracts: [] })
       .then(data => {
-        if (data.contracts?.length) {
-          const apiContracts: ClientContract[] = data.contracts.map((c: any) => ({
-            id: c.id,
-            serviceTitle: c.service?.title || "Service",
-            freelancerName: c.service?.freelancer?.name || "Worker",
-            brief: c.brief,
-            amountUsdc: c.amountUsdc,
-            status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
-            createdAt: c.createdAt,
-            agentScore: c.agentScore,
-            txHash: c.settleTxHash,
-          }));
-          setContracts(apiContracts);
-        } else {
-          // Fallback to localStorage
-          const stored: ClientContract[] = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key?.startsWith("receipt_contract_")) {
-              try {
-                const d = JSON.parse(localStorage.getItem(key) || "{}");
-                if (d.clientName) stored.push(d);
-              } catch {}
-            }
-          }
-          stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-          setContracts(stored);
-        }
+        const apiContracts: ClientContract[] = (data.contracts || []).map((c: any) => ({
+          id: c.id,
+          serviceTitle: c.service?.title || "Service",
+          freelancerName: c.service?.freelancer?.name || "Worker",
+          brief: c.brief,
+          amountUsdc: c.amountUsdc,
+          status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
+          createdAt: c.createdAt,
+          agentScore: c.agentScore,
+          txHash: c.settleTxHash,
+        }));
+        setContracts(apiContracts);
       })
       .catch(() => {});
   }, []);

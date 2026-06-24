@@ -16,42 +16,24 @@ export default function WorkerDashboardPage() {
     const p = loadProfile();
     if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress });
 
-    // Fetch contracts from API (primary source)
-    const apiUrl = p.walletAddress
-      ? `/api/contracts?role=worker&wallet=${encodeURIComponent(p.walletAddress)}`
-      : `/api/contracts?role=all`;
+    if (!p.walletAddress) return;
 
-    fetch(apiUrl)
+    fetch(`/api/contracts?role=worker&wallet=${encodeURIComponent(p.walletAddress)}`)
       .then(r => r.ok ? r.json() : { contracts: [] })
       .then(data => {
-        if (data.contracts?.length) {
-          const apiContracts = data.contracts.map((c: any) => ({
-            id: c.id,
-            clientName: c.clientName,
-            brief: c.brief,
-            amountUsdc: c.amountUsdc,
-            netAmountUsdc: c.netAmountUsdc,
-            currency: c.currency || "USDC",
-            serviceTitle: c.service?.title || "Service",
-            status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
-            agentScore: c.agentScore,
-            createdAt: c.createdAt,
-          }));
-          setContracts(apiContracts);
-        } else {
-          // Fallback to localStorage
-          const stored: any[] = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key?.startsWith("receipt_contract_")) {
-              try {
-                stored.push(JSON.parse(localStorage.getItem(key) || "{}"));
-              } catch {}
-            }
-          }
-          stored.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-          setContracts(stored);
-        }
+        const apiContracts = (data.contracts || []).map((c: any) => ({
+          id: c.id,
+          clientName: c.clientName,
+          brief: c.brief,
+          amountUsdc: c.amountUsdc,
+          netAmountUsdc: c.netAmountUsdc,
+          currency: c.currency || "USDC",
+          serviceTitle: c.service?.title || "Service",
+          status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
+          agentScore: c.agentScore,
+          createdAt: c.createdAt,
+        }));
+        setContracts(apiContracts);
       })
       .catch(() => {});
   }, []);
@@ -91,9 +73,9 @@ export default function WorkerDashboardPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 10, marginBottom: 28 }}>
             {[
               { label: "Total earned",      value: `$${totalEarned.toFixed(2)}`, color: "var(--green)" },
-              { label: "Contracts settled", value: settled.length,               color: "var(--text-1)" },
-              { label: "Pending payment",   value: pending.length,               color: "var(--amber)" },
-              { label: "Avg. settlement",   value: "482ms",                      color: "var(--text-1)" },
+              { label: "Contracts settled", value: String(settled.length),        color: "var(--text-1)" },
+              { label: "Pending payment",   value: String(pending.length),        color: "var(--amber)" },
+              { label: "Total contracts",   value: String(contracts.length),      color: "var(--text-1)" },
             ].map((s, i) => (
               <div key={i} style={{ padding: "18px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)" }}>
                 <div style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
