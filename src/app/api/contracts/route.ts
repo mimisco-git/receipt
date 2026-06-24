@@ -37,7 +37,15 @@ export async function GET(req: NextRequest) {
         include: { service: { include: { freelancer: true } }, freelancer: true },
         orderBy: { createdAt: "desc" },
       });
-      return NextResponse.json({ contracts });
+
+      const seen = new Set<string>();
+      const unique = contracts.filter((c: { id: string }) => {
+        if (seen.has(c.id)) return false;
+        seen.add(c.id);
+        return true;
+      });
+
+      return NextResponse.json({ contracts: unique });
     }
 
     if (role === "client" && (name || wallet)) {

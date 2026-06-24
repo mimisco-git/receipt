@@ -53,7 +53,7 @@ export default function Nav() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 clamp(16px, 4vw, 40px)",
           height: 56,
-          background: scrolled ? "rgba(10,15,30,0.75)" : "rgba(10,15,30,0.25)",
+          background: scrolled ? "rgba(10,15,30,0.45)" : "transparent",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
           borderBottom: scrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
