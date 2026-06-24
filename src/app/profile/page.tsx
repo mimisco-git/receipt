@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Nav from "@/components/layout/Nav";
-import { loadProfile, saveProfile, getInitials, type ProfileData } from "@/lib/profile";
+import { loadProfile, saveProfile, clearProfile, getInitials, type ProfileData } from "@/lib/profile";
 
 const AVATAR_COLORS = [
   "#00D184","#4A9EF8","#F5A623","#F05252",
@@ -38,6 +38,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [walletError, setWalletError] = useState<string | null>(null);
 
   const [form, setForm] = useState<ProfileData>({
     role: "", name: "", bio: "", walletAddress: "",
@@ -71,10 +72,10 @@ export default function ProfilePage() {
 
   async function handleSave() {
     setSaving(true);
+    setWalletError(null);
     try {
       let walletAddress = form.walletAddress;
 
-      // Auto-provision a Circle wallet if user doesn't have one
       if (!walletAddress || walletAddress.startsWith("pending")) {
         try {
           const res = await fetch("/api/wallet", {
@@ -83,12 +84,14 @@ export default function ProfilePage() {
             body: JSON.stringify({ userId: form.name, role: form.role }),
           });
           const data = await res.json();
-          if (data.walletAddress) {
+          if (!res.ok) {
+            setWalletError(data.error || "Wallet creation failed");
+          } else if (data.walletAddress) {
             walletAddress = data.walletAddress;
             setForm(p => ({ ...p, walletAddress }));
           }
         } catch (err) {
-          console.error("Wallet provisioning failed:", err);
+          setWalletError(err instanceof Error ? err.message : "Wallet provisioning failed");
         }
       }
 
@@ -99,6 +102,11 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleSignOut() {
+    clearProfile();
+    router.push("/");
   }
 
   if (!loaded) {
@@ -289,6 +297,29 @@ export default function ProfilePage() {
               Profile saved.
             </motion.div>
           )}
+
+          {walletError && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              style={{ marginTop: 12, padding: "11px 14px", background: "rgba(240,82,82,0.1)", border: "1px solid rgba(240,82,82,0.2)", borderRadius: "var(--r-sm)", fontSize: 13, color: "#F05252", textAlign: "center" }}>
+              Wallet error: {walletError}
+            </motion.div>
+          )}
+
+          {/* Sign out */}
+          <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--line)", textAlign: "center" }}>
+            <button onClick={handleSignOut}
+              style={{
+                background: "none", border: "1px solid rgba(240,82,82,0.3)",
+                color: "#F05252", fontSize: 13, fontWeight: 500,
+                padding: "10px 28px", borderRadius: "var(--r-sm)",
+                cursor: "pointer", transition: "all 0.15s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(240,82,82,0.1)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+            >
+              Sign out
+            </button>
+          </div>
 
         </motion.div>
       </main>

@@ -45,6 +45,11 @@ export function saveProfile(data: ProfileData): void {
   localStorage.setItem("receipt_profile", JSON.stringify(data));
 }
 
+export function clearProfile(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("receipt_profile");
+}
+
 export function getInitials(name: string): string {
   if (!name.trim()) return "?";
   return name

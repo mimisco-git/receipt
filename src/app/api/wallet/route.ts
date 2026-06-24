@@ -14,17 +14,18 @@ export async function POST(req: NextRequest) {
     const walletSetId = await getOrCreateWalletSet();
     const wallet = await createWallet(walletSetId);
 
-    // Update freelancer record with Circle wallet ID
     try {
       const { db } = await import("@/lib/db");
       await db.freelancer.updateMany({
-        where: { id: userId },
+        where: { name: userId },
         data: {
           circleWalletId: wallet.walletId,
           walletAddress: wallet.address,
         },
       });
-    } catch {}
+    } catch (dbErr) {
+      console.error("DB update after wallet creation:", dbErr);
+    }
 
     return NextResponse.json({
       walletId: wallet.walletId,
