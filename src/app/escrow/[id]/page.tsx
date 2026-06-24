@@ -12,14 +12,17 @@ type ViewerRole = "worker" | "client" | "unknown";
 
 interface ContractData {
   id: string;
-  clientName: string;
   brief: string;
   amountUsdc: number;
   netAmountUsdc: number;
   currency: "USDC" | "EURC";
   serviceTitle: string;
-  freelancerName: string;
-  freelancerAddress: string;
+  serviceType: "service" | "job";
+  // Who actually does the work
+  workerName: string;
+  workerAddress: string;
+  // Who pays
+  payerName: string;
   deliveryNote: string;
   status: Phase;
 }
@@ -42,14 +45,15 @@ export default function EscrowPage() {
 
   const [contract, setContract] = useState<ContractData>({
     id: id as string,
-    clientName: "",
     brief: "",
     amountUsdc: 0,
     netAmountUsdc: 0,
     currency: "USDC",
     serviceTitle: "Loading...",
-    freelancerName: "",
-    freelancerAddress: "",
+    serviceType: "service",
+    workerName: "",
+    workerAddress: "",
+    payerName: "",
     deliveryNote: "",
     status: "pending",
   });
@@ -67,19 +71,28 @@ export default function EscrowPage() {
           .replace("pending_delivery", "pending")
           .replace("agent_evaluating", "evaluating") as Phase;
 
+        const serviceType = data.service?.type || "service";
         const freelancerAddr = data.freelancer?.walletAddress || data.service?.freelancer?.walletAddress || "";
         const freelancerName = data.freelancer?.name || data.service?.freelancer?.name || "";
 
+        // For SERVICE flow: freelancer = worker, clientName = payer
+        // For JOB flow: freelancer = payer (posted the job), clientName = worker (accepted it)
+        const isJob = serviceType === "job";
+        const workerName = isJob ? data.clientName : freelancerName;
+        const workerAddress = isJob ? "" : freelancerAddr;
+        const payerName = isJob ? freelancerName : data.clientName;
+
         const c: ContractData = {
           id: id as string,
-          clientName: data.clientName,
           brief: data.brief,
           amountUsdc: data.amountUsdc || 0,
           netAmountUsdc: data.netAmountUsdc || 0,
           currency: data.currency || "USDC",
           serviceTitle: data.service?.title || "Service",
-          freelancerName,
-          freelancerAddress: freelancerAddr,
+          serviceType: isJob ? "job" : "service",
+          workerName,
+          workerAddress: workerAddress || freelancerAddr,
+          payerName,
           deliveryNote: data.deliveryNote || "",
           status: rawStatus || "pending",
         };
@@ -91,15 +104,32 @@ export default function EscrowPage() {
         if (data.agentReasoning) setAgentReasoning(data.agentReasoning);
         if (data.deliveryNote) setDeliveryText(data.deliveryNote);
 
-        // Determine viewer role
-        if (profile.walletAddress && profile.walletAddress === freelancerAddr) {
-          setViewerRole("worker");
-        } else if (profile.name && profile.name.toLowerCase() === data.clientName?.toLowerCase()) {
-          setViewerRole("client");
-        } else if (profile.role === "worker") {
-          setViewerRole("worker");
-        } else if (profile.role === "client") {
-          setViewerRole("client");
+        // Determine viewer role based on service type
+        const profileName = (profile.name || "").toLowerCase();
+        const profileWallet = profile.walletAddress || "";
+
+        if (isJob) {
+          // JOB: clientName = worker (accepter), freelancer = client (poster)
+          if (profileName && profileName === data.clientName?.toLowerCase()) {
+            setViewerRole("worker");
+          } else if (profileWallet && profileWallet === freelancerAddr) {
+            setViewerRole("client");
+          } else if (profileName && profileName === freelancerName?.toLowerCase()) {
+            setViewerRole("client");
+          } else {
+            setViewerRole(profile.role === "worker" ? "worker" : profile.role === "client" ? "client" : "unknown");
+          }
+        } else {
+          // SERVICE: freelancer = worker, clientName = client
+          if (profileWallet && profileWallet === freelancerAddr) {
+            setViewerRole("worker");
+          } else if (profileName && profileName === freelancerName?.toLowerCase()) {
+            setViewerRole("worker");
+          } else if (profileName && profileName === data.clientName?.toLowerCase()) {
+            setViewerRole("client");
+          } else {
+            setViewerRole(profile.role === "worker" ? "worker" : profile.role === "client" ? "client" : "unknown");
+          }
         }
       })
       .catch(() => {});
@@ -176,7 +206,7 @@ export default function EscrowPage() {
         body: JSON.stringify({
           contractId: id,
           action: "APPROVE",
-          freelancerAddress: contract.freelancerAddress,
+          freelancerAddress: contract.workerAddress,
           netAmountUsdc: contract.netAmountUsdc,
           currency: contract.currency,
         }),
@@ -230,14 +260,16 @@ export default function EscrowPage() {
             {contract.serviceTitle}
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-2)" }}>
-            {isWorker ? `Client: ${contract.clientName}` : `Worker: ${contract.freelancerName}`}
+            {isWorker
+              ? `Client: ${contract.payerName}`
+              : `Worker: ${contract.workerName}`}
           </p>
           {viewerRole !== "unknown" && (
             <div style={{
               display: "inline-block", marginTop: 6,
               padding: "2px 10px", borderRadius: 999, fontSize: 10.5, fontWeight: 600,
-              background: isWorker ? "var(--green-dim)" : "var(--blue-dim, rgba(74,158,248,0.1))",
-              color: isWorker ? "var(--green)" : "var(--blue, #4A9EF8)",
+              background: isWorker ? "var(--green-dim)" : "rgba(74,158,248,0.1)",
+              color: isWorker ? "var(--green)" : "#4A9EF8",
               border: `1px solid ${isWorker ? "var(--green-border)" : "rgba(74,158,248,0.2)"}`,
             }}>
               Viewing as {isWorker ? "Worker" : "Client"}
@@ -252,7 +284,6 @@ export default function EscrowPage() {
           boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
           overflow: "hidden",
         }}>
-          {/* Settlement strip */}
           <div className="strip">
             {["Circle Gateway","Arc Testnet","USDC · EURC","x402 Protocol"].map(s => (
               <span key={s}><span className="strip-dot"/>{s}</span>
@@ -269,7 +300,7 @@ export default function EscrowPage() {
               borderRight: "1px solid var(--line)",
             }}>
               <div style={{ fontSize: 11, color: "var(--text-3)", textAlign: "center", minHeight: 16 }}>
-                {phase === "pending"    && "Awaiting delivery"}
+                {phase === "pending"    && (isWorker ? "Submit your work" : "Awaiting delivery")}
                 {phase === "delivered"  && (isClient ? "Review delivery" : "Delivery submitted")}
                 {phase === "evaluating" && "Agent reviewing"}
                 {phase === "approved"   && "Releasing payment"}
@@ -295,7 +326,6 @@ export default function EscrowPage() {
                 {phase === "disputed"   && "Disputed"}
               </div>
 
-              {/* Payment breakdown */}
               <div style={{ width: "100%", fontSize: 11.5 }}>
                 {[
                   ["Contract",    `${sym}${contract.amountUsdc.toFixed(2)} ${contract.currency}`],
@@ -335,7 +365,7 @@ export default function EscrowPage() {
                   marginBottom: 12,
                 }}>
                   <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
-                    {isWorker ? "Client brief" : "Your brief"}
+                    {isWorker ? "Job requirements" : "Your brief"}
                   </div>
                   <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", fontStyle: "italic", paddingLeft: 10, borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
                     {contract.brief}
@@ -397,16 +427,16 @@ export default function EscrowPage() {
                     background: "rgba(245,166,35,0.06)", border: "1px solid rgba(245,166,35,0.15)",
                     textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--amber, #F5A623)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#F5A623", marginBottom: 4 }}>
                       Waiting for delivery
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      {contract.freelancerName} is working on your job. You&apos;ll be able to review and approve once they submit.
+                      {contract.workerName} is working on your job. You&apos;ll be able to review and approve once they submit.
                     </div>
                   </div>
                 )}
 
-                {/* Show delivery text to client for review */}
+                {/* CLIENT: See worker's delivery for review */}
                 {(phase === "delivered" || phase === "evaluating" || phase === "settled" || phase === "approved") && isClient && deliveryText && (
                   <div style={{
                     padding: "12px 14px", borderRadius: "var(--r)",
@@ -422,18 +452,18 @@ export default function EscrowPage() {
                   </div>
                 )}
 
-                {/* Worker: delivery submitted confirmation */}
-                {(phase === "delivered" || phase === "evaluating") && isWorker && (
+                {/* WORKER: delivery submitted, waiting for client */}
+                {(phase === "delivered" || phase === "evaluating") && isWorker && !scoreRunning && (
                   <div style={{
                     padding: "12px 14px", borderRadius: "var(--r)",
                     background: "rgba(74,158,248,0.06)", border: "1px solid rgba(74,158,248,0.15)",
                     marginBottom: 12, textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--blue, #4A9EF8)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#4A9EF8", marginBottom: 4 }}>
                       Delivery submitted
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      Waiting for {contract.clientName} to review and approve your work.
+                      Waiting for {contract.payerName} to review and approve your work.
                     </div>
                   </div>
                 )}
@@ -499,7 +529,7 @@ export default function EscrowPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Settled state */}
+                {/* Settled */}
                 <AnimatePresence>
                   {phase === "settled" && (
                     <motion.div
@@ -525,7 +555,7 @@ export default function EscrowPage() {
 
               {/* Action buttons */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {/* WORKER: Submit delivery button */}
+                {/* WORKER: Submit delivery */}
                 {phase === "pending" && isWorker && (
                   <button
                     onClick={submitDelivery}
@@ -542,22 +572,8 @@ export default function EscrowPage() {
                   </button>
                 )}
 
-                {/* CLIENT: Approve / Dispute buttons (after agent evaluates and didn't auto-settle) */}
-                {(phase === "evaluating" || phase === "delivered") && isClient && !scoreRunning && agentScore > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <button onClick={approvePayment} className="btn-primary"
-                      style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
-                      Approve and release {sym}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
-                    </button>
-                    <button onClick={disputeContract} className="btn-ghost"
-                      style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
-                      Flag an issue
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* CLIENT: Delivery submitted but no evaluation yet */}
-                {phase === "delivered" && isClient && agentScore === 0 && (
+                {/* CLIENT: Approve / Dispute (after delivery submitted) */}
+                {(phase === "evaluating" || phase === "delivered") && isClient && !scoreRunning && (
                   <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <button onClick={approvePayment} className="btn-primary"
                       style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
