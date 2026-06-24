@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Nav from "@/components/layout/Nav";
+import { loadProfile, getInitials } from "@/lib/profile";
 import { timeAgo } from "@/lib/utils";
 
 interface ClientContract {
@@ -12,15 +13,16 @@ interface ClientContract {
   freelancerName: string;
   brief: string;
   amountUsdc: number;
+  currency: string;
   status: string;
   createdAt: string;
   agentScore?: number;
   txHash?: string;
 }
 
-const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
+const STATUS_CFG: Record<string, { label: string; color: string; bg: string; action?: string }> = {
   pending:    { label: "Awaiting delivery", color: "var(--amber)", bg: "var(--amber-dim)" },
-  delivered:  { label: "Under review",      color: "var(--blue)",  bg: "var(--blue-dim)" },
+  delivered:  { label: "Needs your review", color: "var(--blue)",  bg: "var(--blue-dim)", action: "Review now" },
   evaluating: { label: "Agent reviewing",   color: "var(--blue)",  bg: "var(--blue-dim)" },
   settled:    { label: "Completed",         color: "var(--green)", bg: "var(--green-dim)" },
   disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(240,82,82,0.1)" },
@@ -29,21 +31,15 @@ const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> =
 export default function ClientDashboardPage() {
   const router = useRouter();
   const [contracts, setContracts] = useState<ClientContract[]>([]);
-  const [name, setName] = useState("Client");
+  const [profile, setProfile] = useState({ name: "Client", walletAddress: "", bio: "", avatarColor: "#4A9EF8", avatarUrl: null as string | null });
 
   useEffect(() => {
-    let clientName = "Client";
-    try {
-      const profile = JSON.parse(localStorage.getItem("receipt_profile") || "{}");
-      if (profile.name) {
-        clientName = profile.name;
-        setName(clientName);
-      }
-    } catch {}
+    const p = loadProfile();
+    if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress, bio: p.bio, avatarColor: p.avatarColor, avatarUrl: p.avatarUrl });
 
-    if (!clientName || clientName === "Client") return;
+    if (!p.name) return;
 
-    fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(clientName)}`)
+    fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(p.name)}`)
       .then(r => r.ok ? r.json() : { contracts: [] })
       .then(data => {
         const apiContracts: ClientContract[] = (data.contracts || []).map((c: any) => ({
@@ -52,6 +48,7 @@ export default function ClientDashboardPage() {
           freelancerName: c.service?.freelancer?.name || "Worker",
           brief: c.brief,
           amountUsdc: c.amountUsdc,
+          currency: c.currency || "USDC",
           status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
           createdAt: c.createdAt,
           agentScore: c.agentScore,
@@ -64,33 +61,80 @@ export default function ClientDashboardPage() {
 
   const total    = contracts.reduce((s, c) => s + (c.amountUsdc || 0), 0);
   const settled  = contracts.filter(c => c.status === "settled");
-  const pending  = contracts.filter(c => c.status === "pending" || c.status === "delivered" || c.status === "evaluating");
+  const needsReview = contracts.filter(c => c.status === "delivered" || c.status === "evaluating");
+  const pending  = contracts.filter(c => c.status === "pending");
+  const initials = getInitials(profile.name);
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav />
       <main style={{ maxWidth: 820, margin: "0 auto", padding: "clamp(80px,12vw,100px) 20px 60px" }}>
-
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
-              Client portal
+
+          {/* Profile card */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 16, padding: "20px 24px",
+            background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)",
+            marginBottom: 20,
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: "50%", flexShrink: 0,
+              background: profile.avatarUrl ? "transparent" : profile.avatarColor,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 20, fontWeight: 700, color: "#060E0A",
+              border: "2px solid var(--line)", overflow: "hidden",
+            }}>
+              {profile.avatarUrl
+                ? <img src={profile.avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : initials}
             </div>
-            <h1 style={{ fontSize: "clamp(22px,4vw,30px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 4 }}>
-              Your contracts
-            </h1>
-            <p style={{ fontSize: 14, color: "var(--text-2)" }}>
-              Track every job you have commissioned on Receipt.
-            </p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>{profile.name}</h1>
+                <span className="pill pill-blue" style={{ fontSize: 10 }}><span className="pill-dot" />Client</span>
+              </div>
+              {profile.bio && <div style={{ fontSize: 12, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile.bio}</div>}
+              {profile.walletAddress && (
+                <div className="font-mono" style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>
+                  {profile.walletAddress.slice(0, 10)}...{profile.walletAddress.slice(-6)}
+                </div>
+              )}
+            </div>
+            <button onClick={() => router.push("/profile")} className="btn-ghost"
+              style={{ padding: "8px 14px", borderRadius: "var(--r-sm)", fontSize: 12, flexShrink: 0 }}>
+              Edit
+            </button>
           </div>
 
+          {/* Needs review alert */}
+          {needsReview.length > 0 && (
+            <div style={{
+              padding: "14px 18px", borderRadius: "var(--r-lg)", marginBottom: 16,
+              background: "rgba(74,158,248,0.06)", border: "1px solid rgba(74,158,248,0.15)",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+            }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--blue, #4A9EF8)" }}>
+                  {needsReview.length} delivery{needsReview.length > 1 ? "ies" : ""} ready for review
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-3)" }}>
+                  Workers have submitted — review and approve to release payment.
+                </div>
+              </div>
+              <button onClick={() => router.push(`/escrow/${needsReview[0].id}`)} className="btn-primary"
+                style={{ padding: "8px 16px", borderRadius: "var(--r-sm)", fontSize: 12, flexShrink: 0 }}>
+                Review
+              </button>
+            </div>
+          )}
+
           {/* Stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 20 }}>
             {[
-              { label: "Total spent",    value: `$${total.toFixed(2)}`, color: "var(--text-1)" },
-              { label: "Jobs completed", value: settled.length,          color: "var(--green)" },
-              { label: "In progress",    value: pending.length,          color: "var(--amber)" },
-              { label: "Total jobs",     value: contracts.length,        color: "var(--text-1)" },
+              { label: "Total spent",      value: `$${total.toFixed(2)}`, color: "var(--text-1)" },
+              { label: "Jobs completed",   value: String(settled.length),   color: "var(--green)" },
+              { label: "Needs review",     value: String(needsReview.length), color: "var(--blue, #4A9EF8)" },
+              { label: "In progress",      value: String(pending.length),  color: "var(--amber)" },
             ].map((s, i) => (
               <div key={i} style={{ padding: "18px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)" }}>
                 <div style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
@@ -99,17 +143,31 @@ export default function ClientDashboardPage() {
             ))}
           </div>
 
+          {/* Quick actions */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
+            <button onClick={() => router.push("/setup")} className="btn-primary"
+              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+              Post a job
+            </button>
+            <button onClick={() => router.push("/marketplace")} className="btn-ghost"
+              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+              Browse workers
+            </button>
+          </div>
+
           {/* Contract list */}
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Your contracts</div>
+
           {contracts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px" }}>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>📋</div>
+            <div style={{ textAlign: "center", padding: "60px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)" }}>
+              <div style={{ fontSize: 36, marginBottom: 16, opacity: 0.5 }}>-</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
               <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24 }}>
-                When you fund escrow for a freelancer service, your contracts will appear here.
+                Hire a worker or post a job to start.
               </p>
-              <button onClick={() => router.push("/")} className="btn-primary"
+              <button onClick={() => router.push("/marketplace")} className="btn-primary"
                 style={{ padding: "12px 24px", borderRadius: "var(--r-sm)" }}>
-                Browse services
+                Browse marketplace
               </button>
             </div>
           ) : (
@@ -126,7 +184,7 @@ export default function ClientDashboardPage() {
                     style={{
                       display: "flex", alignItems: "center", gap: 14,
                       padding: "14px 16px", borderRadius: "var(--r-lg)",
-                      background: "var(--card)", border: "1px solid var(--line)",
+                      background: "var(--card)", border: `1px solid ${st.action ? "rgba(74,158,248,0.2)" : "var(--line)"}`,
                       cursor: "pointer", transition: "border-color 0.15s, background 0.15s",
                     }}
                     onMouseEnter={e => {
@@ -134,7 +192,7 @@ export default function ClientDashboardPage() {
                       (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line)";
+                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "rgba(74,158,248,0.2)" : "var(--line)";
                       (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
                     }}
                   >
@@ -142,16 +200,19 @@ export default function ClientDashboardPage() {
                       {c.status === "settled" ? "✓" : "·"}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.serviceTitle || "Freelance service"}</div>
+                      <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.serviceTitle}</div>
                       <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 2 }}>
                         {c.freelancerName}{c.agentScore ? ` · Agent: ${c.agentScore}%` : ""} · {timeAgo(new Date(c.createdAt || Date.now()))}
                       </div>
                     </div>
                     <div style={{ padding: "2px 9px", borderRadius: 999, background: st.bg, color: st.color, fontSize: 10.5, fontWeight: 600, flexShrink: 0 }}>
-                      {st.label}
+                      {st.action || st.label}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className="font-mono" style={{ fontSize: 13, color: "var(--text-1)" }}>${c.amountUsdc?.toFixed(2)}</div>
+                      <div className="font-mono" style={{ fontSize: 13, color: "var(--text-1)" }}>
+                        {c.currency === "EURC" ? "€" : "$"}{c.amountUsdc?.toFixed(2)}
+                      </div>
+                      <div style={{ fontSize: 10, color: "var(--text-3)" }}>{c.currency || "USDC"}</div>
                     </div>
                   </motion.div>
                 );

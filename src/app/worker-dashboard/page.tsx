@@ -4,17 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Nav from "@/components/layout/Nav";
-import { loadProfile } from "@/lib/profile";
+import { loadProfile, getInitials } from "@/lib/profile";
 import { timeAgo } from "@/lib/utils";
 
 export default function WorkerDashboardPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState({ name: "Freelancer", walletAddress: "" });
+  const [profile, setProfile] = useState({ name: "Freelancer", walletAddress: "", bio: "", avatarColor: "#00D184", avatarUrl: null as string | null, skills: "" });
   const [contracts, setContracts] = useState<any[]>([]);
 
   useEffect(() => {
     const p = loadProfile();
-    if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress });
+    if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress, bio: p.bio, avatarColor: p.avatarColor, avatarUrl: p.avatarUrl, skills: p.skills });
 
     if (!p.walletAddress) return;
 
@@ -41,10 +41,11 @@ export default function WorkerDashboardPage() {
   const totalEarned = contracts.filter(c => c.status === "settled").reduce((s, c) => s + (c.netAmountUsdc || 0), 0);
   const pending     = contracts.filter(c => c.status === "pending" || c.status === "delivered");
   const settled     = contracts.filter(c => c.status === "settled");
+  const initials    = getInitials(profile.name);
 
   const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
     pending:    { label: "Awaiting delivery", color: "var(--amber)", bg: "var(--amber-dim)" },
-    delivered:  { label: "Submitted",         color: "var(--blue)",  bg: "var(--blue-dim)" },
+    delivered:  { label: "Under review",      color: "var(--blue)",  bg: "var(--blue-dim)" },
     evaluating: { label: "Agent reviewing",   color: "var(--blue)",  bg: "var(--blue-dim)" },
     settled:    { label: "Paid",              color: "var(--green)", bg: "var(--green-dim)" },
     disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(240,82,82,0.1)" },
@@ -56,25 +57,47 @@ export default function WorkerDashboardPage() {
       <main style={{ maxWidth: 820, margin: "0 auto", padding: "clamp(80px,12vw,100px) 20px 60px" }}>
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
 
-          {/* Header */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
-              Freelancer dashboard
+          {/* Profile card */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 16, padding: "20px 24px",
+            background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)",
+            marginBottom: 20,
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: "50%", flexShrink: 0,
+              background: profile.avatarUrl ? "transparent" : profile.avatarColor,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 20, fontWeight: 700, color: "#060E0A",
+              border: "2px solid var(--line)", overflow: "hidden",
+            }}>
+              {profile.avatarUrl
+                ? <img src={profile.avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : initials}
             </div>
-            <h1 style={{ fontSize: "clamp(22px,4vw,30px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 4 }}>
-              Good day, {profile.name.split(" ")[0]}.
-            </h1>
-            <p style={{ fontSize: 14, color: "var(--text-2)" }}>
-              Your earnings and contract history.
-            </p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>{profile.name}</h1>
+                <span className="pill pill-green" style={{ fontSize: 10 }}><span className="pill-dot" />Worker</span>
+              </div>
+              {profile.bio && <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile.bio}</div>}
+              {profile.walletAddress && (
+                <div className="font-mono" style={{ fontSize: 11, color: "var(--text-3)" }}>
+                  {profile.walletAddress.slice(0, 10)}...{profile.walletAddress.slice(-6)}
+                </div>
+              )}
+            </div>
+            <button onClick={() => router.push("/profile")} className="btn-ghost"
+              style={{ padding: "8px 14px", borderRadius: "var(--r-sm)", fontSize: 12, flexShrink: 0 }}>
+              Edit
+            </button>
           </div>
 
           {/* Stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 10, marginBottom: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 10, marginBottom: 20 }}>
             {[
               { label: "Total earned",      value: `$${totalEarned.toFixed(2)}`, color: "var(--green)" },
               { label: "Contracts settled", value: String(settled.length),        color: "var(--text-1)" },
-              { label: "Pending payment",   value: String(pending.length),        color: "var(--amber)" },
+              { label: "Pending",           value: String(pending.length),        color: "var(--amber)" },
               { label: "Total contracts",   value: String(contracts.length),      color: "var(--text-1)" },
             ].map((s, i) => (
               <div key={i} style={{ padding: "18px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)" }}>
@@ -90,31 +113,18 @@ export default function WorkerDashboardPage() {
               style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
               Create new service
             </button>
-            <button onClick={() => router.push("/profile")} className="btn-ghost"
+            <button onClick={() => router.push("/marketplace")} className="btn-ghost"
               style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
-              Edit profile
+              Browse jobs
             </button>
           </div>
-
-          {/* Wallet info */}
-          {profile.walletAddress && (
-            <div style={{ padding: "12px 16px", borderRadius: "var(--r-lg)", background: "var(--green-dim)", border: "1px solid var(--green-border)", marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ fontSize: 11, color: "var(--green)", fontWeight: 600, marginBottom: 3 }}>Your payment wallet</div>
-                <div className="font-mono" style={{ fontSize: 12, color: "var(--text-2)", wordBreak: "break-all" }}>{profile.walletAddress}</div>
-              </div>
-              <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: "var(--green)", flexShrink: 0 }}>
-                ${totalEarned.toFixed(2)}
-              </div>
-            </div>
-          )}
 
           {/* Contract history */}
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Contract history</div>
 
           {contracts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px" }}>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>📭</div>
+            <div style={{ textAlign: "center", padding: "60px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)" }}>
+              <div style={{ fontSize: 36, marginBottom: 16, opacity: 0.5 }}>-</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
               <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24 }}>
                 Create a service link and share it with clients to start getting paid.
@@ -166,7 +176,7 @@ export default function WorkerDashboardPage() {
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0, minWidth: 72 }}>
                       <div className="font-mono" style={{ fontSize: 13, color: c.status === "settled" ? "var(--green)" : "var(--amber)" }}>
-                        {c.status === "settled" ? "+" : ""}${(c.netAmountUsdc || 0).toFixed(2)}
+                        {c.status === "settled" ? "+" : ""}{(c.currency === "EURC" ? "€" : "$")}{(c.netAmountUsdc || 0).toFixed(2)}
                       </div>
                       <div style={{ fontSize: 10, color: "var(--text-3)" }}>{c.currency || "USDC"}</div>
                     </div>

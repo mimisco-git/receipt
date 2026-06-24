@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/layout/Nav";
 import PaymentOrb from "@/components/shared/PaymentOrb";
+import { loadProfile } from "@/lib/profile";
 
 type Phase = "pending" | "delivered" | "evaluating" | "approved" | "settled" | "disputed";
+type ViewerRole = "worker" | "client" | "unknown";
 
 interface ContractData {
   id: string;
@@ -18,109 +20,97 @@ interface ContractData {
   serviceTitle: string;
   freelancerName: string;
   freelancerAddress: string;
+  deliveryNote: string;
   status: Phase;
-}
-
-function AttachIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
-      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-    </svg>
-  );
 }
 
 export default function EscrowPage() {
   const { id } = useParams<{ id: string }>();
-  const searchParams = useSearchParams();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [phase, setPhase]             = useState<Phase>("pending");
-  const [agentScore, setAgentScore]   = useState(0);
+  const [phase, setPhase]               = useState<Phase>("pending");
+  const [viewerRole, setViewerRole]     = useState<ViewerRole>("unknown");
+  const [agentScore, setAgentScore]     = useState(0);
   const [scoreRunning, setScoreRunning] = useState(false);
   const [deliveryText, setDeliveryText] = useState("");
-  const [attachments, setAttachments]  = useState<{ name: string; size: string; type: string }[]>([]);
-  const [submitting, setSubmitting]    = useState(false);
-  const [txHash, setTxHash]            = useState("");
-  const [wallets, setWallets]          = useState<{ buyer: { address: string; usdc: number; eurc: number }; seller: { address: string; usdc: number; eurc: number } } | null>(null);
+  const [attachments, setAttachments]   = useState<{ name: string; size: string }[]>([]);
+  const [submitting, setSubmitting]     = useState(false);
+  const [txHash, setTxHash]             = useState("");
   const [settlementMs, setSettlementMs] = useState(0);
   const [agentReasoning, setAgentReasoning] = useState("");
+  const [agentModel, setAgentModel]     = useState("");
 
-  // Load contract from localStorage (set when client submitted brief)
   const [contract, setContract] = useState<ContractData>({
     id: id as string,
-    clientName: "Client",
-    brief: "Describe the task requirements here.",
-    amountUsdc: 8.0,
-    netAmountUsdc: 7.2,
+    clientName: "",
+    brief: "",
+    amountUsdc: 0,
+    netAmountUsdc: 0,
     currency: "USDC",
-    serviceTitle: "Freelance service",
-    freelancerName: "Freelancer",
+    serviceTitle: "Loading...",
+    freelancerName: "",
     freelancerAddress: "",
+    deliveryNote: "",
     status: "pending",
   });
 
   useEffect(() => {
-    // Try to load from localStorage first
-    const stored = localStorage.getItem(`receipt_contract_${id}`);
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        setContract(data);
-        if (data.status && data.status !== "pending") {
-          setPhase(data.status);
-        }
-      } catch {}
-    }
-    // Also try from API
+    const profile = loadProfile();
+
     fetch(`/api/escrow?id=${id}`)
       .then(r => r.json())
       .then(data => {
-        if (data.clientName) {
-          const rawStatus = (data.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating") as Phase;
-          const c: ContractData = {
-            id,
-            clientName: data.clientName,
-            brief: data.brief,
-            amountUsdc: data.amountUsdc || 0,
-            netAmountUsdc: data.netAmountUsdc || 0,
-            currency: data.currency || "USDC",
-            serviceTitle: data.service?.title || "Freelance service",
-            freelancerName: data.freelancer?.name || data.service?.freelancer?.name || "Freelancer",
-            freelancerAddress: data.freelancer?.walletAddress || data.service?.freelancer?.walletAddress || "",
-            status: rawStatus || "pending",
-          };
-          setContract(c);
-          if (data.escrowTxHash) setTxHash(data.escrowTxHash);
-          if (data.settleTxHash) setTxHash(data.settleTxHash);
-          if (rawStatus && rawStatus !== "pending") setPhase(rawStatus);
+        if (!data.clientName) return;
+
+        const rawStatus = (data.status || "")
+          .toLowerCase()
+          .replace("pending_delivery", "pending")
+          .replace("agent_evaluating", "evaluating") as Phase;
+
+        const freelancerAddr = data.freelancer?.walletAddress || data.service?.freelancer?.walletAddress || "";
+        const freelancerName = data.freelancer?.name || data.service?.freelancer?.name || "";
+
+        const c: ContractData = {
+          id: id as string,
+          clientName: data.clientName,
+          brief: data.brief,
+          amountUsdc: data.amountUsdc || 0,
+          netAmountUsdc: data.netAmountUsdc || 0,
+          currency: data.currency || "USDC",
+          serviceTitle: data.service?.title || "Service",
+          freelancerName,
+          freelancerAddress: freelancerAddr,
+          deliveryNote: data.deliveryNote || "",
+          status: rawStatus || "pending",
+        };
+        setContract(c);
+        if (rawStatus) setPhase(rawStatus);
+        if (data.escrowTxHash) setTxHash(data.escrowTxHash);
+        if (data.settleTxHash) setTxHash(data.settleTxHash);
+        if (data.agentScore) setAgentScore(data.agentScore);
+        if (data.agentReasoning) setAgentReasoning(data.agentReasoning);
+        if (data.deliveryNote) setDeliveryText(data.deliveryNote);
+
+        // Determine viewer role
+        if (profile.walletAddress && profile.walletAddress === freelancerAddr) {
+          setViewerRole("worker");
+        } else if (profile.name && profile.name.toLowerCase() === data.clientName?.toLowerCase()) {
+          setViewerRole("client");
+        } else if (profile.role === "worker") {
+          setViewerRole("worker");
+        } else if (profile.role === "client") {
+          setViewerRole("client");
         }
       })
       .catch(() => {});
-
-    // Fetch wallet balances
-    fetch("/api/wallet/balances")
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.buyer) setWallets(data); })
-      .catch(() => {});
   }, [id]);
-
-  function refreshBalances() {
-    fetch("/api/wallet/balances")
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.buyer) setWallets(data); })
-      .catch(() => {});
-  }
 
   function handleFileAttach(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
-    const newAttachments = files.map(f => ({
+    setAttachments(prev => [...prev, ...files.map(f => ({
       name: f.name,
-      size: f.size > 1024 * 1024
-        ? `${(f.size / 1024 / 1024).toFixed(1)} MB`
-        : `${(f.size / 1024).toFixed(0)} KB`,
-      type: f.type.split("/")[0],
-    }));
-    setAttachments(prev => [...prev, ...newAttachments]);
+      size: f.size > 1024 * 1024 ? `${(f.size / 1024 / 1024).toFixed(1)} MB` : `${(f.size / 1024).toFixed(0)} KB`,
+    }))]);
   }
 
   async function submitDelivery() {
@@ -128,11 +118,6 @@ export default function EscrowPage() {
     setSubmitting(true);
     setPhase("delivered");
 
-    // Save delivery to localStorage
-    const updatedContract = { ...contract, status: "delivered" as Phase, deliveryText, attachments };
-    localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updatedContract));
-
-    // Call real agent API
     setTimeout(async () => {
       setPhase("evaluating");
       setScoreRunning(true);
@@ -151,34 +136,29 @@ export default function EscrowPage() {
         const data = await res.json();
         const score = data.evaluation?.score || 50;
         const reasoning = data.evaluation?.reasoning || "Delivery reviewed.";
-        const model = data.evaluation?.model || "unknown";
+        const model = data.evaluation?.model || "";
 
-        setAgentReasoning(`${reasoning}\n\nModel: ${model}`);
+        setAgentReasoning(reasoning);
+        if (model) setAgentModel(model);
 
-        // Animate score counting up
         let s = 0;
-        const target = score;
         const timer = setInterval(() => {
-          s = Math.min(s + 1.5, target);
+          s = Math.min(s + 1.5, score);
           setAgentScore(Math.round(s));
-          if (s >= target) {
+          if (s >= score) {
             clearInterval(timer);
             setScoreRunning(false);
 
-            // If agent auto-settled, skip to settled state
             if (data.autoSettled) {
               if (data.txHash) setTxHash(data.txHash);
               if (data.settlementMs) setSettlementMs(data.settlementMs);
               setPhase("settled");
-              refreshBalances();
-              const updated = { ...contract, status: "settled" as Phase };
-              localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updated));
             }
           }
         }, 22);
       } catch (err) {
         console.error("Agent evaluation failed:", err);
-        setAgentReasoning("Evaluation encountered an error. You can manually approve or dispute.");
+        setAgentReasoning("Evaluation encountered an error.");
         setAgentScore(50);
         setScoreRunning(false);
       }
@@ -189,7 +169,6 @@ export default function EscrowPage() {
 
   async function approvePayment() {
     setPhase("approved");
-
     try {
       const res = await fetch("/api/agent", {
         method: "PUT",
@@ -205,21 +184,30 @@ export default function EscrowPage() {
       const data = await res.json();
       if (data.txHash) setTxHash(data.txHash);
       if (data.settlementMs) setSettlementMs(data.settlementMs);
-      refreshBalances();
     } catch (err) {
       console.error("Settlement failed:", err);
     }
+    setTimeout(() => setPhase("settled"), 600);
+  }
 
-    setTimeout(() => {
-      setPhase("settled");
-      const updatedContract = { ...contract, status: "settled" as Phase };
-      localStorage.setItem(`receipt_contract_${id}`, JSON.stringify(updatedContract));
-    }, 600);
+  async function disputeContract() {
+    try {
+      await fetch("/api/agent", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractId: id, action: "DISPUTE" }),
+      });
+    } catch {}
+    setPhase("disputed");
   }
 
   const orbState = phase === "settled" || phase === "approved" ? "released"
     : (phase === "pending" || phase === "delivered" || phase === "evaluating") ? "locked"
     : "idle";
+
+  const sym = contract.currency === "EURC" ? "€" : "$";
+  const isWorker = viewerRole === "worker";
+  const isClient = viewerRole === "client";
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
@@ -242,8 +230,19 @@ export default function EscrowPage() {
             {contract.serviceTitle}
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-2)" }}>
-            Client: {contract.clientName}
+            {isWorker ? `Client: ${contract.clientName}` : `Worker: ${contract.freelancerName}`}
           </p>
+          {viewerRole !== "unknown" && (
+            <div style={{
+              display: "inline-block", marginTop: 6,
+              padding: "2px 10px", borderRadius: 999, fontSize: 10.5, fontWeight: 600,
+              background: isWorker ? "var(--green-dim)" : "var(--blue-dim, rgba(74,158,248,0.1))",
+              color: isWorker ? "var(--green)" : "var(--blue, #4A9EF8)",
+              border: `1px solid ${isWorker ? "var(--green-border)" : "rgba(74,158,248,0.2)"}`,
+            }}>
+              Viewing as {isWorker ? "Worker" : "Client"}
+            </div>
+          )}
         </div>
 
         {/* Main card */}
@@ -262,7 +261,7 @@ export default function EscrowPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "clamp(200px,35%,240px) 1fr" }}>
 
-            {/* Left: Orb */}
+            {/* Left: Orb + details */}
             <div style={{
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center", gap: 12,
@@ -271,7 +270,7 @@ export default function EscrowPage() {
             }}>
               <div style={{ fontSize: 11, color: "var(--text-3)", textAlign: "center", minHeight: 16 }}>
                 {phase === "pending"    && "Awaiting delivery"}
-                {phase === "delivered"  && "Delivery received"}
+                {phase === "delivered"  && (isClient ? "Review delivery" : "Delivery submitted")}
                 {phase === "evaluating" && "Agent reviewing"}
                 {phase === "approved"   && "Releasing payment"}
                 {phase === "settled"    && "Payment cleared"}
@@ -280,7 +279,6 @@ export default function EscrowPage() {
 
               <PaymentOrb amount={contract.amountUsdc} state={orbState} size={150} currency={contract.currency} />
 
-              {/* Status pill */}
               <div className={
                 phase === "settled" ? "pill pill-green"
                 : (phase === "pending" || phase === "delivered" || phase === "evaluating") ? "pill pill-amber"
@@ -290,19 +288,19 @@ export default function EscrowPage() {
                   animation: (phase === "pending" || phase === "evaluating") ? "pulse-dot 1.5s ease-in-out infinite" : "none"
                 }} />
                 {phase === "pending"    && "Funds locked"}
-                {phase === "delivered"  && "In review"}
+                {phase === "delivered"  && (isClient ? "Needs your review" : "Awaiting client review")}
                 {phase === "evaluating" && "Agent reviewing"}
                 {phase === "approved"   && "Releasing"}
                 {phase === "settled"    && "Settled on Arc"}
                 {phase === "disputed"   && "Disputed"}
               </div>
 
-              {/* Settlement details */}
+              {/* Payment breakdown */}
               <div style={{ width: "100%", fontSize: 11.5 }}>
                 {[
-                  ["Contract",    `${contract.currency === "EURC" ? "€" : "$"}${contract.amountUsdc.toFixed(2)} ${contract.currency}`],
+                  ["Contract",    `${sym}${contract.amountUsdc.toFixed(2)} ${contract.currency}`],
                   ["Fee",         "10%"],
-                  ["You receive", `${contract.currency === "EURC" ? "€" : "$"}${contract.netAmountUsdc.toFixed(2)} ${contract.currency}`],
+                  [isWorker ? "You receive" : "Worker receives", `${sym}${contract.netAmountUsdc.toFixed(2)} ${contract.currency}`],
                   ["Chain",       "Arc Testnet"],
                 ].map(([k, v]) => (
                   <div key={k} style={{
@@ -310,16 +308,12 @@ export default function EscrowPage() {
                     padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
                   }}>
                     <span style={{ color: "var(--text-3)" }}>{k}</span>
-                    <span className="font-mono" style={{ color: k === "You receive" ? "var(--green)" : "var(--text-2)" }}>{v}</span>
+                    <span className="font-mono" style={{ color: (k as string).includes("receive") ? "var(--green)" : "var(--text-2)" }}>{v}</span>
                   </div>
                 ))}
                 {txHash && (
-                  <a
-                    href={`https://testnet.arcscan.app/tx/${txHash}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ display: "block", marginTop: 6, fontSize: 10.5, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace', textDecoration: "underline", cursor: "pointer" }}
-                  >
+                  <a href={`https://testnet.arcscan.app/tx/${txHash}`} target="_blank" rel="noreferrer"
+                    style={{ display: "block", marginTop: 6, fontSize: 10.5, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace', textDecoration: "underline" }}>
                     Tx: {txHash.slice(0, 20)}... ↗
                   </a>
                 )}
@@ -329,37 +323,6 @@ export default function EscrowPage() {
                   </div>
                 )}
               </div>
-
-              {/* On-chain verification */}
-              {wallets && (
-                <div style={{ width: "100%", marginTop: 12, padding: "10px", borderRadius: "var(--r-sm)", background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase" }}>
-                      Live wallet balances
-                    </div>
-                    <button onClick={refreshBalances} style={{ fontSize: 9, color: "var(--green)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-                      Refresh
-                    </button>
-                  </div>
-                  <div style={{ fontSize: 10, display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: "var(--text-3)" }}>Buyer</span>
-                      <span className="font-mono" style={{ color: "var(--text-2)" }}>
-                        ${wallets.buyer.usdc.toFixed(2)} / {"€"}{wallets.buyer.eurc.toFixed(2)}
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ color: "var(--text-3)" }}>Escrow</span>
-                      <span className="font-mono" style={{ color: "var(--green)" }}>
-                        ${wallets.seller.usdc.toFixed(2)} / {"€"}{wallets.seller.eurc.toFixed(2)}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 9, color: "var(--text-3)", marginTop: 2, wordBreak: "break-all" }}>
-                      {wallets.buyer.address.slice(0, 10)}...{wallets.buyer.address.slice(-6)}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Right: Flow */}
@@ -368,21 +331,20 @@ export default function EscrowPage() {
                 {/* Brief */}
                 <div style={{
                   padding: "12px 14px", borderRadius: "var(--r)",
-                  background: "rgba(0,0,0,0.2)",
-                  border: "1px solid var(--line)",
+                  background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)",
                   marginBottom: 12,
                 }}>
                   <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
-                    Client brief
+                    {isWorker ? "Client brief" : "Your brief"}
                   </div>
                   <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", fontStyle: "italic", paddingLeft: 10, borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
                     {contract.brief}
                   </div>
                 </div>
 
-                {/* Delivery input */}
+                {/* WORKER: Delivery input (only in pending phase) */}
                 <AnimatePresence>
-                  {phase === "pending" && (
+                  {phase === "pending" && isWorker && (
                     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                       <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
                         Your delivery
@@ -395,44 +357,28 @@ export default function EscrowPage() {
                         className="input"
                         style={{ resize: "none", marginBottom: 8, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
                       />
-
-                      {/* Attachment area */}
                       <div style={{ marginBottom: 10 }}>
-                        <button
-                          onClick={() => fileRef.current?.click()}
+                        <button onClick={() => fileRef.current?.click()}
                           style={{
                             display: "flex", alignItems: "center", gap: 6,
                             padding: "6px 12px", borderRadius: "var(--r-sm)",
-                            background: "rgba(255,255,255,0.05)",
-                            border: "1px solid var(--line)",
+                            background: "rgba(255,255,255,0.05)", border: "1px solid var(--line)",
                             color: "var(--text-2)", fontSize: 12.5, cursor: "pointer",
-                            transition: "background 0.15s",
-                          }}
-                          onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"}
-                          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)"}
-                        >
-                          <AttachIcon />
-                          Attach files (PDF, images, docs)
+                          }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                          </svg>
+                          Attach files
                         </button>
-                        <input
-                          ref={fileRef}
-                          type="file"
-                          multiple
-                          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt,.md,.zip"
-                          onChange={handleFileAttach}
-                          style={{ display: "none" }}
-                        />
+                        <input ref={fileRef} type="file" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.txt,.md,.zip" onChange={handleFileAttach} style={{ display: "none" }} />
                       </div>
-
-                      {/* Attachment list */}
                       {attachments.length > 0 && (
                         <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 8 }}>
                           {attachments.map((a, i) => (
                             <div key={i} style={{
                               display: "flex", alignItems: "center", justifyContent: "space-between",
                               padding: "6px 10px", borderRadius: "var(--r-sm)",
-                              background: "rgba(255,255,255,0.04)", border: "1px solid var(--line)",
-                              fontSize: 12,
+                              background: "rgba(255,255,255,0.04)", border: "1px solid var(--line)", fontSize: 12,
                             }}>
                               <span style={{ color: "var(--text-2)" }}>{a.name}</span>
                               <span style={{ color: "var(--text-3)" }}>{a.size}</span>
@@ -444,9 +390,57 @@ export default function EscrowPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Agent evaluation */}
+                {/* CLIENT: Waiting for worker to deliver */}
+                {phase === "pending" && isClient && (
+                  <div style={{
+                    padding: "16px", borderRadius: "var(--r)",
+                    background: "rgba(245,166,35,0.06)", border: "1px solid rgba(245,166,35,0.15)",
+                    textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--amber, #F5A623)", marginBottom: 4 }}>
+                      Waiting for delivery
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-3)" }}>
+                      {contract.freelancerName} is working on your job. You&apos;ll be able to review and approve once they submit.
+                    </div>
+                  </div>
+                )}
+
+                {/* Show delivery text to client for review */}
+                {(phase === "delivered" || phase === "evaluating" || phase === "settled" || phase === "approved") && isClient && deliveryText && (
+                  <div style={{
+                    padding: "12px 14px", borderRadius: "var(--r)",
+                    background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)",
+                    marginBottom: 12,
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
+                      Worker&apos;s delivery
+                    </div>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", paddingLeft: 10, borderLeft: "2px solid rgba(0,209,132,0.2)" }}>
+                      {deliveryText}
+                    </div>
+                  </div>
+                )}
+
+                {/* Worker: delivery submitted confirmation */}
+                {(phase === "delivered" || phase === "evaluating") && isWorker && (
+                  <div style={{
+                    padding: "12px 14px", borderRadius: "var(--r)",
+                    background: "rgba(74,158,248,0.06)", border: "1px solid rgba(74,158,248,0.15)",
+                    marginBottom: 12, textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--blue, #4A9EF8)", marginBottom: 4 }}>
+                      Delivery submitted
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-3)" }}>
+                      Waiting for {contract.clientName} to review and approve your work.
+                    </div>
+                  </div>
+                )}
+
+                {/* Agent evaluation (visible to both) */}
                 <AnimatePresence>
-                  {(phase === "evaluating" || phase === "settled" || phase === "approved") && (
+                  {(phase === "evaluating" || phase === "delivered" || phase === "settled" || phase === "approved") && agentScore > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -461,7 +455,7 @@ export default function EscrowPage() {
                         <div style={{
                           width: 26, height: 26, borderRadius: 7,
                           background: "linear-gradient(135deg, rgba(0,209,132,0.18), rgba(74,158,248,0.14))",
-                          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
+                          display: "flex", alignItems: "center", justifyContent: "center",
                         }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
                             <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
@@ -469,7 +463,9 @@ export default function EscrowPage() {
                         </div>
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 600 }}>Receipt Agent</div>
-                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>AI Escrow Arbiter</div>
+                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>
+                            {agentModel ? `Model: ${agentModel}` : "AI Escrow Arbiter"}
+                          </div>
                         </div>
                       </div>
 
@@ -516,10 +512,11 @@ export default function EscrowPage() {
                       }}
                     >
                       <div className="font-mono" style={{ fontSize: 28, color: "var(--green)", fontWeight: 500, marginBottom: 2 }}>
-                        {contract.currency === "EURC" ? "€" : "$"}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
+                        {sym}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
                       </div>
                       <div style={{ fontSize: 12, color: "var(--green)", opacity: 0.75 }}>
-                        Settled on Arc in {settlementMs || 482}ms
+                        {isWorker ? "Payment received" : "Payment released to worker"}
+                        {settlementMs > 0 && ` in ${settlementMs}ms`}
                       </div>
                     </motion.div>
                   )}
@@ -528,7 +525,8 @@ export default function EscrowPage() {
 
               {/* Action buttons */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {phase === "pending" && (
+                {/* WORKER: Submit delivery button */}
+                {phase === "pending" && isWorker && (
                   <button
                     onClick={submitDelivery}
                     disabled={(!deliveryText.trim() && attachments.length === 0) || submitting}
@@ -544,13 +542,28 @@ export default function EscrowPage() {
                   </button>
                 )}
 
-                {phase === "evaluating" && !scoreRunning && (
+                {/* CLIENT: Approve / Dispute buttons (after agent evaluates and didn't auto-settle) */}
+                {(phase === "evaluating" || phase === "delivered") && isClient && !scoreRunning && agentScore > 0 && (
                   <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <button onClick={approvePayment} className="btn-primary"
                       style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
-                      Approve and release payment
+                      Approve and release {sym}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
                     </button>
-                    <button onClick={() => setPhase("disputed")} className="btn-ghost"
+                    <button onClick={disputeContract} className="btn-ghost"
+                      style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+                      Flag an issue
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* CLIENT: Delivery submitted but no evaluation yet */}
+                {phase === "delivered" && isClient && agentScore === 0 && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <button onClick={approvePayment} className="btn-primary"
+                      style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+                      Approve and release {sym}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
+                    </button>
+                    <button onClick={disputeContract} className="btn-ghost"
                       style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
                       Flag an issue
                     </button>
@@ -559,13 +572,13 @@ export default function EscrowPage() {
 
                 {phase === "disputed" && (
                   <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(240,82,82,0.08)", border: "1px solid rgba(240,82,82,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
-                    Dispute opened. The Receipt Agent will re-evaluate and propose a fair resolution within 60 seconds.
+                    Dispute opened. The Receipt Agent will re-evaluate and propose a fair resolution.
                   </div>
                 )}
 
                 <div style={{ textAlign: "center", fontSize: 11, color: "var(--text-3)", lineHeight: 1.55 }}>
-                  {phase === "settled"
-                    ? <span>Settled on Arc in {settlementMs || 482}ms. <a href={`https://testnet.arcscan.app/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: "var(--green)", textDecoration: "underline" }}>View on ArcScan ↗</a></span>
+                  {phase === "settled" && txHash
+                    ? <span>Settled on Arc. <a href={`https://testnet.arcscan.app/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: "var(--green)", textDecoration: "underline" }}>View on ArcScan ↗</a></span>
                     : "Settlement via Circle Gateway on Arc Testnet."}
                 </div>
               </div>
