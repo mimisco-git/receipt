@@ -116,41 +116,74 @@ export default function Nav() {
         </LayoutGroup>
       </div>
 
-      {/* Right: CTA + Sign out */}
+      {/* Right: Auth buttons */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-        {hasProfile && (
-          <button
-            onClick={() => {
-              localStorage.removeItem("receipt_profile");
-              window.location.href = "/";
-            }}
-            style={{
-              padding: "8px 14px", borderRadius: 999,
-              fontSize: 13, fontWeight: 500,
-              background: "none", color: "rgba(255,255,255,0.5)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              cursor: "pointer", transition: "all 0.15s ease",
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = "#F05252"; e.currentTarget.style.borderColor = "rgba(240,82,82,0.3)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
-          >
-            Sign out
-          </button>
+        {hasProfile ? (
+          <>
+            <button
+              onClick={() => {
+                localStorage.removeItem("receipt_profile");
+                window.location.href = "/";
+              }}
+              style={{
+                padding: "8px 14px", borderRadius: 999,
+                fontSize: 13, fontWeight: 500,
+                background: "none", color: "rgba(255,255,255,0.5)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                cursor: "pointer", transition: "all 0.15s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = "#F05252"; e.currentTarget.style.borderColor = "rgba(240,82,82,0.3)"; }}
+              onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+            >
+              Sign out
+            </button>
+            <button
+              onClick={() => router.push("/setup")}
+              style={{
+                padding: "8px 18px", borderRadius: 999,
+                fontSize: 13, fontWeight: 600,
+                background: "var(--green)", color: "#060E0A",
+                border: "none", cursor: "pointer",
+                transition: "opacity 0.15s ease, transform 0.12s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "scale(1.02)"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
+            >
+              Get started
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => router.push("/signin")}
+              style={{
+                padding: "8px 14px", borderRadius: 999,
+                fontSize: 13, fontWeight: 500,
+                background: "none", color: "rgba(255,255,255,0.5)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                cursor: "pointer", transition: "all 0.15s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = "var(--text-1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+              onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+            >
+              Sign in
+            </button>
+            <button
+              onClick={() => router.push("/profile")}
+              style={{
+                padding: "8px 18px", borderRadius: 999,
+                fontSize: 13, fontWeight: 600,
+                background: "var(--green)", color: "#060E0A",
+                border: "none", cursor: "pointer",
+                transition: "opacity 0.15s ease, transform 0.12s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "scale(1.02)"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
+            >
+              Sign up
+            </button>
+          </>
         )}
-        <button
-          onClick={() => router.push(hasProfile ? "/setup" : "/profile")}
-          style={{
-            padding: "8px 18px", borderRadius: 999,
-            fontSize: 13, fontWeight: 600,
-            background: "var(--green)", color: "#060E0A",
-            border: "none", cursor: "pointer",
-            transition: "opacity 0.15s ease, transform 0.12s ease",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "scale(1.02)"; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
-        >
-          {hasProfile ? "Get started" : "Sign up"}
-        </button>
       </div>
     </motion.nav>
   );
