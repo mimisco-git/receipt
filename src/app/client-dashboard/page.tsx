@@ -39,21 +39,27 @@ export default function ClientDashboardPage() {
 
     if (!p.name) return;
 
-    fetch(`/api/contracts?role=client&clientName=${encodeURIComponent(p.name)}`)
+    const params = new URLSearchParams({ role: "client", clientName: p.name });
+    if (p.walletAddress) params.set("wallet", p.walletAddress);
+
+    fetch(`/api/contracts?${params}`)
       .then(r => r.ok ? r.json() : { contracts: [] })
       .then(data => {
-        const apiContracts: ClientContract[] = (data.contracts || []).map((c: any) => ({
-          id: c.id,
-          serviceTitle: c.service?.title || "Service",
-          freelancerName: c.service?.freelancer?.name || "Worker",
-          brief: c.brief,
-          amountUsdc: c.amountUsdc,
-          currency: c.currency || "USDC",
-          status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
-          createdAt: c.createdAt,
-          agentScore: c.agentScore,
-          txHash: c.settleTxHash,
-        }));
+        const apiContracts: ClientContract[] = (data.contracts || []).map((c: any) => {
+          const isJob = c.service?.type === "job";
+          return {
+            id: c.id,
+            serviceTitle: c.service?.title || "Service",
+            freelancerName: isJob ? c.clientName : (c.service?.freelancer?.name || "Worker"),
+            brief: c.brief,
+            amountUsdc: c.amountUsdc,
+            currency: c.currency || "USDC",
+            status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
+            createdAt: c.createdAt,
+            agentScore: c.agentScore,
+            txHash: c.settleTxHash,
+          };
+        });
         setContracts(apiContracts);
       })
       .catch(() => {});

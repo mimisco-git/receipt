@@ -16,23 +16,30 @@ export default function WorkerDashboardPage() {
     const p = loadProfile();
     if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress, bio: p.bio, avatarColor: p.avatarColor, avatarUrl: p.avatarUrl, skills: p.skills });
 
-    if (!p.walletAddress) return;
+    if (!p.walletAddress && !p.name) return;
 
-    fetch(`/api/contracts?role=worker&wallet=${encodeURIComponent(p.walletAddress)}`)
+    const params = new URLSearchParams({ role: "worker" });
+    if (p.walletAddress) params.set("wallet", p.walletAddress);
+    if (p.name) params.set("name", p.name);
+
+    fetch(`/api/contracts?${params}`)
       .then(r => r.ok ? r.json() : { contracts: [] })
       .then(data => {
-        const apiContracts = (data.contracts || []).map((c: any) => ({
-          id: c.id,
-          clientName: c.clientName,
-          brief: c.brief,
-          amountUsdc: c.amountUsdc,
-          netAmountUsdc: c.netAmountUsdc,
-          currency: c.currency || "USDC",
-          serviceTitle: c.service?.title || "Service",
-          status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
-          agentScore: c.agentScore,
-          createdAt: c.createdAt,
-        }));
+        const apiContracts = (data.contracts || []).map((c: any) => {
+          const isJob = c.service?.type === "job";
+          return {
+            id: c.id,
+            clientName: isJob ? (c.service?.freelancer?.name || "Client") : c.clientName,
+            brief: c.brief,
+            amountUsdc: c.amountUsdc,
+            netAmountUsdc: c.netAmountUsdc,
+            currency: c.currency || "USDC",
+            serviceTitle: c.service?.title || "Service",
+            status: (c.status || "").toLowerCase().replace("pending_delivery", "pending").replace("agent_evaluating", "evaluating"),
+            agentScore: c.agentScore,
+            createdAt: c.createdAt,
+          };
+        });
         setContracts(apiContracts);
       })
       .catch(() => {});
