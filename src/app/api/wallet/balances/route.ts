@@ -9,10 +9,10 @@ export async function GET() {
     const sellerAddr = await getSellerAddress();
 
     const [buyerUsdc, buyerEurc, sellerUsdc, sellerEurc] = await Promise.all([
-      getTokenBalance(buyerAddr, "USDC"),
-      getTokenBalance(buyerAddr, "EURC"),
-      getTokenBalance(sellerAddr, "USDC"),
-      getTokenBalance(sellerAddr, "EURC"),
+      buyerAddr ? getTokenBalance(buyerAddr, "USDC") : Promise.resolve(0),
+      buyerAddr ? getTokenBalance(buyerAddr, "EURC") : Promise.resolve(0),
+      sellerAddr ? getTokenBalance(sellerAddr, "USDC") : Promise.resolve(0),
+      sellerAddr ? getTokenBalance(sellerAddr, "EURC") : Promise.resolve(0),
     ]);
 
     return NextResponse.json({

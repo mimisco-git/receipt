@@ -139,7 +139,7 @@ export async function PUT(req: NextRequest) {
       }
 
       if (!toAddress || toAddress.startsWith("pending")) {
-        toAddress = process.env.SELLER_ADDRESS || "";
+        toAddress = process.env.SELLER_ADDRESS || process.env.SELLER_WALLET_ADDRESS || "";
       }
 
       const amount = netAmountUsdc || 7.2;

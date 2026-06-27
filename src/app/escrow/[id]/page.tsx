@@ -214,10 +214,11 @@ export default function EscrowPage() {
       const data = await res.json();
       if (data.txHash) setTxHash(data.txHash);
       if (data.settlementMs) setSettlementMs(data.settlementMs);
+      setTimeout(() => setPhase(data.settled !== false ? "settled" : "disputed"), 600);
     } catch (err) {
       console.error("Settlement failed:", err);
+      setTimeout(() => setPhase("disputed"), 600);
     }
-    setTimeout(() => setPhase("settled"), 600);
   }
 
   async function disputeContract() {
@@ -594,7 +595,7 @@ export default function EscrowPage() {
 
                 {phase === "disputed" && (
                   <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
-                    Dispute opened. The Receipt Agent will re-evaluate and propose a fair resolution.
+                    Dispute opened. Both parties can review the contract details and reach a resolution.
                   </div>
                 )}
 

@@ -245,7 +245,7 @@ export default function HomePage() {
           fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
           color: "var(--text-3)", textTransform: "uppercase", marginBottom: 12,
         }}>
-          Live demo
+          Interactive demo
         </div>
         <h2 style={{
           fontFamily: '"Geist", "Inter", sans-serif',

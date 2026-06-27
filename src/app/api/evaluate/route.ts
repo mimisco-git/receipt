@@ -4,7 +4,7 @@ import { evaluateDelivery } from "@/lib/agent";
 // x402-protected AI evaluation endpoint
 // Clients pay $0.01 USDC per evaluation via x402 protocol
 export async function POST(req: NextRequest) {
-  const sellerAddress = process.env.SELLER_ADDRESS || "";
+  const sellerAddress = process.env.SELLER_ADDRESS || process.env.SELLER_WALLET_ADDRESS || "";
 
   // Check for x402 payment header
   const paymentHeader = req.headers.get("x-payment") || req.headers.get("payment");
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
 
 // GET — describes the x402 payment requirements for this endpoint
 export async function GET() {
-  const sellerAddress = process.env.SELLER_ADDRESS || "";
+  const sellerAddress = process.env.SELLER_ADDRESS || process.env.SELLER_WALLET_ADDRESS || "";
 
   return NextResponse.json(
     {

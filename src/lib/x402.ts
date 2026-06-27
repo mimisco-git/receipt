@@ -27,11 +27,11 @@ function getDecimals(currency: Currency): number {
 }
 
 export async function getSellerAddress(): Promise<string> {
-  return process.env.SELLER_ADDRESS ?? "";
+  return process.env.SELLER_ADDRESS ?? process.env.SELLER_WALLET_ADDRESS ?? "";
 }
 
 export async function getBuyerAddress(): Promise<string> {
-  return process.env.BUYER_ADDRESS ?? "";
+  return process.env.BUYER_ADDRESS ?? process.env.BUYER_WALLET_ADDRESS ?? "";
 }
 
 // Deposit: buyer wallet → seller/escrow wallet (locks funds)
@@ -40,7 +40,7 @@ export async function depositEscrow(params: {
   currency: Currency;
 }): Promise<{ txHash: string; success: boolean; from: string; to: string }> {
   const buyerKey = process.env.BUYER_PRIVATE_KEY as `0x${string}`;
-  const sellerAddress = process.env.SELLER_ADDRESS as `0x${string}`;
+  const sellerAddress = (process.env.SELLER_ADDRESS ?? process.env.SELLER_WALLET_ADDRESS ?? "") as `0x${string}`;
 
   if (!buyerKey || !sellerAddress) {
     throw new Error("BUYER_PRIVATE_KEY and SELLER_ADDRESS must be set");
