@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       const conditions: any[] = [];
 
       if (wallet) {
-        const freelancer = await db.freelancer.findFirst({ where: { walletAddress: wallet } });
+        const freelancer = await db.freelancer.findFirst({ where: { walletAddress: wallet.toLowerCase() } });
         if (freelancer) {
           // Service contracts where they're the worker
           conditions.push({ freelancerId: freelancer.id, service: { type: "service" } });
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       }
 
       if (wallet) {
-        const freelancer = await db.freelancer.findFirst({ where: { walletAddress: wallet } });
+        const freelancer = await db.freelancer.findFirst({ where: { walletAddress: wallet.toLowerCase() } });
         if (freelancer) {
           // Job contracts where they posted (their freelancer record, service type is job)
           conditions.push({ freelancerId: freelancer.id, service: { type: "job" } });

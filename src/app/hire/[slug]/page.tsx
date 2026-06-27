@@ -161,6 +161,8 @@ export default function HirePage() {
 
     if (!res.ok) {
       const err = await res.json();
+      // 422 with fallback:true means EIP-3009 unsupported — let the caller retry with direct transfer
+      if (res.status === 422 && err.fallback) throw new Error("EIP3009_UNSUPPORTED");
       throw new Error(err.error || "Authorization relay failed. Check your USDC balance on Arc Testnet.");
     }
 

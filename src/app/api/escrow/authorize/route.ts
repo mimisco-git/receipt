@@ -15,19 +15,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required authorization fields" }, { status: 400 });
     }
 
+    const cur = currency === "EURC" ? "EURC" : "USDC";
     const { relayAuthorization } = await import("@/lib/x402");
-    const result = await relayAuthorization({
-      from,
-      to,
-      value,
-      validAfter: validAfter ?? 0,
-      validBefore: validBefore ?? Math.floor(Date.now() / 1000) + 3600,
-      nonce,
-      signature,
-      currency: currency === "EURC" ? "EURC" : "USDC",
-    });
 
-    return NextResponse.json({ txHash: result.txHash });
+    try {
+      const result = await relayAuthorization({
+        from, to, value,
+        validAfter: validAfter ?? 0,
+        validBefore: validBefore ?? Math.floor(Date.now() / 1000) + 3600,
+        nonce, signature, currency: cur,
+      });
+      return NextResponse.json({ txHash: result.txHash, method: "eip3009" });
+    } catch (eip3009Err) {
+      // EIP-3009 not supported by this token contract — surface error to client
+      // so the hire page can fall back to a direct MetaMask transfer
+      const reason = eip3009Err instanceof Error ? eip3009Err.message : "EIP-3009 not supported";
+      console.warn("EIP-3009 relay failed:", reason);
+      return NextResponse.json(
+        { error: `EIP-3009 relay failed: ${reason}`, fallback: true },
+        { status: 422 },
+      );
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Relay failed";
     console.error("POST /api/escrow/authorize error:", message);
