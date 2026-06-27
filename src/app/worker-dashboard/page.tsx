@@ -152,9 +152,13 @@ export default function WorkerDashboardPage() {
               borderRadius: 28,
               boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
             }}>
-              <div style={{ fontSize: 36, marginBottom: 16, opacity: 0.5 }}>-</div>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: "rgba(255,255,255,.3)" }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /><line x1="12" y1="12" x2="12" y2="15" /><line x1="10.5" y1="13.5" x2="13.5" y2="13.5" />
+                </svg>
+              </div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
-              <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 24 }}>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,.55)", marginBottom: 24, lineHeight: 1.65 }}>
                 Create a service link and share it with clients to start getting paid.
               </p>
               <button onClick={() => router.push("/setup")} className="btn-primary"
@@ -197,8 +201,14 @@ export default function WorkerDashboardPage() {
                       (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
                     }}
                   >
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: st.bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: st.color, fontSize: 16 }}>
-                      {c.status === "settled" ? "✓" : "·"}
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: st.bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: st.color }}>
+                      {c.status === "settled" ? (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                      ) : c.status === "disputed" ? (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                      ) : (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 15" /></svg>
+                      )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

@@ -313,6 +313,8 @@ p { color: rgba(255,255,255,0.78); }
   .full-mobile   { width: 100% !important; }
   .pad-mobile    { padding: 20px !important; }
   .text-sm-mobile { font-size: 14px !important; }
+  .how-grid { grid-template-columns: 1fr !important; }
+  .orb-demo-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ── KEYFRAMES ───────────────────────────────────────────── */

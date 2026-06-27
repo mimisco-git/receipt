@@ -73,7 +73,7 @@ export default function PaymentOrbDemo() {
           flex: 1, textAlign: "center", fontSize: 10.5,
           color: "var(--mist)", fontFamily: '"DM Mono", monospace',
         }}>
-          receipt.so / escrow / demo-contract
+          receipt.app — escrow · Arc Testnet
         </div>
       </div>
 
@@ -85,7 +85,7 @@ export default function PaymentOrbDemo() {
       </div>
 
       {/* Body: side-by-side, equal height, no stretching */}
-      <div style={{
+      <div className="orb-demo-grid" style={{
         display: "grid",
         gridTemplateColumns: "clamp(180px, 40%, 240px) 1fr",
         alignItems: "stretch",

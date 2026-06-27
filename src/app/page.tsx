@@ -150,6 +150,16 @@ export default function HomePage() {
             Create your service link
             <ArrowRight />
           </button>
+          <button
+            className="btn-ghost"
+            onClick={() => router.push("/marketplace")}
+            style={{
+              padding: "13px 24px", borderRadius: 12,
+              display: "flex", alignItems: "center", gap: 8,
+            }}
+          >
+            Browse marketplace
+          </button>
         </motion.div>
 
         <motion.div
@@ -170,7 +180,7 @@ export default function HomePage() {
           maxWidth: 860, margin: "0 auto",
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: 10,
+          gap: 20,
         }}>
           {features.map((f, i) => (
             <motion.div
@@ -227,7 +237,7 @@ export default function HomePage() {
 
       {/* LIVE DEMO — MacBook window */}
       <section id="demo" style={{
-        padding: "40px 20px 100px",
+        padding: "60px 20px 80px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
@@ -329,7 +339,8 @@ export default function HomePage() {
           }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
               strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
-              <path d="M12 5v14M5 12h14" />
+              <circle cx="12" cy="12" r="9" />
+              <polyline points="9 12 11 14 15 10" />
             </svg>
           </div>
           <h3 style={{
@@ -385,13 +396,14 @@ export default function HomePage() {
             "Arc L1 Testnet",
             "USDC · EURC",
             "NVIDIA NIM · Llama 3.3-70b",
-            "EURC",
             "Next.js · Supabase",
           ].map(t => (
             <span key={t} className="font-mono" style={{
               padding: "4px 12px", borderRadius: 999, fontSize: 11,
-              background: "var(--card)",
-              border: "1px solid var(--line)",
+              background: "rgba(255,255,255,.025)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,.08)",
               color: "var(--text-2)",
             }}>{t}</span>
           ))}

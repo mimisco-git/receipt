@@ -74,7 +74,8 @@ export default function HowItWorks() {
       </div>
       <h2 style={{
         fontSize: "clamp(26px,3.5vw,40px)",
-        fontWeight: 700, letterSpacing: "-0.03em",
+        fontWeight: 700, letterSpacing: "-0.05em",
+        lineHeight: 1.05,
         textAlign: "center", marginBottom: 10, color: "var(--text-1)",
       }}>
         Three steps. No invoices.
@@ -88,9 +89,9 @@ export default function HowItWorks() {
         and dispute resolution automatically.
       </p>
 
-      <div style={{
+      <div className="how-grid" style={{
         display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-        maxWidth: 860, width: "100%", gap: 10,
+        maxWidth: 860, width: "100%", gap: 20,
       }}>
         {steps.map((step, i) => (
           <motion.div
@@ -169,13 +170,7 @@ export default function HowItWorks() {
         ))}
       </div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          #how > div[style*="grid"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
+
     </section>
   );
 }

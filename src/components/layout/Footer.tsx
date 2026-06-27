@@ -50,8 +50,8 @@ export default function Footer() {
         <img
           src="/receipt-logo.png"
           alt="Receipt"
-          width={26} height={26}
-          style={{ borderRadius: 7, objectFit: "cover" }}
+          width={30} height={30}
+          style={{ borderRadius: 8, objectFit: "cover" }}
           onError={e => (e.currentTarget.style.display = "none")}
         />
         <div>

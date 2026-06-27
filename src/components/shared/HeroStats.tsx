@@ -31,7 +31,6 @@ export default function HeroStats() {
     <div style={{
       display: "flex", flexWrap: "wrap",
       alignItems: "center", justifyContent: "center", gap: 32,
-      opacity: 0.6,
     }}>
       {items.map((s, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: 28 }}>
