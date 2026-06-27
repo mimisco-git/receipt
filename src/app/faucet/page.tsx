@@ -68,12 +68,12 @@ export default function FaucetPage() {
           {/* Faucet CTA */}
           <div style={{
             padding: 24, borderRadius: 28,
-            background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+            background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
             backdropFilter: "blur(30px) saturate(180%)",
             WebkitBackdropFilter: "blur(30px) saturate(180%)",
-            border: "1px solid rgba(255,255,255,.06)",
+            border: "1px solid rgba(255,255,255,.08)",
             marginBottom: 32,
-            boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+            boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
               <div style={{
@@ -138,11 +138,11 @@ export default function FaucetPage() {
                 transition={{ delay: i * 0.08 }}
                 style={{
                   display: "flex", gap: 16, padding: "18px 20px",
-                  background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                  background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
                   backdropFilter: "blur(30px) saturate(180%)",
                   WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                  border: "1px solid rgba(255,255,255,.06)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+                  border: "1px solid rgba(255,255,255,.08)",
+                  boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
                   borderRadius: 28,
                 }}
               >

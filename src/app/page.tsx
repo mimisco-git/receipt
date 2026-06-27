@@ -72,7 +72,7 @@ export default function HomePage() {
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
-        padding: "120px 20px 60px",
+        padding: "80px 20px 60px",
         position: "relative", zIndex: 1,
       }}>
         {/* Eyebrow pill with Lepton logo */}
@@ -97,13 +97,14 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.6 }}
           style={{
-            fontSize: "clamp(32px, 7vw, 80px)",
+            fontFamily: '"Geist", "Inter", sans-serif',
+            fontSize: "clamp(36px, 7vw, 82px)",
             fontWeight: 700,
-            letterSpacing: "-0.04em",
-            lineHeight: 1.05,
-            maxWidth: 800,
-            marginBottom: 20,
-            color: "var(--text-1)",
+            letterSpacing: "-0.05em",
+            lineHeight: 0.93,
+            maxWidth: 820,
+            marginBottom: 24,
+            color: "#FFFFFF",
           }}
         >
           Get paid the moment<br />
@@ -179,25 +180,25 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.5 }}
               style={{
-                padding: "28px",
-                background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                padding: "32px",
+                background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
                 backdropFilter: "blur(30px) saturate(180%)",
                 WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                border: "1px solid rgba(255,255,255,.06)",
+                border: "1px solid rgba(255,255,255,.08)",
                 borderRadius: 28,
-                boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
-                transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 300ms ease, background 300ms ease, box-shadow 400ms ease",
+                boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
+                transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 280ms ease, background 280ms ease, box-shadow 400ms ease",
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.08)";
-                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,.11) 0%, transparent 20%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.018) 100%)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 14px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.13)";
+                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.050) 0%, rgba(255,255,255,.025) 100%)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 24px 56px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.12)";
                 (e.currentTarget as HTMLDivElement).style.transform = "translateY(-5px)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.06)";
-                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.08)";
+                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)";
                 (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
               }}
             >
@@ -224,9 +225,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* LIVE DEMO */}
+      {/* LIVE DEMO — MacBook window */}
       <section id="demo" style={{
-        padding: "40px 20px 80px",
+        padding: "40px 20px 100px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
@@ -237,20 +238,69 @@ export default function HomePage() {
           Live demo
         </div>
         <h2 style={{
-          fontSize: "clamp(20px,3vw,34px)", fontWeight: 700,
-          letterSpacing: "-0.03em", textAlign: "center", marginBottom: 10,
-          color: "var(--text-1)",
+          fontFamily: '"Geist", "Inter", sans-serif',
+          fontSize: "clamp(22px,3.5vw,38px)", fontWeight: 700,
+          letterSpacing: "-0.05em", lineHeight: 0.93,
+          textAlign: "center", marginBottom: 14,
+          color: "#FFFFFF",
         }}>
           Watch a payment clear
         </h2>
         <p style={{
-          fontSize: 14, color: "var(--text-2)",
-          textAlign: "center", maxWidth: 360, marginBottom: 40, lineHeight: 1.65,
-          padding: "0 4px",
+          fontSize: 15, color: "rgba(255,255,255,.72)",
+          textAlign: "center", maxWidth: 380, marginBottom: 48, lineHeight: 1.7,
         }}>
           Real interface. Real orb. The ripple is exactly what your client sees when payment settles.
         </p>
-        <PaymentOrbDemo />
+
+        {/* MacBook-style window frame */}
+        <div style={{
+          width: "100%", maxWidth: 560, position: "relative",
+          background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.028) 0%, rgba(255,255,255,.010) 100%)",
+          backdropFilter: "blur(40px) saturate(200%)",
+          WebkitBackdropFilter: "blur(40px) saturate(200%)",
+          border: "1px solid rgba(255,255,255,.10)",
+          borderRadius: 20,
+          boxShadow: "0 40px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04) inset, inset 0 1px 0 rgba(255,255,255,.12)",
+          overflow: "hidden",
+        }}>
+          {/* Window chrome */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "13px 16px",
+            background: "rgba(255,255,255,.025)",
+            borderBottom: "1px solid rgba(255,255,255,.07)",
+            position: "relative",
+          }}>
+            {/* Traffic lights */}
+            {(["#FF5F57","#FEBC2E","#28C840"] as const).map((c, i) => (
+              <div key={i} style={{
+                width: 12, height: 12, borderRadius: "50%",
+                background: c, opacity: 0.85,
+                boxShadow: `0 0 6px ${c}66`,
+              }} />
+            ))}
+            <div style={{
+              flex: 1, textAlign: "center",
+              fontSize: 11, fontFamily: '"DM Mono", monospace',
+              color: "rgba(255,255,255,.35)", letterSpacing: "0.02em",
+            }}>
+              receipt.app — escrow · Arc Testnet
+            </div>
+          </div>
+
+          {/* Window content */}
+          <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <PaymentOrbDemo />
+          </div>
+
+          {/* Top-left reflection — light source */}
+          <div style={{
+            position: "absolute", inset: 0, pointerEvents: "none",
+            background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 35%)",
+            borderRadius: "inherit",
+          }} />
+        </div>
       </section>
 
       {/* CTA SECTION */}
@@ -261,14 +311,14 @@ export default function HomePage() {
       }}>
         <div style={{
           maxWidth: 520, width: "100%",
-          background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
-          backdropFilter: "blur(30px) saturate(180%)",
-          WebkitBackdropFilter: "blur(30px) saturate(180%)",
-          border: "1px solid rgba(255,255,255,.06)",
+          background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+          backdropFilter: "blur(40px) saturate(200%)",
+          WebkitBackdropFilter: "blur(40px) saturate(200%)",
+          border: "1px solid rgba(255,255,255,.10)",
           borderRadius: 28,
-          padding: "clamp(28px, 5vw, 44px)",
+          padding: "clamp(32px, 5vw, 48px)",
           textAlign: "center",
-          boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+          boxShadow: "0 32px 72px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.12)",
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
@@ -283,8 +333,9 @@ export default function HomePage() {
             </svg>
           </div>
           <h3 style={{
-            fontSize: "clamp(18px,3vw,22px)", fontWeight: 700, letterSpacing: "-0.02em",
-            marginBottom: 10, color: "var(--text-1)",
+            fontFamily: '"Geist", "Inter", sans-serif',
+            fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.04em",
+            lineHeight: 1.1, marginBottom: 12, color: "#FFFFFF",
           }}>
             Ready to get paid?
           </h3>
@@ -348,7 +399,7 @@ export default function HomePage() {
         {/* Lepton attribution */}
         <div style={{
           display: "flex", alignItems: "center", gap: 6,
-          fontSize: 12, color: "var(--text-3)", marginTop: 8,
+          fontSize: 12, color: "rgba(255,255,255,.65)", marginTop: 8,
         }}>
           Built for
           <LeptonLogo size={16} />

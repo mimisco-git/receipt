@@ -227,19 +227,19 @@ export default function SetupPage() {
         {/* Card */}
         <div style={{
           width: "100%", maxWidth: 480,
-          background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+          background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
           backdropFilter: "blur(30px) saturate(180%)",
           WebkitBackdropFilter: "blur(30px) saturate(180%)",
-          border: "1px solid rgba(255,255,255,.06)",
+          border: "1px solid rgba(255,255,255,.08)",
           borderRadius: 28, overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+          boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
         }}>
           <AnimatePresence mode="wait">
 
             {/* STEP 1: PROFILE */}
             {step === "profile" && (
               <motion.div key="profile" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28 }} style={{ padding: 36 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6 }}>
                   Set up your profile
                 </h1>
                 <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
@@ -270,7 +270,7 @@ export default function SetupPage() {
             {/* STEP 2: DETAILS (service or job) */}
             {step === "details" && (
               <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28 }} style={{ padding: 36 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6 }}>
                   {cfg.detailsTitle}
                 </h1>
                 <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
@@ -364,7 +364,7 @@ export default function SetupPage() {
                   </svg>
                 </motion.div>
 
-                <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 8 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 8 }}>
                   {cfg.successTitle}
                 </h1>
                 <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 24, lineHeight: 1.65 }}>

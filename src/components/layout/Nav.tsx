@@ -72,12 +72,12 @@ export default function Nav() {
           <img
             src="/receipt-logo.png"
             alt="Receipt"
-            width={30}
-            height={30}
-            style={{ borderRadius: 8, display: "block", objectFit: "cover" }}
+            width={33}
+            height={33}
+            style={{ borderRadius: 9, display: "block", objectFit: "cover" }}
             onError={e => { e.currentTarget.style.display = "none"; }}
           />
-          <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.03em" }}>
+          <span style={{ fontSize: 17, fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.035em" }}>
             Receipt
           </span>
         </button>

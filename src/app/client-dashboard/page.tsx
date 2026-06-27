@@ -80,12 +80,12 @@ export default function ClientDashboardPage() {
           {/* Profile card */}
           <div style={{
             display: "flex", alignItems: "center", gap: 16, padding: "20px 24px",
-            background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+            background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
             backdropFilter: "blur(30px) saturate(180%)",
             WebkitBackdropFilter: "blur(30px) saturate(180%)",
-            border: "1px solid rgba(255,255,255,.06)",
+            border: "1px solid rgba(255,255,255,.08)",
             borderRadius: 28,
-            boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+            boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
             marginBottom: 20,
           }}>
             <div style={{
@@ -149,12 +149,12 @@ export default function ClientDashboardPage() {
             ].map((s, i) => (
               <div key={i} style={{
                 padding: "18px 20px",
-                background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
                 backdropFilter: "blur(30px) saturate(180%)",
                 WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                border: "1px solid rgba(255,255,255,.06)",
+                border: "1px solid rgba(255,255,255,.08)",
                 borderRadius: 16,
-                boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+                boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
               }}>
                 <div style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
                 <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: s.color }}>{s.value}</div>
@@ -180,12 +180,12 @@ export default function ClientDashboardPage() {
           {contracts.length === 0 ? (
             <div style={{
               textAlign: "center", padding: "60px 20px",
-              background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+              background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
               backdropFilter: "blur(30px) saturate(180%)",
               WebkitBackdropFilter: "blur(30px) saturate(180%)",
-              border: "1px solid rgba(255,255,255,.06)",
+              border: "1px solid rgba(255,255,255,.08)",
               borderRadius: 28,
-              boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+              boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
             }}>
               <div style={{ fontSize: 36, marginBottom: 16, opacity: 0.5 }}>-</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
@@ -211,24 +211,24 @@ export default function ClientDashboardPage() {
                     style={{
                       display: "flex", alignItems: "center", gap: 14,
                       padding: "14px 16px", borderRadius: 20,
-                      background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                      background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
                       backdropFilter: "blur(30px) saturate(180%)",
                       WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                      border: `1px solid ${st.action ? "rgba(0,229,195,0.22)" : "rgba(255,255,255,.06)"}`,
-                      boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+                      border: `1px solid ${st.action ? "rgba(0,229,195,0.22)" : "rgba(255,255,255,.08)"}`,
+                      boxShadow: "0 12px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
                       cursor: "pointer",
-                      transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 300ms ease, background 300ms ease, box-shadow 400ms ease",
+                      transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 280ms ease, background 280ms ease, box-shadow 400ms ease",
                     }}
                     onMouseEnter={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.08)";
-                      (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,.11) 0%, transparent 20%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.018) 100%)";
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 14px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)";
-                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
+                      (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.13)";
+                      (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.050) 0%, rgba(255,255,255,.025) 100%)";
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 24px 56px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.12)";
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "rgba(0,229,195,0.22)" : "rgba(255,255,255,.06)";
-                      (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
+                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "rgba(0,229,195,0.22)" : "rgba(255,255,255,.08)";
+                      (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
                       (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
                     }}
                   >
