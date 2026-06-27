@@ -162,22 +162,25 @@ export default function Marketplace() {
                       <div
                         style={{
                           padding: 20,
-                          background: "var(--card)",
-                          border: "1px solid var(--line)",
-                          borderRadius: 16,
+                          background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+                          backdropFilter: "blur(28px) saturate(160%)",
+                          WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                          border: "1px solid rgba(255,255,255,0.07)",
+                          borderRadius: 20,
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
                           cursor: "pointer",
-                          transition: "all 0.15s ease",
+                          transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
                           height: "100%",
                           boxSizing: "border-box",
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.background = "var(--card-2)";
-                          e.currentTarget.style.borderColor = "var(--line-2)";
-                          e.currentTarget.style.transform = "translateY(-2px)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.13)";
+                          e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
+                          e.currentTarget.style.transform = "translateY(-4px)";
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.background = "var(--card)";
-                          e.currentTarget.style.borderColor = "var(--line)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+                          e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
                           e.currentTarget.style.transform = "translateY(0)";
                         }}
                       >

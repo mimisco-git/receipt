@@ -98,8 +98,12 @@ export default function SignInPage() {
 
           <form onSubmit={handleSignIn}>
             <div style={{
-              background: "var(--card)", border: "1px solid var(--line)",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+              backdropFilter: "blur(28px) saturate(160%)",
+              WebkitBackdropFilter: "blur(28px) saturate(160%)",
+              border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: "var(--r-lg)", padding: 24, marginBottom: 16,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.10)",
             }}>
               <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
                 {mode === "wallet" ? "Your wallet address on Arc" : "Your full name"}

@@ -100,65 +100,66 @@ export default function HowItWorks() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
             style={{
-              padding: "28px 24px",
-              background: "var(--card)",
-              border: "1px solid var(--line)",
-              borderRadius: "var(--r-lg)",
-              transition: "border-color 0.2s ease, background 0.2s ease",
+              padding: "32px 28px",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+              backdropFilter: "blur(28px) saturate(160%)",
+              WebkitBackdropFilter: "blur(28px) saturate(160%)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: "var(--r-xl)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
+              transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
               position: "relative", overflow: "hidden",
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.borderColor = "var(--line-2)";
-              e.currentTarget.style.background = "var(--card-2)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.13)";
+              e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
+              e.currentTarget.style.transform = "translateY(-4px)";
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = "var(--line)";
-              e.currentTarget.style.background = "var(--card)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+              e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            {/* Subtle color bleed */}
-            <div style={{
-              position: "absolute", inset: 0,
-              background: step.bg,
-              pointerEvents: "none",
-            }} />
-
             {/* Step number */}
             <div style={{
               fontFamily: '"DM Mono", monospace',
               fontSize: 11, color: "var(--text-3)",
-              letterSpacing: "0.06em", marginBottom: 20, position: "relative",
+              letterSpacing: "0.08em", marginBottom: 22,
             }}>
               {step.num}
             </div>
 
-            {/* Icon */}
+            {/* Glass icon container */}
             <div style={{
-              width: 38, height: 38, borderRadius: 10,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--line)",
+              width: 44, height: 44, borderRadius: 12,
+              background: "rgba(255,255,255,0.06)",
+              backdropFilter: "blur(16px) saturate(150%)",
+              WebkitBackdropFilter: "blur(16px) saturate(150%)",
+              border: "1px solid rgba(255,255,255,0.09)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              marginBottom: 20, position: "relative",
+              marginBottom: 22,
             }}>
               {step.icon}
             </div>
 
-            {/* Color accent bar */}
+            {/* Accent bar */}
             <div style={{
-              width: 28, height: 2, borderRadius: 999,
-              background: step.color, opacity: 0.6,
-              marginBottom: 14, position: "relative",
+              width: 24, height: 2, borderRadius: 999,
+              background: step.color, opacity: 0.7,
+              marginBottom: 16,
             }} />
 
             <div style={{
               fontSize: 15, fontWeight: 600, marginBottom: 10,
-              color: "var(--text-1)", position: "relative", letterSpacing: "-0.01em",
+              color: "var(--text-1)", letterSpacing: "-0.01em",
             }}>
               {step.title}
             </div>
             <div style={{
-              fontSize: 13, color: "var(--text-2)",
-              lineHeight: 1.65, position: "relative",
+              fontSize: 14, color: "var(--text-2)",
+              lineHeight: 1.7,
             }}>
               {step.desc}
             </div>

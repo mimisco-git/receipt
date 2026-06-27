@@ -46,9 +46,9 @@ function ArrowRight() {
 }
 
 const features = [
-  { icon: <ZapSVG />,   iconBg: "rgba(0,229,195,0.06)", title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
-  { icon: <AgentSVG />, iconBg: "rgba(0,229,195,0.06)", title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
-  { icon: <LockSVG />,  iconBg: "rgba(0,229,195,0.06)", title: "Zero invoice chasing",   desc: "USDC or EURC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
+  { icon: <ZapSVG />,   title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
+  { icon: <AgentSVG />, title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
+  { icon: <LockSVG />,  title: "Zero invoice chasing",   desc: "USDC or EURC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
 ];
 
 export default function HomePage() {
@@ -57,6 +57,14 @@ export default function HomePage() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav />
+
+      {/* Hero ambient orb */}
+      <div style={{
+        position: "fixed", top: "5vh", left: "50%", transform: "translateX(-50%)",
+        width: "min(900px, 100vw)", height: 600, pointerEvents: "none", zIndex: 0,
+        background: "radial-gradient(ellipse 60% 60% at 50% 30%, rgba(0,229,195,0.055) 0%, rgba(0,229,195,0.018) 45%, transparent 70%)",
+        filter: "blur(40px)",
+      }} />
 
       {/* HERO */}
       <section style={{
@@ -169,35 +177,44 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.45 }}
+              transition={{ delay: i * 0.08, duration: 0.5 }}
               style={{
-                padding: "24px",
-                background: "var(--card)",
-                border: "1px solid var(--line)",
-                borderRadius: "var(--r-lg)",
-                transition: "border-color 0.2s, background 0.2s",
+                padding: "28px",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+                backdropFilter: "blur(28px) saturate(160%)",
+                WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: "var(--r-xl)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.10)",
+                transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line-2)";
-                (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.13)";
+                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
+                (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line)";
-                (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
+                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+                (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
               }}
             >
               <div style={{
-                width: 36, height: 36, borderRadius: 9,
-                background: f.iconBg,
+                width: 44, height: 44, borderRadius: 12,
+                background: "rgba(255,255,255,0.06)",
+                backdropFilter: "blur(16px) saturate(150%)",
+                WebkitBackdropFilter: "blur(16px) saturate(150%)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                marginBottom: 14,
+                marginBottom: 18,
               }}>
                 {f.icon}
               </div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--text-1)" }}>
+              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "var(--text-1)", letterSpacing: "-0.01em" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.65 }}>
+              <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7 }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -242,12 +259,14 @@ export default function HomePage() {
       }}>
         <div style={{
           maxWidth: 520, width: "100%",
-          background: "var(--card)",
-          border: "1px solid var(--line)",
-          borderRadius: "var(--r-xl)",
-          padding: "clamp(24px, 5vw, 40px)",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.018) 100%)",
+          backdropFilter: "blur(40px) saturate(170%)",
+          WebkitBackdropFilter: "blur(40px) saturate(170%)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderRadius: "var(--r-2xl)",
+          padding: "clamp(28px, 5vw, 44px)",
           textAlign: "center",
-          boxShadow: "0 24px 48px rgba(0,0,0,0.3)",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.12)",
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,

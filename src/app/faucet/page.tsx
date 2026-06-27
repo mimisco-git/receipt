@@ -68,9 +68,12 @@ export default function FaucetPage() {
           {/* Faucet CTA */}
           <div style={{
             padding: 24, borderRadius: "var(--r-xl)",
-            background: "var(--card)", border: "1px solid var(--line)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.018) 100%)",
+            backdropFilter: "blur(40px) saturate(170%)",
+            WebkitBackdropFilter: "blur(40px) saturate(170%)",
+            border: "1px solid rgba(255,255,255,0.08)",
             marginBottom: 32,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.11)",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
               <div style={{
@@ -135,7 +138,11 @@ export default function FaucetPage() {
                 transition={{ delay: i * 0.08 }}
                 style={{
                   display: "flex", gap: 16, padding: "18px 20px",
-                  background: "var(--card)", border: "1px solid var(--line)",
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+                  backdropFilter: "blur(28px) saturate(160%)",
+                  WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10)",
                   borderRadius: "var(--r-lg)",
                 }}
               >

@@ -279,9 +279,12 @@ export default function EscrowPage() {
 
         {/* Main card */}
         <div style={{
-          background: "var(--card)", border: "1px solid var(--line)",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+          backdropFilter: "blur(28px) saturate(160%)",
+          WebkitBackdropFilter: "blur(28px) saturate(160%)",
+          border: "1px solid rgba(255,255,255,0.07)",
           borderRadius: "var(--r-xl)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.10)",
           overflow: "hidden",
         }}>
           <div className="strip">

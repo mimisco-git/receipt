@@ -227,9 +227,12 @@ export default function SetupPage() {
         {/* Card */}
         <div style={{
           width: "100%", maxWidth: 480,
-          background: "var(--card)", border: "1px solid var(--line)",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.018) 100%)",
+          backdropFilter: "blur(40px) saturate(170%)",
+          WebkitBackdropFilter: "blur(40px) saturate(170%)",
+          border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: "var(--r-xl)", overflow: "hidden",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.11)",
         }}>
           <AnimatePresence mode="wait">
 

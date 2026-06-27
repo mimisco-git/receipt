@@ -333,7 +333,15 @@ export default function ProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)", padding: 24, marginBottom: 12, display: "flex", flexDirection: "column", gap: 14 }}>
+    <div style={{
+      background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+      backdropFilter: "blur(28px) saturate(160%)",
+      WebkitBackdropFilter: "blur(28px) saturate(160%)",
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderRadius: "var(--r-lg)", padding: 24, marginBottom: 12,
+      boxShadow: "0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10)",
+      display: "flex", flexDirection: "column", gap: 14,
+    }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</div>
       {children}
     </div>

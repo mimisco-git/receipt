@@ -102,8 +102,12 @@ export default function DocsPage() {
                 {section.title}
               </h2>
               <div style={{
-                padding: "16px 20px", borderRadius: "var(--r-lg)",
-                background: "var(--card)", border: "1px solid var(--line)",
+                padding: "18px 22px", borderRadius: "var(--r-lg)",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+                backdropFilter: "blur(28px) saturate(160%)",
+                WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10)",
                 display: "flex", flexDirection: "column", gap: 8,
               }}>
                 {section.items.map((item, i) => (
@@ -138,12 +142,25 @@ export default function DocsPage() {
                 rel="noreferrer"
                 style={{
                   padding: "14px 16px", borderRadius: "var(--r-lg)",
-                  background: "var(--card)", border: "1px solid var(--line)",
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+                  backdropFilter: "blur(28px) saturate(160%)",
+                  WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)",
                   textDecoration: "none", color: "inherit",
-                  transition: "border-color 0.15s, background 0.15s",
+                  transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
+                  display: "block",
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--line-2)"; e.currentTarget.style.background = "var(--card-2)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--line)"; e.currentTarget.style.background = "var(--card)"; }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.13)";
+                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
+                  e.currentTarget.style.transform = "translateY(-3px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
               >
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--green)" }}>
                   {l.label} ↗

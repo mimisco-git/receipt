@@ -80,7 +80,12 @@ export default function ClientDashboardPage() {
           {/* Profile card */}
           <div style={{
             display: "flex", alignItems: "center", gap: 16, padding: "20px 24px",
-            background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.018) 100%)",
+            backdropFilter: "blur(28px) saturate(160%)",
+            WebkitBackdropFilter: "blur(28px) saturate(160%)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "var(--r-xl)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
             marginBottom: 20,
           }}>
             <div style={{
@@ -142,7 +147,15 @@ export default function ClientDashboardPage() {
               { label: "Needs review",     value: String(needsReview.length), color: "var(--accent)" },
               { label: "In progress",      value: String(pending.length),  color: "var(--amber)" },
             ].map((s, i) => (
-              <div key={i} style={{ padding: "18px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)" }}>
+              <div key={i} style={{
+                padding: "18px 20px",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+                backdropFilter: "blur(28px) saturate(160%)",
+                WebkitBackdropFilter: "blur(28px) saturate(160%)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: "var(--r-lg)",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)",
+              }}>
                 <div style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
                 <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: s.color }}>{s.value}</div>
               </div>
@@ -165,7 +178,15 @@ export default function ClientDashboardPage() {
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Your contracts</div>
 
           {contracts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-xl)" }}>
+            <div style={{
+              textAlign: "center", padding: "60px 20px",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
+              backdropFilter: "blur(28px) saturate(160%)",
+              WebkitBackdropFilter: "blur(28px) saturate(160%)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: "var(--r-xl)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
+            }}>
               <div style={{ fontSize: 36, marginBottom: 16, opacity: 0.5 }}>-</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
               <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24 }}>
@@ -190,16 +211,23 @@ export default function ClientDashboardPage() {
                     style={{
                       display: "flex", alignItems: "center", gap: 14,
                       padding: "14px 16px", borderRadius: "var(--r-lg)",
-                      background: "var(--card)", border: `1px solid ${st.action ? "var(--green-border)" : "var(--line)"}`,
-                      cursor: "pointer", transition: "border-color 0.15s, background 0.15s",
+                      background: "linear-gradient(180deg, rgba(255,255,255,0.032) 0%, rgba(255,255,255,0.014) 100%)",
+                      backdropFilter: "blur(20px) saturate(150%)",
+                      WebkitBackdropFilter: "blur(20px) saturate(150%)",
+                      border: `1px solid ${st.action ? "rgba(0,229,195,0.22)" : "rgba(255,255,255,0.07)"}`,
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.07)",
+                      cursor: "pointer",
+                      transition: "border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
                     }}
                     onMouseEnter={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = "var(--line-2)";
-                      (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
+                      (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.13)";
+                      (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,0.052) 0%, rgba(255,255,255,0.024) 100%)";
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "var(--green-border)" : "var(--line)";
-                      (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
+                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "rgba(0,229,195,0.22)" : "rgba(255,255,255,0.07)";
+                      (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,0.032) 0%, rgba(255,255,255,0.014) 100%)";
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
                     }}
                   >
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: st.bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
