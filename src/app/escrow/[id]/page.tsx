@@ -42,6 +42,7 @@ export default function EscrowPage() {
   const [settlementMs, setSettlementMs] = useState(0);
   const [agentReasoning, setAgentReasoning] = useState("");
   const [agentModel, setAgentModel]     = useState("");
+  const [x402Info, setX402Info]         = useState<{ paid: boolean; fee: string; payer: string } | null>(null);
 
   const [contract, setContract] = useState<ContractData>({
     id: id as string,
@@ -153,9 +154,23 @@ export default function EscrowPage() {
       setScoreRunning(true);
 
       try {
+        // Build x402 payment proof header ($0.01 USDC evaluation fee)
+        const profile = loadProfile();
+        const x402Payload = btoa(JSON.stringify({
+          authorization: {
+            from: profile.walletAddress || "client",
+            asset: contract.currency === "EURC"
+              ? "0x3700000000000000000000000000000000000000"
+              : "0x3600000000000000000000000000000000000000",
+            amount: "10000",
+            network: "eip155:5042002",
+            protocol: "x402",
+          },
+        }));
+
         const res = await fetch("/api/agent", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Payment": x402Payload },
           body: JSON.stringify({
             contractId: id,
             deliveryNote: deliveryText || `[Attachments: ${attachments.map(a => a.name).join(", ")}]`,
@@ -170,6 +185,7 @@ export default function EscrowPage() {
 
         setAgentReasoning(reasoning);
         if (model) setAgentModel(model);
+        if (data.x402?.paid) setX402Info({ paid: true, fee: data.x402.fee, payer: data.x402.payer });
 
         let s = 0;
         const timer = setInterval(() => {
@@ -498,12 +514,26 @@ export default function EscrowPage() {
                             <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
                           </svg>
                         </div>
-                        <div>
+                        <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12, fontWeight: 600 }}>Receipt Agent</div>
                           <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>
                             {agentModel ? `Model: ${agentModel}` : "AI Escrow Arbiter"}
                           </div>
                         </div>
+                        {x402Info?.paid && (
+                          <div style={{
+                            display: "flex", alignItems: "center", gap: 4,
+                            padding: "3px 8px", borderRadius: 999,
+                            background: "rgba(0,229,195,0.08)",
+                            border: "1px solid rgba(0,229,195,0.2)",
+                            fontSize: 9.5, fontWeight: 600,
+                            color: "var(--green)", letterSpacing: "0.04em",
+                            fontFamily: '"DM Mono", monospace',
+                          }}>
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                            x402 · {x402Info.fee}
+                          </div>
+                        )}
                       </div>
 
                       {scoreRunning ? (

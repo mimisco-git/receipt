@@ -100,6 +100,18 @@ export default function SetupPage() {
   }, []);
 
   const [slug, setSlug] = useState("");
+
+  async function connectWallet() {
+    const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+    if (!eth) { setError("No wallet detected. Install MetaMask or Rabby."); return; }
+    try {
+      const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+      update("walletAddress", accounts[0]);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      setError(err?.message || "Wallet connection failed");
+    }
+  }
   const origin = typeof window !== "undefined" ? window.location.origin : "https://receipt-nine-kohl.vercel.app";
   const link = `${origin}/hire/${slug}`;
   const update = (f: string, v: string) => setForm(p => ({ ...p, [f]: v }));
@@ -250,13 +262,31 @@ export default function SetupPage() {
                   <Field label={mode === "service" ? "Short bio (optional)" : "Company or about (optional)"}
                     placeholder={mode === "service" ? "e.g. SEO writer, 5 years in fintech" : "e.g. Fintech startup, building in DeFi"}
                     value={form.bio} onChange={v => update("bio", v)} />
-                  <Field label="Your wallet address on Arc" placeholder="0x..." value={form.walletAddress} onChange={v => update("walletAddress", v)} mono />
-                  <div style={{
-                    padding: "11px 14px", borderRadius: "var(--r-sm)",
-                    background: "var(--green-dim)", border: "1px solid var(--green-border)",
-                    fontSize: 12.5, color: "var(--green)", lineHeight: 1.55,
-                  }}>
-                    No wallet? Receipt will auto-provision a Circle custodial wallet for you.
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+                      <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-2)" }}>Wallet address on Arc</label>
+                      <button
+                        type="button"
+                        onClick={connectWallet}
+                        style={{
+                          fontSize: 11, fontWeight: 600, color: "var(--green)", background: "none",
+                          border: "1px solid var(--green-border)", borderRadius: 6, padding: "3px 9px",
+                          cursor: "pointer", transition: "background 0.15s ease",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--green-dim)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+                      >
+                        Connect wallet
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="0x... or click Connect wallet"
+                      value={form.walletAddress}
+                      onChange={e => update("walletAddress", e.target.value)}
+                      className="input"
+                      style={{ fontFamily: '"DM Mono", monospace', fontSize: 13, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
+                    />
                   </div>
                 </div>
                 {error && <p style={{ fontSize: 12.5, color: "var(--red)", marginTop: 12 }}>{error}</p>}

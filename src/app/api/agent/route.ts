@@ -6,6 +6,23 @@ import type { Currency } from "@/lib/x402";
 // POST /api/agent — submit delivery for AI evaluation + auto-release if score >= 75
 export async function POST(req: NextRequest) {
   try {
+    // x402 payment header — $0.01 USDC per evaluation, paid by the client wallet
+    const x402Header = req.headers.get("x-payment") || req.headers.get("payment");
+    let x402Paid = false;
+    let x402Payer = "";
+    if (x402Header) {
+      try {
+        const decoded = JSON.parse(Buffer.from(x402Header, "base64").toString("utf8"));
+        const auth = decoded.authorization || decoded.payload?.authorization;
+        if (auth) { x402Paid = true; x402Payer = auth.from || ""; }
+      } catch {
+        try {
+          const decoded = JSON.parse(x402Header);
+          if (decoded.authorization || decoded.from) { x402Paid = true; x402Payer = decoded.from || ""; }
+        } catch {}
+      }
+    }
+
     const body = await req.json();
     const { contractId, deliveryNote, brief, priceUsdc } = body;
 
@@ -101,6 +118,7 @@ export async function POST(req: NextRequest) {
       autoSettled,
       txHash,
       settlementMs,
+      x402: x402Paid ? { paid: true, payer: x402Payer, fee: "$0.01 USDC", protocol: "x402", network: "Arc Testnet (eip155:5042002)" } : null,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

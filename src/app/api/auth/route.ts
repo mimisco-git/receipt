@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       }
 
       const freelancer = await db.freelancer.findFirst({
-        where: { walletAddress: { equals: address, mode: "insensitive" } },
+        where: { walletAddress: address.toLowerCase() },
         include: { services: true },
       });
 
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     const freelancer = await db.freelancer.findFirst({
       where: walletAddress
-        ? { walletAddress: { equals: walletAddress, mode: "insensitive" } }
+        ? { walletAddress: walletAddress.toLowerCase() }
         : { name: { equals: name, mode: "insensitive" } },
       include: { services: true },
     });

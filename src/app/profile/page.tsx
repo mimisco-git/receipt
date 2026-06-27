@@ -112,6 +112,20 @@ export default function ProfilePage() {
 
       const toSave: ProfileData = { ...form, walletAddress, avatarUrl };
       saveProfile(toSave);
+
+      // Upsert in DB so wallet sign-in works on return visits
+      if (walletAddress && !walletAddress.startsWith("pending")) {
+        try {
+          await fetch("/api/profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: toSave.name, bio: toSave.bio, walletAddress, avatarColor: toSave.avatarColor }),
+          });
+        } catch {
+          // Non-fatal — localStorage save is the source of truth during the session
+        }
+      }
+
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } finally {

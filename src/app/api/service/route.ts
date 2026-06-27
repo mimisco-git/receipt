@@ -21,22 +21,23 @@ export async function POST(req: NextRequest) {
 
     const { db } = await import("@/lib/db");
 
-    // Find or create freelancer — use wallet if provided, otherwise unique per name+timestamp
-    const wallet = walletAddress?.trim() || "";
+    // Upsert freelancer — wallet address is the canonical identity
+    const wallet = (walletAddress?.trim() || "").toLowerCase();
     let freelancer = null;
 
-    if (wallet) {
-      freelancer = await db.freelancer.findFirst({
+    if (wallet && !wallet.startsWith("pending")) {
+      freelancer = await db.freelancer.upsert({
         where: { walletAddress: wallet },
+        update: { name, bio: bio || null },
+        create: { name, bio: bio || null, walletAddress: wallet, avatarColor: "#00E5C3" },
       });
-    }
-
-    if (!freelancer) {
+    } else {
+      // No wallet — create anonymous record
       freelancer = await db.freelancer.create({
         data: {
           name,
           bio: bio || null,
-          walletAddress: wallet || `pending-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          walletAddress: `pending-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           avatarColor: "#667eea",
         },
       });

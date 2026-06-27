@@ -8,12 +8,13 @@ import Nav from "@/components/layout/Nav";
 import { formatUsdc, netAmount, getInitials } from "@/lib/utils";
 import { loadProfile } from "@/lib/profile";
 
-const TOKEN_ADDRESSES: Record<string, string> = {
+const TOKEN_ADDRESSES: Record<string, `0x${string}`> = {
   USDC: "0x3600000000000000000000000000000000000000",
   EURC: "0x3700000000000000000000000000000000000000",
 };
 const TOKEN_NAMES: Record<string, string> = { USDC: "USD Coin", EURC: "Euro Coin" };
 const ARC_CHAIN_ID_DEC = 5042002;
+const ARC_CHAIN_ID_HEX = "0x4CEF52";
 
 type WalletStep = "idle" | "connecting" | "signing" | "relaying" | "confirmed";
 
@@ -168,6 +169,51 @@ export default function HirePage() {
     return { txHash, from };
   }
 
+  // Fallback: direct ERC20 transfer if EIP-3009 is not supported by the token contract
+  async function connectAndTransferDirect(escrowAddress: string, amount: number, currency: "USDC" | "EURC") {
+    const { createWalletClient, createPublicClient, custom, http, erc20Abi, parseUnits } = await import("viem");
+    const { arcTestnet } = await import("viem/chains");
+    const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+    if (!eth) throw new Error("No wallet detected.");
+
+    setWalletStep("connecting");
+    const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+    const from = accounts[0];
+    setClientWalletAddress(from);
+
+    // Switch to Arc Testnet
+    const currentChain = await eth.request({ method: "eth_chainId" }) as string;
+    if (currentChain.toLowerCase() !== ARC_CHAIN_ID_HEX.toLowerCase()) {
+      try {
+        await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ARC_CHAIN_ID_HEX }] });
+      } catch (e: unknown) {
+        const switchErr = e as { code?: number };
+        if (switchErr?.code === 4902) {
+          await eth.request({
+            method: "wallet_addEthereumChain",
+            params: [{ chainId: ARC_CHAIN_ID_HEX, chainName: "Arc Testnet", nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 }, rpcUrls: ["https://rpc.testnet.arc.network"], blockExplorerUrls: ["https://testnet.arcscan.app"] }],
+          });
+        } else throw new Error("Switch your wallet to Arc Testnet.");
+      }
+    }
+
+    setWalletStep("signing");
+    const walletClient = createWalletClient({ account: from as `0x${string}`, chain: arcTestnet, transport: custom(eth as Parameters<typeof custom>[0]) });
+    const txHash = await walletClient.writeContract({
+      address: TOKEN_ADDRESSES[currency],
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [escrowAddress as `0x${string}`, parseUnits(amount.toFixed(6), 6)],
+    });
+
+    setWalletStep("relaying");
+    const publicClient = createPublicClient({ chain: arcTestnet, transport: http("https://rpc.testnet.arc.network") });
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+    setWalletStep("confirmed");
+    return { txHash, from };
+  }
+
   async function submitBrief() {
     if (!service) return;
     if (!form.clientName.trim() || (!isJob && !form.brief.trim())) return;
@@ -182,7 +228,13 @@ export default function HirePage() {
       const { escrowAddress } = await addrRes.json();
       if (!escrowAddress) throw new Error("Escrow address unavailable. Try again later.");
 
-      const { txHash, from } = await connectAndAuthorize(escrowAddress, service.priceUsdc, (service.currency || "USDC") as "USDC" | "EURC");
+      let txHash: string, from: string;
+      try {
+        ({ txHash, from } = await connectAndAuthorize(escrowAddress, service.priceUsdc, (service.currency || "USDC") as "USDC" | "EURC"));
+      } catch (eip3009Err) {
+        console.warn("EIP-3009 relay failed, falling back to direct transfer:", eip3009Err);
+        ({ txHash, from } = await connectAndTransferDirect(escrowAddress, service.priceUsdc, (service.currency || "USDC") as "USDC" | "EURC"));
+      }
 
       const res = await fetch("/api/escrow", {
         method: "POST",
