@@ -102,17 +102,17 @@ export default function DocsPage() {
                 {section.title}
               </h2>
               <div style={{
-                padding: "18px 22px", borderRadius: "var(--r-lg)",
-                background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-                backdropFilter: "blur(28px) saturate(160%)",
-                WebkitBackdropFilter: "blur(28px) saturate(160%)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10)",
+                padding: "18px 22px", borderRadius: 28,
+                background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                backdropFilter: "blur(30px) saturate(180%)",
+                WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                border: "1px solid rgba(255,255,255,.06)",
+                boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
                 display: "flex", flexDirection: "column", gap: 8,
               }}>
                 {section.items.map((item, i) => (
                   <div key={i} style={{
-                    color: "var(--text-2)", lineHeight: 1.6,
+                    opacity: 0.72, color: "inherit", lineHeight: 1.6,
                     fontFamily: item.mono ? '"DM Mono", monospace' : "inherit",
                     fontSize: item.mono ? 12 : 13,
                     padding: item.mono ? "4px 8px" : 0,
@@ -141,24 +141,26 @@ export default function DocsPage() {
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  padding: "14px 16px", borderRadius: "var(--r-lg)",
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-                  backdropFilter: "blur(28px) saturate(160%)",
-                  WebkitBackdropFilter: "blur(28px) saturate(160%)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)",
+                  padding: "14px 16px", borderRadius: 28,
+                  background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                  backdropFilter: "blur(30px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                  border: "1px solid rgba(255,255,255,.06)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
                   textDecoration: "none", color: "inherit",
-                  transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
+                  transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 300ms ease, background 300ms ease, box-shadow 400ms ease",
                   display: "block",
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.13)";
-                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
-                  e.currentTarget.style.transform = "translateY(-3px)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,.08)";
+                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,.11) 0%, transparent 20%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.018) 100%)";
+                  e.currentTarget.style.boxShadow = "0 14px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)";
+                  e.currentTarget.style.transform = "translateY(-5px)";
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,.06)";
+                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
+                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >

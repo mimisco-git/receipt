@@ -101,23 +101,25 @@ export default function HowItWorks() {
             transition={{ delay: i * 0.1, duration: 0.5 }}
             style={{
               padding: "32px 28px",
-              background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-              backdropFilter: "blur(28px) saturate(160%)",
-              WebkitBackdropFilter: "blur(28px) saturate(160%)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: "var(--r-xl)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
-              transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
+              background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+              backdropFilter: "blur(30px) saturate(180%)",
+              WebkitBackdropFilter: "blur(30px) saturate(180%)",
+              border: "1px solid rgba(255,255,255,.06)",
+              borderRadius: 28,
+              boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+              transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 300ms ease, background 300ms ease, box-shadow 400ms ease",
               position: "relative", overflow: "hidden",
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.13)";
-              e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
-              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,.08)";
+              e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,.11) 0%, transparent 20%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.018) 100%)";
+              e.currentTarget.style.boxShadow = "0 14px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)";
+              e.currentTarget.style.transform = "translateY(-5px)";
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-              e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,.06)";
+              e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
+              e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
               e.currentTarget.style.transform = "translateY(0)";
             }}
           >
@@ -133,11 +135,11 @@ export default function HowItWorks() {
             {/* Glass icon container */}
             <div style={{
               width: 44, height: 44, borderRadius: 12,
-              background: "rgba(255,255,255,0.06)",
-              backdropFilter: "blur(16px) saturate(150%)",
-              WebkitBackdropFilter: "blur(16px) saturate(150%)",
-              border: "1px solid rgba(255,255,255,0.09)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,.03)",
+              backdropFilter: "blur(18px) saturate(150%)",
+              WebkitBackdropFilter: "blur(18px) saturate(150%)",
+              border: "1px solid rgba(255,255,255,.08)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)",
               display: "flex", alignItems: "center", justifyContent: "center",
               marginBottom: 22,
             }}>
@@ -158,7 +160,7 @@ export default function HowItWorks() {
               {step.title}
             </div>
             <div style={{
-              fontSize: 14, color: "var(--text-2)",
+              fontSize: 14, opacity: 0.72, color: "inherit",
               lineHeight: 1.7,
             }}>
               {step.desc}

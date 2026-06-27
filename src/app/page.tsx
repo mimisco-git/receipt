@@ -180,32 +180,34 @@ export default function HomePage() {
               transition={{ delay: i * 0.08, duration: 0.5 }}
               style={{
                 padding: "28px",
-                background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-                backdropFilter: "blur(28px) saturate(160%)",
-                WebkitBackdropFilter: "blur(28px) saturate(160%)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: "var(--r-xl)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.10)",
-                transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
+                background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                backdropFilter: "blur(30px) saturate(180%)",
+                WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                border: "1px solid rgba(255,255,255,.06)",
+                borderRadius: 28,
+                boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+                transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 300ms ease, background 300ms ease, box-shadow 400ms ease",
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.13)";
-                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
-                (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.08)";
+                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,.11) 0%, transparent 20%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.018) 100%)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 14px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)";
+                (e.currentTarget as HTMLDivElement).style.transform = "translateY(-5px)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
-                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.06)";
+                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
                 (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
               }}
             >
               <div style={{
                 width: 44, height: 44, borderRadius: 12,
-                background: "rgba(255,255,255,0.06)",
-                backdropFilter: "blur(16px) saturate(150%)",
-                WebkitBackdropFilter: "blur(16px) saturate(150%)",
-                border: "1px solid rgba(255,255,255,0.09)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,.03)",
+                backdropFilter: "blur(18px) saturate(150%)",
+                WebkitBackdropFilter: "blur(18px) saturate(150%)",
+                border: "1px solid rgba(255,255,255,.08)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 marginBottom: 18,
               }}>
@@ -214,7 +216,7 @@ export default function HomePage() {
               <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "var(--text-1)", letterSpacing: "-0.01em" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7 }}>
+              <div style={{ fontSize: 14, opacity: 0.72, color: "inherit", lineHeight: 1.7 }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -259,14 +261,14 @@ export default function HomePage() {
       }}>
         <div style={{
           maxWidth: 520, width: "100%",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.018) 100%)",
-          backdropFilter: "blur(40px) saturate(170%)",
-          WebkitBackdropFilter: "blur(40px) saturate(170%)",
-          border: "1px solid rgba(255,255,255,0.09)",
-          borderRadius: "var(--r-2xl)",
+          background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+          backdropFilter: "blur(30px) saturate(180%)",
+          WebkitBackdropFilter: "blur(30px) saturate(180%)",
+          border: "1px solid rgba(255,255,255,.06)",
+          borderRadius: 28,
           padding: "clamp(28px, 5vw, 44px)",
           textAlign: "center",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.12)",
+          boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
@@ -286,7 +288,7 @@ export default function HomePage() {
           }}>
             Ready to get paid?
           </h3>
-          <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.65, marginBottom: 24 }}>
+          <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", lineHeight: 1.65, marginBottom: 24 }}>
             Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
           <button

@@ -162,25 +162,27 @@ export default function Marketplace() {
                       <div
                         style={{
                           padding: 20,
-                          background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-                          backdropFilter: "blur(28px) saturate(160%)",
-                          WebkitBackdropFilter: "blur(28px) saturate(160%)",
-                          border: "1px solid rgba(255,255,255,0.07)",
+                          background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                          backdropFilter: "blur(30px) saturate(180%)",
+                          WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                          border: "1px solid rgba(255,255,255,.06)",
                           borderRadius: 20,
-                          boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.10)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
                           cursor: "pointer",
-                          transition: "border-color 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease",
+                          transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 300ms ease, background 300ms ease, box-shadow 400ms ease",
                           height: "100%",
                           boxSizing: "border-box",
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.13)";
-                          e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.028) 100%)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,.08)";
+                          e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,.11) 0%, transparent 20%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.018) 100%)";
+                          e.currentTarget.style.boxShadow = "0 14px 44px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)";
                           e.currentTarget.style.transform = "translateY(-4px)";
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-                          e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)";
+                          e.currentTarget.style.borderColor = "rgba(255,255,255,.06)";
+                          e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
+                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)";
                           e.currentTarget.style.transform = "translateY(0)";
                         }}
                       >
@@ -227,7 +229,7 @@ export default function Marketplace() {
                         </h3>
 
                         <p style={{
-                          fontSize: 13, color: "var(--text-2)", lineHeight: 1.5,
+                          fontSize: 13, opacity: 0.72, color: "inherit", lineHeight: 1.5,
                           marginBottom: 14,
                           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
                         }}>

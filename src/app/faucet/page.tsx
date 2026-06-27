@@ -67,13 +67,13 @@ export default function FaucetPage() {
 
           {/* Faucet CTA */}
           <div style={{
-            padding: 24, borderRadius: "var(--r-xl)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.018) 100%)",
-            backdropFilter: "blur(40px) saturate(170%)",
-            WebkitBackdropFilter: "blur(40px) saturate(170%)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            padding: 24, borderRadius: 28,
+            background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+            backdropFilter: "blur(30px) saturate(180%)",
+            WebkitBackdropFilter: "blur(30px) saturate(180%)",
+            border: "1px solid rgba(255,255,255,.06)",
             marginBottom: 32,
-            boxShadow: "0 16px 48px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.11)",
+            boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
               <div style={{
@@ -138,12 +138,12 @@ export default function FaucetPage() {
                 transition={{ delay: i * 0.08 }}
                 style={{
                   display: "flex", gap: 16, padding: "18px 20px",
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-                  backdropFilter: "blur(28px) saturate(160%)",
-                  WebkitBackdropFilter: "blur(28px) saturate(160%)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10)",
-                  borderRadius: "var(--r-lg)",
+                  background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                  backdropFilter: "blur(30px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(30px) saturate(180%)",
+                  border: "1px solid rgba(255,255,255,.06)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
+                  borderRadius: 28,
                 }}
               >
                 <div style={{
@@ -156,7 +156,7 @@ export default function FaucetPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{s.title}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55, marginBottom: 8 }}>{s.desc}</div>
+                  <div style={{ fontSize: 13, opacity: 0.72, color: "inherit", lineHeight: 1.55, marginBottom: 8 }}>{s.desc}</div>
                   <a
                     href={s.link}
                     target={s.link.startsWith("http") ? "_blank" : undefined}

@@ -227,12 +227,12 @@ export default function SetupPage() {
         {/* Card */}
         <div style={{
           width: "100%", maxWidth: 480,
-          background: "linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.018) 100%)",
-          backdropFilter: "blur(40px) saturate(170%)",
-          WebkitBackdropFilter: "blur(40px) saturate(170%)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "var(--r-xl)", overflow: "hidden",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.11)",
+          background: "linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 18%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+          backdropFilter: "blur(30px) saturate(180%)",
+          WebkitBackdropFilter: "blur(30px) saturate(180%)",
+          border: "1px solid rgba(255,255,255,.06)",
+          borderRadius: 28, overflow: "hidden",
+          boxShadow: "0 8px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)",
         }}>
           <AnimatePresence mode="wait">
 
@@ -242,7 +242,7 @@ export default function SetupPage() {
                 <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>
                   Set up your profile
                 </h1>
-                <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 28, lineHeight: 1.6 }}>
+                <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
                   {mode === "service" ? "This is what clients see when they open your link." : "This is how workers will know who you are."}
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -273,7 +273,7 @@ export default function SetupPage() {
                 <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>
                   {cfg.detailsTitle}
                 </h1>
-                <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 28, lineHeight: 1.6 }}>
+                <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
                   {cfg.detailsSub}
                 </p>
 
@@ -367,7 +367,7 @@ export default function SetupPage() {
                 <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 8 }}>
                   {cfg.successTitle}
                 </h1>
-                <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24, lineHeight: 1.65 }}>
+                <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 24, lineHeight: 1.65 }}>
                   {cfg.successSub}
                 </p>
 
