@@ -4,19 +4,18 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Shield, Zap, Clock } from "lucide-react";
-import { createWalletClient, createPublicClient, custom, http, erc20Abi, parseUnits } from "viem";
-import { arcTestnet } from "viem/chains";
 import Nav from "@/components/layout/Nav";
 import { formatUsdc, netAmount, getInitials } from "@/lib/utils";
 import { loadProfile } from "@/lib/profile";
 
-const TOKEN_ADDRESSES: Record<string, `0x${string}`> = {
+const TOKEN_ADDRESSES: Record<string, string> = {
   USDC: "0x3600000000000000000000000000000000000000",
   EURC: "0x3700000000000000000000000000000000000000",
 };
-const ARC_CHAIN_ID = "0x4CEF52"; // 5042002
+const TOKEN_NAMES: Record<string, string> = { USDC: "USD Coin", EURC: "Euro Coin" };
+const ARC_CHAIN_ID_DEC = 5042002;
 
-type WalletStep = "idle" | "connecting" | "switching" | "signing" | "confirming";
+type WalletStep = "idle" | "connecting" | "signing" | "relaying" | "confirmed";
 
 type Phase = "browse" | "brief" | "funding" | "success";
 
@@ -93,7 +92,7 @@ export default function HirePage() {
     load();
   }, [slug]);
 
-  async function connectAndSign(escrowAddress: string, amount: number, currency: "USDC" | "EURC") {
+  async function connectAndAuthorize(escrowAddress: string, amount: number, currency: "USDC" | "EURC") {
     const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
     if (!eth) throw new Error("No wallet detected. Install MetaMask or Rabby.");
 
@@ -102,48 +101,70 @@ export default function HirePage() {
     const from = accounts[0];
     setClientWalletAddress(from);
 
-    setWalletStep("switching");
-    const currentChain = await eth.request({ method: "eth_chainId" }) as string;
-    if (currentChain.toLowerCase() !== ARC_CHAIN_ID.toLowerCase()) {
-      try {
-        await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ARC_CHAIN_ID }] });
-      } catch (e: unknown) {
-        const switchErr = e as { code?: number };
-        if (switchErr?.code === 4902) {
-          await eth.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: ARC_CHAIN_ID,
-              chainName: "Arc Testnet",
-              nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
-              rpcUrls: ["https://rpc.testnet.arc.network"],
-              blockExplorerUrls: ["https://testnet.arcscan.app"],
-            }],
-          });
-        } else {
-          throw new Error("Switch your wallet to Arc Testnet and try again.");
-        }
-      }
+    setWalletStep("signing");
+
+    // Random bytes32 nonce — EIP-3009 requires a unique nonce per authorization
+    const nonceBytes = crypto.getRandomValues(new Uint8Array(32));
+    const nonce = `0x${Array.from(nonceBytes).map(b => b.toString(16).padStart(2, "0")).join("")}`;
+    const validAfter  = 0;
+    const validBefore = Math.floor(Date.now() / 1000) + 3600;
+    const atomicValue = Math.round(amount * 1e6).toString();
+
+    const typedData = {
+      domain: {
+        name: TOKEN_NAMES[currency] || "USD Coin",
+        version: "2",
+        chainId: ARC_CHAIN_ID_DEC,
+        verifyingContract: TOKEN_ADDRESSES[currency],
+      },
+      types: {
+        EIP712Domain: [
+          { name: "name",              type: "string"  },
+          { name: "version",           type: "string"  },
+          { name: "chainId",           type: "uint256" },
+          { name: "verifyingContract", type: "address" },
+        ],
+        TransferWithAuthorization: [
+          { name: "from",        type: "address" },
+          { name: "to",         type: "address" },
+          { name: "value",      type: "uint256" },
+          { name: "validAfter", type: "uint256" },
+          { name: "validBefore",type: "uint256" },
+          { name: "nonce",      type: "bytes32" },
+        ],
+      },
+      primaryType: "TransferWithAuthorization",
+      message: {
+        from,
+        to:          escrowAddress,
+        value:       atomicValue,
+        validAfter:  validAfter.toString(),
+        validBefore: validBefore.toString(),
+        nonce,
+      },
+    };
+
+    const signature = await eth.request({
+      method: "eth_signTypedData_v4",
+      params: [from, JSON.stringify(typedData)],
+    }) as string;
+
+    setWalletStep("relaying");
+
+    // Platform relays the tx — client pays zero gas
+    const res = await fetch("/api/escrow/authorize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: escrowAddress, value: atomicValue, validAfter, validBefore, nonce, signature, currency }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Authorization relay failed. Check your USDC balance on Arc Testnet.");
     }
 
-    setWalletStep("signing");
-    const walletClient = createWalletClient({
-      account: from as `0x${string}`,
-      chain: arcTestnet,
-      transport: custom(eth as Parameters<typeof custom>[0]),
-    });
-
-    const txHash = await walletClient.writeContract({
-      address: TOKEN_ADDRESSES[currency],
-      abi: erc20Abi,
-      functionName: "transfer",
-      args: [escrowAddress as `0x${string}`, parseUnits(amount.toFixed(6), 6)],
-    });
-
-    setWalletStep("confirming");
-    const publicClient = createPublicClient({ chain: arcTestnet, transport: http("https://rpc.testnet.arc.network") });
-    await publicClient.waitForTransactionReceipt({ hash: txHash });
-
+    const { txHash } = await res.json();
+    setWalletStep("confirmed");
     return { txHash, from };
   }
 
@@ -161,7 +182,7 @@ export default function HirePage() {
       const { escrowAddress } = await addrRes.json();
       if (!escrowAddress) throw new Error("Escrow address unavailable. Try again later.");
 
-      const { txHash, from } = await connectAndSign(escrowAddress, service.priceUsdc, (service.currency || "USDC") as "USDC" | "EURC");
+      const { txHash, from } = await connectAndAuthorize(escrowAddress, service.priceUsdc, (service.currency || "USDC") as "USDC" | "EURC");
 
       const res = await fetch("/api/escrow", {
         method: "POST",
@@ -503,19 +524,19 @@ export default function HirePage() {
                   <span style={{ fontSize: 32 }}>🔐</span>
                 </motion.div>
 
-                <h2 className="text-xl font-bold mb-1">Complete payment in your wallet</h2>
+                <h2 className="text-xl font-bold mb-1">Gasless escrow payment</h2>
                 <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
-                  Sending {sym}{formatUsdc(price)} {cur} from your wallet to escrow on Arc Testnet.
+                  Sign once — no gas fees. Platform relays {sym}{formatUsdc(price)} {cur} to escrow on your behalf.
                 </p>
 
                 <div className="w-full space-y-3 text-left mb-6">
                   {([
-                    ["connecting",  "Connect wallet",           "Approve wallet access"],
-                    ["switching",   "Switch to Arc Testnet",    "Select the correct network"],
-                    ["signing",     "Confirm transaction",      `Send ${sym}${formatUsdc(price)} ${cur} to escrow`],
-                    ["confirming",  "On-chain confirmation",    "Waiting for Arc to confirm the block"],
+                    ["connecting", "Connect wallet",          "Approve wallet access"],
+                    ["signing",    "Sign authorization",      `Gasless EIP-3009 signature — no ${cur} gas needed`],
+                    ["relaying",   "Platform relays",         "Submitting your authorization on-chain"],
+                    ["confirmed",  "Escrow confirmed",        "Funds locked on Arc Testnet"],
                   ] as [WalletStep, string, string][]).map(([step, label, sub], i) => {
-                    const steps: WalletStep[] = ["connecting", "switching", "signing", "confirming"];
+                    const steps: WalletStep[] = ["connecting", "signing", "relaying", "confirmed"];
                     const currentIdx = steps.indexOf(walletStep);
                     const thisIdx = i;
                     const done = currentIdx > thisIdx;

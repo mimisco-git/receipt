@@ -1,8 +1,28 @@
 "use server";
 
-import { createWalletClient, createPublicClient, http, erc20Abi, parseUnits } from "viem";
+import { createWalletClient, createPublicClient, http, erc20Abi, parseUnits, parseSignature } from "viem";
 import { arcTestnet } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
+
+const EIP3009_ABI = [
+  {
+    type: "function",
+    name: "transferWithAuthorization",
+    inputs: [
+      { name: "from",        type: "address" },
+      { name: "to",          type: "address" },
+      { name: "value",       type: "uint256" },
+      { name: "validAfter",  type: "uint256" },
+      { name: "validBefore", type: "uint256" },
+      { name: "nonce",       type: "bytes32" },
+      { name: "v",           type: "uint8"   },
+      { name: "r",           type: "bytes32" },
+      { name: "s",           type: "bytes32" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+] as const;
 
 export type Currency = "USDC" | "EURC";
 
@@ -151,6 +171,48 @@ export async function getTokenBalance(address: string, currency: Currency = "USD
   } catch {
     return 0;
   }
+}
+
+// EIP-3009: relay a signed transferWithAuthorization using the seller/escrow wallet as gas payer
+export async function relayAuthorization(params: {
+  from: string;
+  to: string;
+  value: string;
+  validAfter: number;
+  validBefore: number;
+  nonce: string;
+  signature: string;
+  currency: Currency;
+}): Promise<{ txHash: string; success: boolean }> {
+  const sellerKey = process.env.SELLER_PRIVATE_KEY as `0x${string}`;
+  if (!sellerKey) throw new Error("SELLER_PRIVATE_KEY must be set for relay");
+
+  const { v: vBig, r, s } = parseSignature(params.signature as `0x${string}`);
+  const v = Number(vBig);
+
+  const account = privateKeyToAccount(sellerKey);
+  const walletClient = createWalletClient({ account, chain: arcTestnet, transport: http(ARC_RPC) });
+  const publicClient = createPublicClient({ chain: arcTestnet, transport: http(ARC_RPC) });
+
+  const txHash = await walletClient.writeContract({
+    address: getTokenAddress(params.currency),
+    abi: EIP3009_ABI,
+    functionName: "transferWithAuthorization",
+    args: [
+      params.from       as `0x${string}`,
+      params.to         as `0x${string}`,
+      BigInt(params.value),
+      BigInt(params.validAfter),
+      BigInt(params.validBefore),
+      params.nonce      as `0x${string}`,
+      v,
+      r,
+      s,
+    ],
+  });
+
+  await publicClient.waitForTransactionReceipt({ hash: txHash });
+  return { txHash, success: true };
 }
 
 // Build x402 payment required response header

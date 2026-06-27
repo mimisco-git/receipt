@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { saveProfile, clearProfile, getInitials, type ProfileData, loadProfile } from "@/lib/profile";
 import Nav from "@/components/layout/Nav";
-import { loadProfile, saveProfile, clearProfile, getInitials, type ProfileData } from "@/lib/profile";
 
 const AVATAR_COLORS = [
   "#00E5C3","#FFFFFF","#888888","#333333",
@@ -47,13 +47,28 @@ export default function ProfilePage() {
     hourlyRate: "", availability: "available",
   });
 
-  // Load saved profile on mount
+  // Load saved profile on mount; pre-fill wallet from ?wallet= URL param (post-signin redirect)
   useEffect(() => {
     const saved = loadProfile();
-    setForm(saved);
+    const params = new URLSearchParams(window.location.search);
+    const walletFromUrl = params.get("wallet");
+    setForm({ ...saved, ...(walletFromUrl ? { walletAddress: walletFromUrl } : {}) });
     if (saved.avatarUrl) setAvatarUrl(saved.avatarUrl);
     setLoaded(true);
   }, []);
+
+  async function connectWalletForProfile() {
+    const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+    if (!eth) { setWalletError("No wallet detected. Install MetaMask or Rabby."); return; }
+    setWalletError(null);
+    try {
+      const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+      setForm(p => ({ ...p, walletAddress: accounts[0] }));
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      setWalletError(err?.message || "Wallet connection failed");
+    }
+  }
 
   const update = (k: keyof ProfileData, v: string) =>
     setForm(p => ({ ...p, [k]: v }));
@@ -251,7 +266,34 @@ export default function ProfilePage() {
 
           {/* PAYMENT */}
           <Section title={form.role === "client" ? "Wallet" : "Payment details"}>
-            <Field label="Wallet address on Arc (USDC / EURC)" placeholder="0x..." value={form.walletAddress} onChange={v => update("walletAddress", v)} mono />
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+                <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-2)" }}>
+                  Wallet address on Arc (USDC / EURC)
+                </label>
+                <button
+                  type="button"
+                  onClick={connectWalletForProfile}
+                  style={{
+                    fontSize: 11, fontWeight: 600, color: "var(--green)", background: "none",
+                    border: "1px solid var(--green-border)", borderRadius: 6, padding: "3px 9px",
+                    cursor: "pointer", transition: "background 0.15s ease",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "var(--green-dim)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+                >
+                  Connect wallet
+                </button>
+              </div>
+              <input
+                type="text"
+                placeholder="0x... or click Connect wallet above"
+                value={form.walletAddress}
+                onChange={e => update("walletAddress", e.target.value)}
+                className="input"
+                style={{ fontFamily: '"DM Mono", monospace', fontSize: 13, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
+              />
+            </div>
             {form.role === "worker" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: 12 }}>
                 <Field label="Default hourly rate (USDC / EURC)" placeholder="e.g. 25.00" value={form.hourlyRate} onChange={v => update("hourlyRate", v)} />
