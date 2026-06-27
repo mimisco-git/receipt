@@ -101,7 +101,7 @@ export default function ClientDashboardPage() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>{profile.name}</h1>
+                <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.03em" }}>{profile.name}</h1>
                 <span className="pill pill-blue" style={{ fontSize: 10 }}><span className="pill-dot" />Client</span>
               </div>
               {profile.bio && <div style={{ fontSize: 12, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile.bio}</div>}

@@ -73,7 +73,7 @@ export default function Marketplace() {
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div style={{ marginBottom: 24 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 6 }}>
+            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", marginBottom: 6 }}>
               Marketplace
             </h1>
             <p style={{ fontSize: 14, color: "var(--text-2)" }}>
@@ -273,12 +273,29 @@ export default function Marketplace() {
 
 function LoadingDots() {
   return (
-    <div style={{ display: "flex", justifyContent: "center", padding: "60px 0", gap: 6 }}>
-      {[0, 0.15, 0.3].map(d => (
-        <div key={d} style={{
-          width: 6, height: 6, borderRadius: "50%", background: "var(--green)",
-          animation: `pulse-dot 1.2s ${d}s ease-in-out infinite`,
-        }} />
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+      gap: 14,
+    }}>
+      {[0, 1, 2, 3, 4, 5].map(i => (
+        <div key={i} style={{
+          padding: 20, borderRadius: 20, height: 200,
+          background: "linear-gradient(135deg, rgba(255,255,255,.025) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.018) 0%, rgba(255,255,255,.008) 100%)",
+          border: "1px solid rgba(255,255,255,.05)",
+          animation: `skeleton-pulse 1.8s ${i * 0.1}s ease-in-out infinite`,
+        }}>
+          <div style={{ display: "flex", gap: 10, marginBottom: 14, alignItems: "center" }}>
+            <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,.04)", flexShrink: 0 }} />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ height: 11, borderRadius: 6, background: "rgba(255,255,255,.04)", width: "60%" }} />
+              <div style={{ height: 9, borderRadius: 6, background: "rgba(255,255,255,.03)", width: "40%" }} />
+            </div>
+          </div>
+          <div style={{ height: 13, borderRadius: 6, background: "rgba(255,255,255,.04)", marginBottom: 10 }} />
+          <div style={{ height: 10, borderRadius: 6, background: "rgba(255,255,255,.03)", marginBottom: 7, width: "90%" }} />
+          <div style={{ height: 10, borderRadius: 6, background: "rgba(255,255,255,.03)", width: "70%" }} />
+        </div>
       ))}
     </div>
   );
@@ -289,8 +306,13 @@ function EmptyState({ title, subtitle, ctaLabel, ctaHref }: {
 }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: "rgba(255,255,255,.28)" }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </div>
       <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{title}</div>
-      <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24, maxWidth: 360, margin: "0 auto 24px" }}>
+      <p style={{ fontSize: 14, color: "rgba(255,255,255,.55)", marginBottom: 24, maxWidth: 360, margin: "0 auto 24px", lineHeight: 1.65 }}>
         {subtitle}
       </p>
       <Link href={ctaHref}>

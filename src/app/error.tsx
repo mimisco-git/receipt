@@ -30,7 +30,7 @@ export default function Error({
       <div>
         <h2
           className="text-2xl font-bold text-center mb-2"
-          style={{ letterSpacing: "-0.02em" }}
+          style={{ letterSpacing: "-0.04em" }}
         >
           Something went wrong
         </h2>

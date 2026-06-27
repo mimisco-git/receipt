@@ -136,7 +136,7 @@ export default function ProfilePage() {
 
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.025em" }}>
+              <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.04em" }}>
                 Your profile
               </h1>
               {form.role && (

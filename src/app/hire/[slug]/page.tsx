@@ -190,7 +190,7 @@ export default function HirePage() {
                 </div>
 
                 <div className="p-7">
-                  <h1 className="text-xl font-bold mb-3" style={{ letterSpacing: "-0.02em" }}>
+                  <h1 className="text-xl font-bold mb-3" style={{ letterSpacing: "-0.04em" }}>
                     {service.title}
                   </h1>
                   <p
@@ -275,7 +275,7 @@ export default function HirePage() {
                 transition={{ duration: 0.3 }}
                 className="p-8"
               >
-                <h2 className="text-xl font-bold mb-2" style={{ letterSpacing: "-0.02em" }}>
+                <h2 className="text-xl font-bold mb-2" style={{ letterSpacing: "-0.04em" }}>
                   {isJob ? "Confirm your details" : "Describe what you need"}
                 </h2>
                 <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>
@@ -443,7 +443,7 @@ export default function HirePage() {
                   &#10003;
                 </motion.div>
 
-                <h2 className="text-2xl font-bold mb-2" style={{ letterSpacing: "-0.02em" }}>
+                <h2 className="text-2xl font-bold mb-2" style={{ letterSpacing: "-0.04em" }}>
                   {isJob ? "Job accepted." : "Escrow funded."}
                 </h2>
                 <p className="text-sm mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>

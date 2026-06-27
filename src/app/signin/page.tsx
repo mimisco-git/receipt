@@ -67,7 +67,7 @@ export default function SignInPage() {
       <main style={{ maxWidth: 420, margin: "0 auto", padding: "clamp(100px, 15vw, 140px) 20px 60px" }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
 
-          <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.025em", marginBottom: 6 }}>
+          <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.04em", marginBottom: 6 }}>
             Welcome back
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 28 }}>

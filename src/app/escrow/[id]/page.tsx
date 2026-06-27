@@ -250,13 +250,16 @@ export default function EscrowPage() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "3px 10px", borderRadius: 999,
-            background: "var(--card)", border: "1px solid var(--line)",
+            background: "rgba(255,255,255,.025)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,.08)",
             fontSize: 11, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
             marginBottom: 12,
           }}>
             Contract #{(id as string)?.slice(0, 8)}
           </div>
-          <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>
+          <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.04em", marginBottom: 4 }}>
             {contract.serviceTitle}
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-2)" }}>
@@ -293,7 +296,7 @@ export default function EscrowPage() {
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "clamp(200px,35%,240px) 1fr" }}>
+          <div className="escrow-grid" style={{ display: "grid", gridTemplateColumns: "clamp(200px,35%,240px) 1fr" }}>
 
             {/* Left: Orb + details */}
             <div style={{
@@ -606,13 +609,7 @@ export default function EscrowPage() {
         </div>
       </main>
 
-      <style>{`
-        @media (max-width: 560px) {
-          [style*="grid-template-columns: clamp(200px"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
+
     </div>
   );
 }

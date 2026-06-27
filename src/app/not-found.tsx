@@ -18,7 +18,7 @@ export default function NotFound() {
       <div>
         <h1
           className="text-2xl font-bold text-center mb-2"
-          style={{ letterSpacing: "-0.02em" }}
+          style={{ letterSpacing: "-0.04em" }}
         >
           Page not found
         </h1>

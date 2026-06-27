@@ -315,10 +315,12 @@ p { color: rgba(255,255,255,0.78); }
   .text-sm-mobile { font-size: 14px !important; }
   .how-grid { grid-template-columns: 1fr !important; }
   .orb-demo-grid { grid-template-columns: 1fr !important; }
+  .escrow-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ── KEYFRAMES ───────────────────────────────────────────── */
 
+@keyframes skeleton-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes fade-up    { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse-dot  { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.6); } }
 @keyframes thinking   { 0%,100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }

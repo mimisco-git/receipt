@@ -57,7 +57,7 @@ export default function FaucetPage() {
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "100px 20px 60px" }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
-          <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 8 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", marginBottom: 8 }}>
             Get started with test funds
           </h1>
           <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 32, lineHeight: 1.7 }}>
