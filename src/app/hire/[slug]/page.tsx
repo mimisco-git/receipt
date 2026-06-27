@@ -46,6 +46,7 @@ export default function HirePage() {
 
   const [contractId, setContractId] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [escrowDeposited, setEscrowDeposited] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -95,6 +96,7 @@ export default function HirePage() {
       const data = await res.json();
       if (data.id) {
         setContractId(data.id);
+        setEscrowDeposited(!!data.escrowDeposited);
         const contractData = {
           id: data.id,
           clientName: form.clientName,
@@ -435,21 +437,27 @@ export default function HirePage() {
                   transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
                   className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-6"
                   style={{
-                    background: "radial-gradient(circle at 35% 35%, rgba(0,229,195,0.4), rgba(0,229,195,0.1) 50%, transparent)",
-                    border: "1px solid rgba(0,229,195,0.4)",
-                    boxShadow: "0 0 40px rgba(0,229,195,0.15)",
+                    background: escrowDeposited
+                      ? "radial-gradient(circle at 35% 35%, rgba(0,229,195,0.4), rgba(0,229,195,0.1) 50%, transparent)"
+                      : "radial-gradient(circle at 35% 35%, rgba(254,188,46,0.3), rgba(254,188,46,0.08) 50%, transparent)",
+                    border: escrowDeposited ? "1px solid rgba(0,229,195,0.4)" : "1px solid rgba(254,188,46,0.4)",
+                    boxShadow: escrowDeposited ? "0 0 40px rgba(0,229,195,0.15)" : "0 0 40px rgba(254,188,46,0.12)",
                   }}
                 >
-                  &#10003;
+                  {escrowDeposited ? "✓" : "⚠"}
                 </motion.div>
 
                 <h2 className="text-2xl font-bold mb-2" style={{ letterSpacing: "-0.04em" }}>
-                  {isJob ? "Job accepted." : "Escrow funded."}
+                  {escrowDeposited
+                    ? (isJob ? "Job accepted." : "Escrow funded.")
+                    : "Contract created."}
                 </h2>
                 <p className="text-sm mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  {isJob
-                    ? `${sym}${formatUsdc(price)} ${cur} is locked in escrow. Start working on the job and submit your delivery when ready.`
-                    : `${sym}${formatUsdc(price)} ${cur} is locked in escrow. ${service.freelancer.name} can now start your work.`
+                  {escrowDeposited
+                    ? (isJob
+                        ? `${sym}${formatUsdc(price)} ${cur} is locked in escrow. Start working on the job and submit your delivery when ready.`
+                        : `${sym}${formatUsdc(price)} ${cur} is locked in escrow. ${service.freelancer.name} can now start your work.`)
+                    : `Contract is active but the escrow wallet has insufficient funds. Top up the platform wallet with ${cur} on Arc Testnet and retry.`
                   }
                 </p>
 
