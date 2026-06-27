@@ -4,9 +4,19 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Shield, Zap, Clock } from "lucide-react";
+import { createWalletClient, createPublicClient, custom, http, erc20Abi, parseUnits } from "viem";
+import { arcTestnet } from "viem/chains";
 import Nav from "@/components/layout/Nav";
 import { formatUsdc, netAmount, getInitials } from "@/lib/utils";
 import { loadProfile } from "@/lib/profile";
+
+const TOKEN_ADDRESSES: Record<string, `0x${string}`> = {
+  USDC: "0x3600000000000000000000000000000000000000",
+  EURC: "0x3700000000000000000000000000000000000000",
+};
+const ARC_CHAIN_ID = "0x4CEF52"; // 5042002
+
+type WalletStep = "idle" | "connecting" | "switching" | "signing" | "confirming";
 
 type Phase = "browse" | "brief" | "funding" | "success";
 
@@ -47,6 +57,9 @@ export default function HirePage() {
   const [contractId, setContractId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [escrowDeposited, setEscrowDeposited] = useState(false);
+  const [walletStep, setWalletStep] = useState<WalletStep>("idle");
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [clientWalletAddress, setClientWalletAddress] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -80,46 +93,112 @@ export default function HirePage() {
     load();
   }, [slug]);
 
+  async function connectAndSign(escrowAddress: string, amount: number, currency: "USDC" | "EURC") {
+    const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+    if (!eth) throw new Error("No wallet detected. Install MetaMask or Rabby.");
+
+    setWalletStep("connecting");
+    const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+    const from = accounts[0];
+    setClientWalletAddress(from);
+
+    setWalletStep("switching");
+    const currentChain = await eth.request({ method: "eth_chainId" }) as string;
+    if (currentChain.toLowerCase() !== ARC_CHAIN_ID.toLowerCase()) {
+      try {
+        await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ARC_CHAIN_ID }] });
+      } catch (e: unknown) {
+        const switchErr = e as { code?: number };
+        if (switchErr?.code === 4902) {
+          await eth.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: ARC_CHAIN_ID,
+              chainName: "Arc Testnet",
+              nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
+              rpcUrls: ["https://rpc.testnet.arc.network"],
+              blockExplorerUrls: ["https://testnet.arcscan.app"],
+            }],
+          });
+        } else {
+          throw new Error("Switch your wallet to Arc Testnet and try again.");
+        }
+      }
+    }
+
+    setWalletStep("signing");
+    const walletClient = createWalletClient({
+      account: from as `0x${string}`,
+      chain: arcTestnet,
+      transport: custom(eth as Parameters<typeof custom>[0]),
+    });
+
+    const txHash = await walletClient.writeContract({
+      address: TOKEN_ADDRESSES[currency],
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [escrowAddress as `0x${string}`, parseUnits(amount.toFixed(6), 6)],
+    });
+
+    setWalletStep("confirming");
+    const publicClient = createPublicClient({ chain: arcTestnet, transport: http("https://rpc.testnet.arc.network") });
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+    return { txHash, from };
+  }
+
   async function submitBrief() {
     if (!service) return;
+    if (!form.clientName.trim() || (!isJob && !form.brief.trim())) return;
+
     setSubmitting(true);
+    setWalletError(null);
+    setWalletStep("idle");
+    setPhase("funding");
+
     try {
+      const addrRes = await fetch("/api/escrow/address");
+      const { escrowAddress } = await addrRes.json();
+      if (!escrowAddress) throw new Error("Escrow address unavailable. Try again later.");
+
+      const { txHash, from } = await connectAndSign(escrowAddress, service.priceUsdc, (service.currency || "USDC") as "USDC" | "EURC");
+
       const res = await fetch("/api/escrow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           serviceId: service.id,
           currency: service.currency || "USDC",
+          clientTxHash: txHash,
+          clientWalletAddress: from,
           ...form,
         }),
       });
       const data = await res.json();
-      if (data.id) {
-        setContractId(data.id);
-        setEscrowDeposited(!!data.escrowDeposited);
-        const contractData = {
-          id: data.id,
-          clientName: form.clientName,
-          brief: form.brief,
-          amountUsdc: service.priceUsdc,
-          netAmountUsdc: data.netAmountUsdc || service.priceUsdc * 0.9,
-          currency: service.currency || "USDC",
-          serviceTitle: service.title,
-          freelancerName: service.freelancer.name,
-          freelancerAddress: service.freelancer.walletAddress,
-          status: "pending",
-          escrowTxHash: data.escrowTxHash || "",
-          createdAt: new Date().toISOString(),
-        };
-        localStorage.setItem(`receipt_contract_${data.id}`, JSON.stringify(contractData));
-        setPhase("funding");
-        setTimeout(() => setPhase("success"), 2000);
-      } else {
-        throw new Error(data.error || "No contract ID");
-      }
+      if (!data.id) throw new Error(data.error || "Failed to create contract");
+
+      setContractId(data.id);
+      setEscrowDeposited(true);
+      localStorage.setItem(`receipt_contract_${data.id}`, JSON.stringify({
+        id: data.id,
+        clientName: form.clientName,
+        brief: form.brief,
+        amountUsdc: service.priceUsdc,
+        netAmountUsdc: data.netAmountUsdc || service.priceUsdc * 0.9,
+        currency: service.currency || "USDC",
+        serviceTitle: service.title,
+        freelancerName: service.freelancer.name,
+        freelancerAddress: service.freelancer.walletAddress,
+        status: "pending",
+        escrowTxHash: txHash,
+        createdAt: new Date().toISOString(),
+      }));
+      setPhase("success");
     } catch (err) {
-      console.error("Failed to create contract:", err);
-      alert("Failed to create contract. Please try again.");
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      setWalletError(msg);
+      setWalletStep("idle");
+      setPhase("brief");
     } finally {
       setSubmitting(false);
     }
@@ -370,9 +449,17 @@ export default function HirePage() {
                   </div>
                 </div>
 
+                {walletError && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                    className="mt-5 px-4 py-3 rounded-xl text-xs text-center"
+                    style={{ background: "rgba(255,68,68,0.1)", border: "1px solid rgba(255,68,68,0.2)", color: "#ff6b6b" }}>
+                    {walletError}
+                  </motion.div>
+                )}
+
                 <div className="flex gap-3 mt-7">
                   <button
-                    onClick={() => setPhase("browse")}
+                    onClick={() => { setPhase("browse"); setWalletError(null); }}
                     className="px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                     style={{ background: "transparent", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
                   >
@@ -385,10 +472,10 @@ export default function HirePage() {
                     style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
                   >
                     {submitting
-                      ? "Locking escrow..."
+                      ? "Opening wallet..."
                       : isJob
                       ? "Accept and lock escrow"
-                      : `Confirm and deposit ${sym}${formatUsdc(price)} ${cur}`
+                      : `Pay ${sym}${formatUsdc(price)} ${cur} · fund escrow`
                     }
                     <ArrowRight size={14} />
                   </button>
@@ -396,13 +483,13 @@ export default function HirePage() {
               </motion.div>
             )}
 
-            {/* FUNDING */}
+            {/* FUNDING — wallet signing steps */}
             {phase === "funding" && (
               <motion.div
                 key="funding"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-12 flex flex-col items-center text-center"
+                className="p-10 flex flex-col items-center text-center"
               >
                 <motion.div
                   className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
@@ -413,12 +500,62 @@ export default function HirePage() {
                   animate={{ scale: [1, 1.06, 1] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <span style={{ fontSize: 32 }}>&#128274;</span>
+                  <span style={{ fontSize: 32 }}>🔐</span>
                 </motion.div>
-                <h2 className="text-xl font-bold mb-2">Locking funds in escrow...</h2>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Depositing {sym}{formatUsdc(price)} {cur} to Circle smart escrow on Arc.
+
+                <h2 className="text-xl font-bold mb-1">Complete payment in your wallet</h2>
+                <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
+                  Sending {sym}{formatUsdc(price)} {cur} from your wallet to escrow on Arc Testnet.
                 </p>
+
+                <div className="w-full space-y-3 text-left mb-6">
+                  {([
+                    ["connecting",  "Connect wallet",           "Approve wallet access"],
+                    ["switching",   "Switch to Arc Testnet",    "Select the correct network"],
+                    ["signing",     "Confirm transaction",      `Send ${sym}${formatUsdc(price)} ${cur} to escrow`],
+                    ["confirming",  "On-chain confirmation",    "Waiting for Arc to confirm the block"],
+                  ] as [WalletStep, string, string][]).map(([step, label, sub], i) => {
+                    const steps: WalletStep[] = ["connecting", "switching", "signing", "confirming"];
+                    const currentIdx = steps.indexOf(walletStep);
+                    const thisIdx = i;
+                    const done = currentIdx > thisIdx;
+                    const active = currentIdx === thisIdx;
+                    return (
+                      <div key={step} className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                        style={{
+                          background: active ? "rgba(0,229,195,0.06)" : "rgba(255,255,255,0.025)",
+                          border: active ? "1px solid rgba(0,229,195,0.2)" : "1px solid rgba(255,255,255,0.06)",
+                        }}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
+                          style={{
+                            background: done ? "var(--green)" : active ? "rgba(0,229,195,0.15)" : "rgba(255,255,255,0.06)",
+                            color: done ? "#060E0A" : active ? "var(--green)" : "rgba(255,255,255,0.3)",
+                            border: active ? "1px solid rgba(0,229,195,0.3)" : "none",
+                          }}>
+                          {done ? "✓" : i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium" style={{ color: active ? "#fff" : done ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)" }}>
+                            {label}
+                          </div>
+                          <div className="text-xs" style={{ color: active ? "var(--text-secondary)" : "rgba(255,255,255,0.2)" }}>
+                            {sub}
+                          </div>
+                        </div>
+                        {active && (
+                          <div className="w-4 h-4 rounded-full flex-shrink-0"
+                            style={{ border: "2px solid rgba(0,229,195,0.3)", borderTopColor: "var(--green)", animation: "spin 0.8s linear infinite" }} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {clientWalletAddress && (
+                  <div className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    {clientWalletAddress.slice(0, 10)}...{clientWalletAddress.slice(-6)}
+                  </div>
+                )}
               </motion.div>
             )}
 

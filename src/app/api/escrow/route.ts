@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { serviceId, clientName, clientEmail, brief, currency } = body;
+    const { serviceId, clientName, clientEmail, brief, currency, clientTxHash, clientWalletAddress } = body;
 
     if (!serviceId || !clientName || !brief) {
       return NextResponse.json(
@@ -32,20 +32,23 @@ export async function POST(req: NextRequest) {
     const fee = platformFee(service.priceUsdc);
     const net = netAmount(service.priceUsdc);
 
-    // Try Circle wallet transfer for real escrow deposit
-    let escrowTxHash = "";
-    let depositSuccess = false;
+    // If the client signed and sent the tx themselves, use their txHash directly
+    let escrowTxHash = clientTxHash || "";
+    let depositSuccess = !!clientTxHash;
 
-    try {
-      const { depositEscrow } = await import("@/lib/x402");
-      const deposit = await depositEscrow({
-        amount: service.priceUsdc,
-        currency: cur,
-      });
-      escrowTxHash = deposit.txHash;
-      depositSuccess = deposit.success;
-    } catch (err) {
-      console.error("Escrow deposit error:", err);
+    // Fallback: platform wallet deposit (only if client did not sign)
+    if (!clientTxHash) {
+      try {
+        const { depositEscrow } = await import("@/lib/x402");
+        const deposit = await depositEscrow({
+          amount: service.priceUsdc,
+          currency: cur,
+        });
+        escrowTxHash = deposit.txHash;
+        depositSuccess = deposit.success;
+      } catch (err) {
+        console.error("Escrow deposit error:", err);
+      }
     }
 
     const contract = await db.contract.create({
@@ -69,6 +72,7 @@ export async function POST(req: NextRequest) {
       ...contract,
       escrowDeposited: depositSuccess,
       escrowTxHash,
+      clientWalletAddress: clientWalletAddress || null,
       chain: "Arc Testnet",
     });
   } catch (err: unknown) {
