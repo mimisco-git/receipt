@@ -52,7 +52,7 @@ export default function Nav() {
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 clamp(16px, 4vw, 40px)",
-          height: 56,
+          height: 64,
           background: scrolled ? "rgba(0,0,0,0.5)" : "transparent",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
@@ -72,12 +72,12 @@ export default function Nav() {
           <img
             src="/receipt-logo.png"
             alt="Receipt"
-            width={33}
-            height={33}
-            style={{ borderRadius: 9, display: "block", objectFit: "cover" }}
+            width={36}
+            height={36}
+            style={{ borderRadius: 10, display: "block", objectFit: "cover" }}
             onError={e => { e.currentTarget.style.display = "none"; }}
           />
-          <span style={{ fontSize: 17, fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.035em" }}>
+          <span style={{ fontSize: 18, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
             Receipt
           </span>
         </button>
@@ -97,8 +97,8 @@ export default function Nav() {
                   onMouseLeave={() => setHovered(null)}
                   style={{
                     position: "relative", background: "none", border: "none",
-                    cursor: "pointer", padding: "7px 14px", borderRadius: 999,
-                    fontSize: 13, fontWeight: active ? 600 : 400,
+                    cursor: "pointer", padding: "8px 16px", borderRadius: 999,
+                    fontSize: 13, fontWeight: active ? 600 : 500,
                     color: active || hovering ? "var(--text-1)" : "rgba(255,255,255,0.5)",
                     transition: "color 0.15s ease", zIndex: 0,
                   }}
@@ -211,7 +211,7 @@ export default function Nav() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             style={{
-              position: "fixed", top: 56, left: 0, right: 0, zIndex: 99,
+              position: "fixed", top: 64, left: 0, right: 0, zIndex: 99,
               background: "rgba(0,0,0,0.95)",
               backdropFilter: "blur(24px)",
               WebkitBackdropFilter: "blur(24px)",

@@ -43,7 +43,8 @@ export default function Footer() {
     <footer style={{
       display: "flex", flexWrap: "wrap",
       alignItems: "center", justifyContent: "space-between", gap: 16,
-      padding: "28px 24px",
+      padding: "36px 24px 28px",
+      borderTop: "1px solid rgba(255,255,255,0.05)",
     }}>
       {/* Left: Brand */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -80,14 +81,14 @@ export default function Footer() {
               background: "transparent",
               border: "none",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "rgba(255,255,255,0.25)", textDecoration: "none",
-              transition: "color 0.35s cubic-bezier(0.16,1,0.3,1)",
+              color: "rgba(255,255,255,0.35)", textDecoration: "none",
+              transition: "color 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.28s ease",
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.6)";
+              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.82)";
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.25)";
+              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)";
             }}
           >
             {s.icon}

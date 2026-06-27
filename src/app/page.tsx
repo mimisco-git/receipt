@@ -58,12 +58,18 @@ export default function HomePage() {
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav />
 
-      {/* Hero ambient orb */}
+      {/* Hero ambient — two-orb light system */}
       <div style={{
-        position: "fixed", top: "5vh", left: "50%", transform: "translateX(-50%)",
-        width: "min(900px, 100vw)", height: 600, pointerEvents: "none", zIndex: 0,
-        background: "radial-gradient(ellipse 60% 60% at 50% 30%, rgba(0,229,195,0.055) 0%, rgba(0,229,195,0.018) 45%, transparent 70%)",
-        filter: "blur(40px)",
+        position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
+        width: "min(1100px, 100vw)", height: 720, pointerEvents: "none", zIndex: 0,
+        background: "radial-gradient(ellipse 65% 55% at 50% 20%, rgba(0,229,195,0.072) 0%, rgba(0,229,195,0.022) 48%, transparent 70%)",
+        filter: "blur(48px)",
+      }} />
+      <div style={{
+        position: "fixed", top: "10vh", left: "20%",
+        width: 400, height: 400, pointerEvents: "none", zIndex: 0,
+        background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,229,195,0.018) 0%, transparent 70%)",
+        filter: "blur(60px)",
       }} />
 
       {/* HERO */}
@@ -98,18 +104,22 @@ export default function HomePage() {
           transition={{ delay: 0.15, duration: 0.6 }}
           style={{
             fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(36px, 7vw, 82px)",
-            fontWeight: 700,
-            letterSpacing: "-0.05em",
-            lineHeight: 0.93,
-            maxWidth: 820,
-            marginBottom: 24,
+            fontSize: "clamp(42px, 7.5vw, 96px)",
+            fontWeight: 800,
+            letterSpacing: "-0.055em",
+            lineHeight: 0.91,
+            maxWidth: 860,
+            marginBottom: 28,
             color: "#FFFFFF",
           }}
         >
           Get paid the moment<br />
-          your work is{" "}
-          <span style={{ color: "var(--accent)" }}>
+          your work is<br />
+          <span style={{
+            color: "var(--accent)",
+            position: "relative",
+            display: "inline-block",
+          }}>
             approved.
           </span>
         </motion.h1>
@@ -120,11 +130,11 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.55 }}
           style={{
-            fontSize: "clamp(14px, 2vw, 17px)",
-            color: "var(--text-2)",
-            lineHeight: 1.7,
-            maxWidth: 460,
-            marginBottom: 36,
+            fontSize: "clamp(15px, 1.8vw, 18px)",
+            color: "rgba(255,255,255,0.68)",
+            lineHeight: 1.72,
+            maxWidth: 480,
+            marginBottom: 40,
             padding: "0 4px",
           }}
         >
@@ -185,49 +195,59 @@ export default function HomePage() {
           {features.map((f, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
+              transition={{ delay: i * 0.09, duration: 0.55 }}
               style={{
-                padding: "32px",
-                background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
-                backdropFilter: "blur(30px) saturate(180%)",
-                WebkitBackdropFilter: "blur(30px) saturate(180%)",
-                border: "1px solid rgba(255,255,255,.08)",
+                padding: "36px",
+                background: "linear-gradient(135deg, rgba(255,255,255,.045) 0%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,.032) 0%, rgba(255,255,255,.010) 100%)",
+                backdropFilter: "blur(32px) saturate(200%)",
+                WebkitBackdropFilter: "blur(32px) saturate(200%)",
+                border: "1px solid rgba(255,255,255,.085)",
                 borderRadius: 28,
-                boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
+                boxShadow: "0 20px 48px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10)",
+                position: "relative", overflow: "hidden",
                 transition: "transform 500ms cubic-bezier(0.34,1.4,0.64,1), border-color 280ms ease, background 280ms ease, box-shadow 400ms ease",
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.13)";
-                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.050) 0%, rgba(255,255,255,.025) 100%)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 24px 56px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.12)";
-                (e.currentTarget as HTMLDivElement).style.transform = "translateY(-5px)";
+                const el = e.currentTarget as HTMLDivElement;
+                el.style.borderColor = "rgba(255,255,255,.15)";
+                el.style.background = "linear-gradient(135deg, rgba(255,255,255,.07) 0%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,.022) 100%)";
+                el.style.boxShadow = "0 28px 64px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14)";
+                el.style.transform = "translateY(-6px)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,.08)";
-                (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)";
-                (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                const el = e.currentTarget as HTMLDivElement;
+                el.style.borderColor = "rgba(255,255,255,.085)";
+                el.style.background = "linear-gradient(135deg, rgba(255,255,255,.045) 0%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,.032) 0%, rgba(255,255,255,.010) 100%)";
+                el.style.boxShadow = "0 20px 48px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10)";
+                el.style.transform = "translateY(0)";
               }}
             >
+              {/* Top-left light catch on card surface */}
               <div style={{
-                width: 44, height: 44, borderRadius: 12,
-                background: "rgba(255,255,255,.03)",
-                backdropFilter: "blur(18px) saturate(150%)",
-                WebkitBackdropFilter: "blur(18px) saturate(150%)",
+                position: "absolute", inset: 0, pointerEvents: "none",
+                background: "linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 40%)",
+                borderRadius: "inherit",
+              }} />
+              <div style={{
+                width: 48, height: 48, borderRadius: 14,
+                background: "rgba(255,255,255,.030)",
+                backdropFilter: "blur(20px) saturate(160%)",
+                WebkitBackdropFilter: "blur(20px) saturate(160%)",
                 border: "1px solid rgba(255,255,255,.08)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.08)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                marginBottom: 18,
+                marginBottom: 20,
+                position: "relative",
               }}>
                 {f.icon}
               </div>
-              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "var(--text-1)", letterSpacing: "-0.01em" }}>
+              <div style={{ fontSize: 15.5, fontWeight: 650, marginBottom: 9, color: "#FFFFFF", letterSpacing: "-0.02em", position: "relative" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 14, opacity: 0.72, color: "inherit", lineHeight: 1.7 }}>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.62)", lineHeight: 1.72, position: "relative" }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -237,135 +257,163 @@ export default function HomePage() {
 
       {/* LIVE DEMO — MacBook window */}
       <section id="demo" style={{
-        padding: "60px 20px 80px",
+        padding: "80px 20px 100px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
+        background: "radial-gradient(ellipse 70% 40% at 50% 50%, rgba(0,0,0,.18) 0%, transparent 100%)",
       }}>
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
-          color: "var(--text-3)", textTransform: "uppercase", marginBottom: 12,
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.12em",
+          color: "rgba(255,255,255,.35)", textTransform: "uppercase", marginBottom: 14,
         }}>
           Interactive demo
         </div>
         <h2 style={{
           fontFamily: '"Geist", "Inter", sans-serif',
-          fontSize: "clamp(22px,3.5vw,38px)", fontWeight: 700,
-          letterSpacing: "-0.05em", lineHeight: 0.93,
-          textAlign: "center", marginBottom: 14,
+          fontSize: "clamp(24px,4vw,44px)", fontWeight: 800,
+          letterSpacing: "-0.055em", lineHeight: 0.92,
+          textAlign: "center", marginBottom: 16,
           color: "#FFFFFF",
         }}>
           Watch a payment clear
         </h2>
         <p style={{
-          fontSize: 15, color: "rgba(255,255,255,.72)",
-          textAlign: "center", maxWidth: 380, marginBottom: 48, lineHeight: 1.7,
+          fontSize: "clamp(14px,1.6vw,16px)", color: "rgba(255,255,255,.62)",
+          textAlign: "center", maxWidth: 400, marginBottom: 52, lineHeight: 1.72,
         }}>
           Real interface. Real orb. The ripple is exactly what your client sees when payment settles.
         </p>
 
-        {/* MacBook-style window frame */}
+        {/* Cyan ambient glow behind window */}
         <div style={{
-          width: "100%", maxWidth: 560, position: "relative",
-          background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.028) 0%, rgba(255,255,255,.010) 100%)",
-          backdropFilter: "blur(40px) saturate(200%)",
-          WebkitBackdropFilter: "blur(40px) saturate(200%)",
-          border: "1px solid rgba(255,255,255,.10)",
-          borderRadius: 20,
-          boxShadow: "0 40px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04) inset, inset 0 1px 0 rgba(255,255,255,.12)",
-          overflow: "hidden",
+          position: "relative", width: "100%", maxWidth: 640,
+          display: "flex", justifyContent: "center",
         }}>
-          {/* Window chrome */}
           <div style={{
-            display: "flex", alignItems: "center", gap: 6,
-            padding: "13px 16px",
-            background: "rgba(255,255,255,.025)",
-            borderBottom: "1px solid rgba(255,255,255,.07)",
-            position: "relative",
-          }}>
-            {/* Traffic lights */}
-            {(["#FF5F57","#FEBC2E","#28C840"] as const).map((c, i) => (
-              <div key={i} style={{
-                width: 12, height: 12, borderRadius: "50%",
-                background: c, opacity: 0.85,
-                boxShadow: `0 0 6px ${c}66`,
-              }} />
-            ))}
-            <div style={{
-              flex: 1, textAlign: "center",
-              fontSize: 11, fontFamily: '"DM Mono", monospace',
-              color: "rgba(255,255,255,.35)", letterSpacing: "0.02em",
-            }}>
-              receipt.app — escrow · Arc Testnet
-            </div>
-          </div>
-
-          {/* Window content */}
-          <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <PaymentOrbDemo />
-          </div>
-
-          {/* Top-left reflection — light source */}
-          <div style={{
-            position: "absolute", inset: 0, pointerEvents: "none",
-            background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 35%)",
-            borderRadius: "inherit",
+            position: "absolute", top: "30%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 480, height: 300,
+            background: "radial-gradient(ellipse at center, rgba(0,229,195,.09) 0%, transparent 70%)",
+            filter: "blur(60px)",
+            pointerEvents: "none", zIndex: 0,
           }} />
+
+          {/* MacBook-style window frame */}
+          <div style={{
+            width: "100%", maxWidth: 640, position: "relative", zIndex: 1,
+            background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,.032) 0%, rgba(255,255,255,.010) 100%)",
+            backdropFilter: "blur(40px) saturate(200%)",
+            WebkitBackdropFilter: "blur(40px) saturate(200%)",
+            border: "1px solid rgba(255,255,255,.11)",
+            borderRadius: 22,
+            boxShadow: "0 60px 140px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.04) inset, inset 0 1px 0 rgba(255,255,255,.14)",
+            overflow: "hidden",
+          }}>
+            {/* Window chrome */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 7,
+              padding: "14px 18px",
+              background: "rgba(255,255,255,.028)",
+              borderBottom: "1px solid rgba(255,255,255,.07)",
+            }}>
+              {(["#FF5F57","#FEBC2E","#28C840"] as const).map((c, i) => (
+                <div key={i} style={{
+                  width: 12, height: 12, borderRadius: "50%",
+                  background: c, opacity: 0.88,
+                  boxShadow: `0 0 7px ${c}77`,
+                }} />
+              ))}
+              <div style={{
+                flex: 1, textAlign: "center",
+                fontSize: 11, fontFamily: '"DM Mono", monospace',
+                color: "rgba(255,255,255,.32)", letterSpacing: "0.02em",
+              }}>
+                receipt.app — escrow · Arc Testnet
+              </div>
+            </div>
+
+            {/* Window content */}
+            <div style={{ padding: "36px 28px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <PaymentOrbDemo />
+            </div>
+
+            {/* Top-left light reflection */}
+            <div style={{
+              position: "absolute", inset: 0, pointerEvents: "none",
+              background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 32%)",
+              borderRadius: "inherit",
+            }} />
+          </div>
         </div>
       </section>
 
       {/* CTA SECTION */}
       <section style={{
-        padding: "20px 20px 80px",
+        padding: "20px 20px 100px",
         display: "flex", flexDirection: "column", alignItems: "center",
         position: "relative", zIndex: 1,
       }}>
         <div style={{
-          maxWidth: 520, width: "100%",
-          background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+          maxWidth: 560, width: "100%",
+          background: "linear-gradient(135deg, rgba(255,255,255,.055) 0%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,.035) 0%, rgba(255,255,255,.012) 100%)",
           backdropFilter: "blur(40px) saturate(200%)",
           WebkitBackdropFilter: "blur(40px) saturate(200%)",
-          border: "1px solid rgba(255,255,255,.10)",
-          borderRadius: 28,
-          padding: "clamp(32px, 5vw, 48px)",
+          border: "1px solid rgba(255,255,255,.11)",
+          borderRadius: 32,
+          padding: "clamp(36px, 6vw, 56px)",
           textAlign: "center",
-          boxShadow: "0 32px 72px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.12)",
+          boxShadow: "0 40px 96px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15)",
+          position: "relative", overflow: "hidden",
         }}>
+          {/* Top-left light on CTA card */}
           <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: "var(--green-dim)",
-            border: "1px solid var(--green-border)",
+            position: "absolute", inset: 0, pointerEvents: "none",
+            background: "linear-gradient(135deg, rgba(255,255,255,.07) 0%, transparent 35%)",
+            borderRadius: "inherit",
+          }} />
+          <div style={{
+            width: 52, height: 52, borderRadius: 15,
+            background: "rgba(0,229,195,.10)",
+            border: "1px solid rgba(0,229,195,.22)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 18px",
+            margin: "0 auto 20px",
+            boxShadow: "0 0 24px rgba(0,229,195,.12)",
+            position: "relative",
           }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none"
+              strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
               <circle cx="12" cy="12" r="9" />
               <polyline points="9 12 11 14 15 10" />
             </svg>
           </div>
           <h3 style={{
             fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.04em",
-            lineHeight: 1.1, marginBottom: 12, color: "#FFFFFF",
+            fontSize: "clamp(20px,3.2vw,28px)", fontWeight: 800, letterSpacing: "-0.05em",
+            lineHeight: 1.05, marginBottom: 14, color: "#FFFFFF",
+            position: "relative",
           }}>
             Ready to get paid?
           </h3>
-          <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", lineHeight: 1.65, marginBottom: 24 }}>
+          <p style={{
+            fontSize: "clamp(13px,1.5vw,15px)", color: "rgba(255,255,255,.65)",
+            lineHeight: 1.72, marginBottom: 28, position: "relative",
+          }}>
             Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
           <button
             className="btn-primary"
             onClick={() => router.push("/setup")}
             style={{
-              padding: "13px 28px", borderRadius: 12, fontSize: 14,
-              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "14px 32px", borderRadius: 13, fontSize: 14.5, fontWeight: 600,
+              display: "inline-flex", alignItems: "center", gap: 9,
+              position: "relative",
             }}
           >
             Create your service link
             <ArrowRight />
           </button>
-          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12 }}>
-            Free to use. No subscription. 10% platform fee per settled contract.
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,.30)", marginTop: 14, position: "relative" }}>
+            Free to use · No subscription · 10% fee per settled contract
           </div>
         </div>
       </section>
