@@ -297,8 +297,8 @@ export default function PaymentOrbDemo() {
                   style={{
                     width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13,
                     fontWeight: 600, border: "none", cursor: "pointer",
-                    background: "var(--accent)", color: "#000000",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 0 rgba(0,0,0,0.3)",
+                    background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000",
+                    boxShadow: "0 8px 30px rgba(0,229,195,.15), inset 0 1px 0 rgba(255,255,255,0.20)",
                     transition: "opacity 0.15s",
                   }}
                   onMouseEnter={e => e.currentTarget.style.opacity = "0.88"}

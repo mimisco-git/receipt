@@ -44,7 +44,7 @@ export default function Error({
       <button
         onClick={reset}
         className="px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90"
-        style={{ background: "var(--mint)", color: "#000000" }}
+        style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
       >
         Try again
       </button>

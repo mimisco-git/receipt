@@ -138,13 +138,14 @@ export default function HirePage() {
 
       <main className="flex flex-col items-center justify-center min-h-screen px-6 pt-24 pb-16">
         <div
-          className="w-full max-w-lg rounded-2xl overflow-hidden"
+          className="w-full max-w-lg overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.018) 100%)",
-            backdropFilter: "blur(40px) saturate(170%)",
-            WebkitBackdropFilter: "blur(40px) saturate(170%)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.11)",
+            background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.040) 0%, rgba(255,255,255,.016) 100%)",
+            backdropFilter: "blur(40px) saturate(200%)",
+            WebkitBackdropFilter: "blur(40px) saturate(200%)",
+            border: "1px solid rgba(255,255,255,.10)",
+            borderRadius: 28,
+            boxShadow: "0 32px 72px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12)",
           }}
         >
           <AnimatePresence mode="wait">
@@ -228,10 +229,14 @@ export default function HirePage() {
                       <div
                         key={t.label}
                         className="flex flex-col items-center gap-1.5 p-3 rounded-xl text-center"
-                        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                        style={{
+                          background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
+                          border: "1px solid rgba(255,255,255,.08)",
+                          boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)",
+                        }}
                       >
-                        <div style={{ color: "var(--text-muted)" }}>{t.icon}</div>
-                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                        <div style={{ color: "rgba(255,255,255,.45)" }}>{t.icon}</div>
+                        <div className="text-xs" style={{ color: "rgba(255,255,255,.45)" }}>
                           {t.label}
                         </div>
                       </div>
@@ -241,7 +246,7 @@ export default function HirePage() {
                   <button
                     onClick={() => setPhase("brief")}
                     className="w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5"
-                    style={{ background: "var(--accent)", color: "#000000" }}
+                    style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
                   >
                     {isJob ? "Accept this job" : "Submit brief and fund escrow"}
                     <ArrowRight size={14} />
@@ -314,12 +319,12 @@ export default function HirePage() {
                         onChange={(e) => setForm((f) => ({ ...f, brief: e.target.value }))}
                         className="w-full px-4 py-3 rounded-lg text-sm outline-none resize-none transition-all duration-200"
                         style={{
-                          background: "var(--card)",
-                          border: "1px solid var(--border)",
-                          color: "var(--text-primary)",
+                          background: "rgba(255,255,255,.025)",
+                          border: "1px solid rgba(255,255,255,.08)",
+                          color: "#FFFFFF",
                         }}
                         onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
-                        onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                        onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.08)")}
                       />
                       <div className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
                         {form.brief.length} characters. More detail gives the agent more to verify.
@@ -328,9 +333,9 @@ export default function HirePage() {
                   )}
 
                   {isJob && (
-                    <div className="p-4 rounded-xl text-sm" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+                    <div className="p-4 rounded-xl text-sm" style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
                       <div className="font-semibold mb-2">Job requirements</div>
-                      <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,.72)" }}>
                         {service.description}
                       </p>
                     </div>
@@ -339,7 +344,7 @@ export default function HirePage() {
                   {/* Escrow summary */}
                   <div
                     className="p-4 rounded-xl text-sm space-y-2"
-                    style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                    style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}
                   >
                     <div className="font-semibold mb-3">{isJob ? "Payment summary" : "Escrow summary"}</div>
                     {[
@@ -375,7 +380,7 @@ export default function HirePage() {
                     onClick={submitBrief}
                     disabled={!form.clientName.trim() || (!isJob && !form.brief.trim()) || submitting}
                     className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: "var(--accent)", color: "#000000" }}
+                    style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
                   >
                     {submitting
                       ? "Locking escrow..."
@@ -450,7 +455,7 @@ export default function HirePage() {
 
                 <div
                   className="w-full p-4 rounded-xl mb-6 text-left space-y-2 text-xs"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}
                 >
                   <div className="font-semibold mb-3 text-sm">What happens next</div>
                   {isJob ? (
@@ -487,7 +492,7 @@ export default function HirePage() {
                 <button
                   onClick={() => router.push(`/escrow/${contractId}`)}
                   className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90"
-                  style={{ background: "var(--accent)", color: "#000000" }}
+                  style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
                 >
                   {isJob ? "Go to contract" : "Track this contract"}
                   <ArrowRight size={14} />
@@ -509,9 +514,9 @@ function BriefField({ label, placeholder, value, onChange, type = "text" }: {
       <label className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>{label}</label>
       <input type={type} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
         className="w-full px-4 py-3 rounded-lg text-sm outline-none transition-all duration-200"
-        style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+        style={{ background: "rgba(255,255,255,.025)", border: "1px solid rgba(255,255,255,.08)", color: "#FFFFFF" }}
         onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
-        onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+        onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.08)")}
       />
     </div>
   );

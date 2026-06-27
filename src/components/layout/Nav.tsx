@@ -140,11 +140,13 @@ export default function Nav() {
                 <button onClick={() => navigate("/setup")}
                   style={{
                     padding: "8px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600,
-                    background: "var(--green)", color: "#060E0A",
-                    border: "none", cursor: "pointer", transition: "opacity 0.15s ease",
+                    background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#060E0A",
+                    border: "none", cursor: "pointer",
+                    boxShadow: "0 4px 16px rgba(0,229,195,.18)",
+                    transition: "opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,229,195,.28)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,229,195,.18)"; }}
                 >
                   Get started
                 </button>
@@ -165,11 +167,13 @@ export default function Nav() {
                 <button onClick={() => navigate("/profile")}
                   style={{
                     padding: "8px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600,
-                    background: "var(--green)", color: "#060E0A",
-                    border: "none", cursor: "pointer", transition: "opacity 0.15s ease",
+                    background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#060E0A",
+                    border: "none", cursor: "pointer",
+                    boxShadow: "0 4px 16px rgba(0,229,195,.18)",
+                    transition: "opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                  onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,229,195,.28)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,229,195,.18)"; }}
                 >
                   Sign up
                 </button>
