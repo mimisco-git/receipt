@@ -21,8 +21,8 @@ export default function Error({
       <div
         className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
         style={{
-          background: "rgba(239,68,68,0.1)",
-          border: "1px solid rgba(239,68,68,0.2)",
+          background: "rgba(255,68,68,0.1)",
+          border: "1px solid rgba(255,68,68,0.2)",
         }}
       >
         ⚠
@@ -44,7 +44,7 @@ export default function Error({
       <button
         onClick={reset}
         className="px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90"
-        style={{ background: "var(--mint)", color: "#0A0E1A" }}
+        style={{ background: "var(--mint)", color: "#000000" }}
       >
         Try again
       </button>

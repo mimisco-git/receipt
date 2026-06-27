@@ -178,7 +178,7 @@ export default function HirePage() {
                       style={{
                         background: isJob ? "var(--blue-dim)" : "var(--mint-dim)",
                         color: isJob ? "var(--blue)" : "var(--mint)",
-                        border: `1px solid ${isJob ? "rgba(74,158,248,0.2)" : "rgba(0,245,160,0.2)"}`,
+                        border: `1px solid rgba(0,229,195,0.2)`,
                       }}
                     >
                       {isJob ? "Job posting" : "Service"}
@@ -239,7 +239,7 @@ export default function HirePage() {
                   <button
                     onClick={() => setPhase("brief")}
                     className="w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5"
-                    style={{ background: isJob ? "var(--blue)" : "var(--mint)", color: isJob ? "#fff" : "#0A0E1A" }}
+                    style={{ background: "var(--accent)", color: "#000000" }}
                   >
                     {isJob ? "Accept this job" : "Submit brief and fund escrow"}
                     <ArrowRight size={14} />
@@ -316,7 +316,7 @@ export default function HirePage() {
                           border: "1px solid var(--border)",
                           color: "var(--text-primary)",
                         }}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,245,160,0.4)")}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
                         onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
                       />
                       <div className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
@@ -373,7 +373,7 @@ export default function HirePage() {
                     onClick={submitBrief}
                     disabled={!form.clientName.trim() || (!isJob && !form.brief.trim()) || submitting}
                     className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: isJob ? "var(--blue)" : "var(--mint)", color: isJob ? "#fff" : "#0A0E1A" }}
+                    style={{ background: "var(--accent)", color: "#000000" }}
                   >
                     {submitting
                       ? "Locking escrow..."
@@ -398,8 +398,8 @@ export default function HirePage() {
                 <motion.div
                   className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
                   style={{
-                    background: "radial-gradient(circle at 35% 35%, rgba(245,158,11,0.5), rgba(180,100,0,0.2) 50%, transparent)",
-                    border: "1px solid rgba(245,158,11,0.4)",
+                    background: "radial-gradient(circle at 35% 35%, rgba(0,229,195,0.3), rgba(0,229,195,0.1) 50%, transparent)",
+                    border: "1px solid rgba(0,229,195,0.3)",
                   }}
                   animate={{ scale: [1, 1.06, 1] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
@@ -428,9 +428,9 @@ export default function HirePage() {
                   transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
                   className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-6"
                   style={{
-                    background: "radial-gradient(circle at 35% 35%, rgba(0,245,160,0.5), rgba(0,200,130,0.2) 50%, transparent)",
-                    border: "1px solid rgba(0,245,160,0.4)",
-                    boxShadow: "0 0 60px rgba(0,245,160,0.25)",
+                    background: "radial-gradient(circle at 35% 35%, rgba(0,229,195,0.4), rgba(0,229,195,0.1) 50%, transparent)",
+                    border: "1px solid rgba(0,229,195,0.4)",
+                    boxShadow: "0 0 40px rgba(0,229,195,0.15)",
                   }}
                 >
                   &#10003;
@@ -485,7 +485,7 @@ export default function HirePage() {
                 <button
                   onClick={() => router.push(`/escrow/${contractId}`)}
                   className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90"
-                  style={{ background: isJob ? "var(--blue)" : "var(--mint)", color: isJob ? "#fff" : "#0A0E1A" }}
+                  style={{ background: "var(--accent)", color: "#000000" }}
                 >
                   {isJob ? "Go to contract" : "Track this contract"}
                   <ArrowRight size={14} />
@@ -508,7 +508,7 @@ function BriefField({ label, placeholder, value, onChange, type = "text" }: {
       <input type={type} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
         className="w-full px-4 py-3 rounded-lg text-sm outline-none transition-all duration-200"
         style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,245,160,0.4)")}
+        onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
         onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
       />
     </div>

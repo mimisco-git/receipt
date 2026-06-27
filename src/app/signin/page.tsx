@@ -46,7 +46,7 @@ export default function SignInPage() {
         website: "",
         twitter: "",
         skills: "",
-        avatarColor: data.avatarColor || "#00D184",
+        avatarColor: data.avatarColor || "#00E5C3",
         avatarUrl: null,
         hourlyRate: "",
         availability: "available",
@@ -142,8 +142,8 @@ export default function SignInPage() {
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               style={{
                 marginTop: 14, padding: "11px 14px",
-                background: "rgba(240,82,82,0.1)", border: "1px solid rgba(240,82,82,0.2)",
-                borderRadius: "var(--r-sm)", fontSize: 13, color: "#F05252", textAlign: "center",
+                background: "rgba(255,68,68,0.1)", border: "1px solid rgba(255,68,68,0.2)",
+                borderRadius: "var(--r-sm)", fontSize: 13, color: "#ff4444", textAlign: "center",
               }}>
               {error}
             </motion.div>

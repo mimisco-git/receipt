@@ -208,7 +208,7 @@ export default function Marketplace() {
                             padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 600,
                             background: isJob ? "var(--blue-dim)" : "var(--green-dim)",
                             color: isJob ? "var(--blue)" : "var(--green)",
-                            border: `1px solid ${isJob ? "rgba(74,158,248,0.2)" : "var(--green-border)"}`,
+                            border: `1px solid var(--green-border)`,
                             flexShrink: 0,
                           }}>
                             {isJob ? "Job" : "Service"}

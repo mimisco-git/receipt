@@ -268,9 +268,9 @@ export default function EscrowPage() {
             <div style={{
               display: "inline-block", marginTop: 6,
               padding: "2px 10px", borderRadius: 999, fontSize: 10.5, fontWeight: 600,
-              background: isWorker ? "var(--green-dim)" : "rgba(74,158,248,0.1)",
-              color: isWorker ? "var(--green)" : "#4A9EF8",
-              border: `1px solid ${isWorker ? "var(--green-border)" : "rgba(74,158,248,0.2)"}`,
+              background: isWorker ? "var(--green-dim)" : "rgba(0,229,195,0.06)",
+              color: isWorker ? "var(--green)" : "var(--accent)",
+              border: `1px solid ${isWorker ? "var(--green-border)" : "var(--green-border)"}`,
             }}>
               Viewing as {isWorker ? "Worker" : "Client"}
             </div>
@@ -424,10 +424,10 @@ export default function EscrowPage() {
                 {phase === "pending" && isClient && (
                   <div style={{
                     padding: "16px", borderRadius: "var(--r)",
-                    background: "rgba(245,166,35,0.06)", border: "1px solid rgba(245,166,35,0.15)",
+                    background: "rgba(255,255,255,0.03)", border: "1px solid var(--line)",
                     textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#F5A623", marginBottom: 4 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)", marginBottom: 4 }}>
                       Waiting for delivery
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-3)" }}>
@@ -446,7 +446,7 @@ export default function EscrowPage() {
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
                       Worker&apos;s delivery
                     </div>
-                    <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", paddingLeft: 10, borderLeft: "2px solid rgba(0,209,132,0.2)" }}>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", paddingLeft: 10, borderLeft: "2px solid rgba(0,229,195,0.2)" }}>
                       {deliveryText}
                     </div>
                   </div>
@@ -456,10 +456,10 @@ export default function EscrowPage() {
                 {(phase === "delivered" || phase === "evaluating") && isWorker && !scoreRunning && (
                   <div style={{
                     padding: "12px 14px", borderRadius: "var(--r)",
-                    background: "rgba(74,158,248,0.06)", border: "1px solid rgba(74,158,248,0.15)",
+                    background: "rgba(0,229,195,0.04)", border: "1px solid var(--green-border)",
                     marginBottom: 12, textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#4A9EF8", marginBottom: 4 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", marginBottom: 4 }}>
                       Delivery submitted
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-3)" }}>
@@ -476,15 +476,15 @@ export default function EscrowPage() {
                       animate={{ opacity: 1, y: 0 }}
                       style={{
                         padding: "12px 14px", borderRadius: "var(--r)",
-                        background: "linear-gradient(135deg, rgba(0,209,132,0.04), rgba(74,158,248,0.03))",
-                        border: "1px solid rgba(0,209,132,0.14)",
+                        background: "rgba(0,229,195,0.04)",
+                        border: "1px solid rgba(0,229,195,0.14)",
                         marginBottom: 12,
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                         <div style={{
                           width: 26, height: 26, borderRadius: 7,
-                          background: "linear-gradient(135deg, rgba(0,209,132,0.18), rgba(74,158,248,0.14))",
+                          background: "rgba(0,229,195,0.12)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                         }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
@@ -515,7 +515,7 @@ export default function EscrowPage() {
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
                               <motion.div
-                                style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #00D184, #38BDF8)" }}
+                                style={{ height: "100%", borderRadius: 999, background: "#00E5C3" }}
                                 initial={{ width: "0%" }}
                                 animate={{ width: `${agentScore}%` }}
                                 transition={{ duration: 0.7, ease: "easeOut" }}
@@ -587,7 +587,7 @@ export default function EscrowPage() {
                 )}
 
                 {phase === "disputed" && (
-                  <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(240,82,82,0.08)", border: "1px solid rgba(240,82,82,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
+                  <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
                     Dispute opened. The Receipt Agent will re-evaluate and propose a fair resolution.
                   </div>
                 )}

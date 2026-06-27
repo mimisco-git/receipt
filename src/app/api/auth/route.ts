@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       bio: freelancer.bio || "",
       walletAddress: freelancer.walletAddress,
       role,
-      avatarColor: freelancer.avatarColor || "#00D184",
+      avatarColor: freelancer.avatarColor || "#00E5C3",
       freelancerId: freelancer.id,
     });
   } catch (err: unknown) {

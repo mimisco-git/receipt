@@ -352,11 +352,11 @@ export default function SetupPage() {
                   transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
                   style={{
                     width: 64, height: 64, borderRadius: "50%", margin: "0 auto 20px",
-                    background: "radial-gradient(circle at 35% 30%, rgba(18,232,154,0.5), rgba(18,232,154,0.15) 50%, transparent)",
-                    border: "1px solid var(--green-border)", boxShadow: "0 0 40px rgba(18,232,154,0.25)",
+                    background: "radial-gradient(circle at 35% 30%, rgba(0,229,195,0.4), rgba(0,229,195,0.1) 50%, transparent)",
+                    border: "1px solid var(--green-border)", boxShadow: "0 0 40px rgba(0,229,195,0.15)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="#00D184">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="#00E5C3">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </motion.div>

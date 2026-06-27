@@ -53,7 +53,7 @@ export default function Nav() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 clamp(16px, 4vw, 40px)",
           height: 56,
-          background: scrolled ? "rgba(10,15,30,0.45)" : "transparent",
+          background: scrolled ? "rgba(0,0,0,0.5)" : "transparent",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
           borderBottom: scrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
@@ -132,7 +132,7 @@ export default function Nav() {
                     background: "none", color: "rgba(255,255,255,0.5)",
                     border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", transition: "all 0.15s ease",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.color = "#F05252"; e.currentTarget.style.borderColor = "rgba(240,82,82,0.3)"; }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "#ff4444"; e.currentTarget.style.borderColor = "rgba(255,68,68,0.2)"; }}
                   onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
                 >
                   Sign out
@@ -208,7 +208,7 @@ export default function Nav() {
             transition={{ duration: 0.2 }}
             style={{
               position: "fixed", top: 56, left: 0, right: 0, zIndex: 99,
-              background: "rgba(10,15,30,0.95)",
+              background: "rgba(0,0,0,0.95)",
               backdropFilter: "blur(24px)",
               WebkitBackdropFilter: "blur(24px)",
               borderBottom: "1px solid rgba(255,255,255,0.08)",
@@ -250,7 +250,7 @@ export default function Nav() {
                   Get started
                 </button>
                 <button onClick={signOut}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "#F05252", textAlign: "left" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "#ff4444", textAlign: "left" }}>
                   Sign out
                 </button>
               </>

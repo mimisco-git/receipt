@@ -25,13 +25,13 @@ const STATUS_CFG: Record<string, { label: string; color: string; bg: string; act
   delivered:  { label: "Needs your review", color: "var(--blue)",  bg: "var(--blue-dim)", action: "Review now" },
   evaluating: { label: "Agent reviewing",   color: "var(--blue)",  bg: "var(--blue-dim)" },
   settled:    { label: "Completed",         color: "var(--green)", bg: "var(--green-dim)" },
-  disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(240,82,82,0.1)" },
+  disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(255,68,68,0.1)" },
 };
 
 export default function ClientDashboardPage() {
   const router = useRouter();
   const [contracts, setContracts] = useState<ClientContract[]>([]);
-  const [profile, setProfile] = useState({ name: "Client", walletAddress: "", bio: "", avatarColor: "#4A9EF8", avatarUrl: null as string | null });
+  const [profile, setProfile] = useState({ name: "Client", walletAddress: "", bio: "", avatarColor: "#00E5C3", avatarUrl: null as string | null });
 
   useEffect(() => {
     const p = loadProfile();
@@ -116,11 +116,11 @@ export default function ClientDashboardPage() {
           {needsReview.length > 0 && (
             <div style={{
               padding: "14px 18px", borderRadius: "var(--r-lg)", marginBottom: 16,
-              background: "rgba(74,158,248,0.06)", border: "1px solid rgba(74,158,248,0.15)",
+              background: "rgba(0,229,195,0.04)", border: "1px solid var(--green-border)",
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--blue, #4A9EF8)" }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)" }}>
                   {needsReview.length} delivery{needsReview.length > 1 ? "ies" : ""} ready for review
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-3)" }}>
@@ -139,7 +139,7 @@ export default function ClientDashboardPage() {
             {[
               { label: "Total spent",      value: `$${total.toFixed(2)}`, color: "var(--text-1)" },
               { label: "Jobs completed",   value: String(settled.length),   color: "var(--green)" },
-              { label: "Needs review",     value: String(needsReview.length), color: "var(--blue, #4A9EF8)" },
+              { label: "Needs review",     value: String(needsReview.length), color: "var(--accent)" },
               { label: "In progress",      value: String(pending.length),  color: "var(--amber)" },
             ].map((s, i) => (
               <div key={i} style={{ padding: "18px 20px", background: "var(--card)", border: "1px solid var(--line)", borderRadius: "var(--r-lg)" }}>
@@ -190,7 +190,7 @@ export default function ClientDashboardPage() {
                     style={{
                       display: "flex", alignItems: "center", gap: 14,
                       padding: "14px 16px", borderRadius: "var(--r-lg)",
-                      background: "var(--card)", border: `1px solid ${st.action ? "rgba(74,158,248,0.2)" : "var(--line)"}`,
+                      background: "var(--card)", border: `1px solid ${st.action ? "var(--green-border)" : "var(--line)"}`,
                       cursor: "pointer", transition: "border-color 0.15s, background 0.15s",
                     }}
                     onMouseEnter={e => {
@@ -198,7 +198,7 @@ export default function ClientDashboardPage() {
                       (e.currentTarget as HTMLDivElement).style.background = "var(--card-2)";
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "rgba(74,158,248,0.2)" : "var(--line)";
+                      (e.currentTarget as HTMLDivElement).style.borderColor = st.action ? "var(--green-border)" : "var(--line)";
                       (e.currentTarget as HTMLDivElement).style.background = "var(--card)";
                     }}
                   >

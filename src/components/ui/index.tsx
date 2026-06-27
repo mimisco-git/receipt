@@ -31,10 +31,10 @@ export function Button({
   };
 
   const variants = {
-    primary:   "bg-[#00F5A0] text-[#0A0E1A] hover:opacity-90 hover:-translate-y-0.5",
+    primary:   "bg-[#00E5C3] text-[#000000] hover:opacity-90 hover:-translate-y-0.5",
     secondary: "bg-transparent text-[var(--text-primary)] border border-[var(--border-light)] hover:bg-white/5",
     ghost:     "bg-transparent text-[var(--text-secondary)] hover:bg-white/5 hover:text-[var(--text-primary)]",
-    danger:    "bg-[rgba(239,68,68,0.12)] text-[#EF4444] border border-[rgba(239,68,68,0.2)] hover:bg-[rgba(239,68,68,0.2)]",
+    danger:    "bg-[rgba(255,68,68,0.10)] text-[#ff4444] border border-[rgba(255,68,68,0.2)] hover:bg-[rgba(255,68,68,0.2)]",
   };
 
   return (
@@ -66,11 +66,11 @@ interface BadgeProps {
 }
 
 const badgeVariants = {
-  mint:    { bg: "rgba(0,245,160,0.12)",    color: "#00F5A0", border: "rgba(0,245,160,0.2)" },
-  amber:   { bg: "rgba(245,158,11,0.12)",   color: "#F59E0B", border: "rgba(245,158,11,0.2)" },
-  red:     { bg: "rgba(239,68,68,0.12)",    color: "#EF4444", border: "rgba(239,68,68,0.2)" },
-  blue:    { bg: "rgba(59,130,246,0.12)",   color: "#60A5FA", border: "rgba(59,130,246,0.2)" },
-  neutral: { bg: "rgba(255,255,255,0.06)",  color: "#8892A4", border: "rgba(255,255,255,0.1)" },
+  mint:    { bg: "rgba(0,229,195,0.10)",    color: "#00E5C3", border: "rgba(0,229,195,0.2)" },
+  amber:   { bg: "rgba(255,255,255,0.05)",  color: "#888888", border: "rgba(255,255,255,0.10)" },
+  red:     { bg: "rgba(255,68,68,0.10)",    color: "#ff4444", border: "rgba(255,68,68,0.2)" },
+  blue:    { bg: "rgba(0,229,195,0.10)",    color: "#00E5C3", border: "rgba(0,229,195,0.2)" },
+  neutral: { bg: "rgba(255,255,255,0.06)",  color: "#888888", border: "rgba(255,255,255,0.1)" },
 };
 
 export function Badge({ variant = "neutral", dot = false, pulse = false, children, className }: BadgeProps) {
@@ -163,7 +163,7 @@ export function Input({
 }: InputProps) {
   const inputStyle: React.CSSProperties = {
     background: "var(--card)",
-    border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "var(--border)"}`,
+    border: `1px solid ${error ? "rgba(255,68,68,0.5)" : "var(--border)"}`,
     color: "var(--text-primary)",
     fontFamily: mono ? '"JetBrains Mono", monospace' : undefined,
     fontSize: mono ? 13 : undefined,
@@ -188,16 +188,16 @@ export function Input({
           rows={rows}
           className={cls}
           style={inputStyle}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,245,160,0.4)")}
-          onBlur={(e) => (e.currentTarget.style.borderColor = error ? "rgba(239,68,68,0.5)" : "var(--border)")}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = error ? "rgba(255,68,68,0.5)" : "var(--border)")}
           {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
         />
       ) : (
         <input
           className={cls}
           style={inputStyle}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,245,160,0.4)")}
-          onBlur={(e) => (e.currentTarget.style.borderColor = error ? "rgba(239,68,68,0.5)" : "var(--border)")}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = error ? "rgba(255,68,68,0.5)" : "var(--border)")}
           {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
         />
       )}
@@ -218,9 +218,9 @@ export function ArcBadge() {
     <span
       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold font-mono"
       style={{
-        background: "rgba(59,130,246,0.1)",
-        color: "#60A5FA",
-        border: "1px solid rgba(59,130,246,0.2)",
+        background: "rgba(0,229,195,0.08)",
+        color: "#00E5C3",
+        border: "1px solid rgba(0,229,195,0.2)",
       }}
     >
       Arc · &lt;500ms
@@ -235,8 +235,8 @@ export function SettlementStrip() {
     <div
       className="flex items-center justify-center gap-5 py-2.5 text-xs"
       style={{
-        background: "rgba(0,245,160,0.03)",
-        borderBottom: "1px solid rgba(0,245,160,0.08)",
+        background: "rgba(0,229,195,0.02)",
+        borderBottom: "1px solid rgba(0,229,195,0.06)",
         color: "var(--text-muted)",
       }}
     >

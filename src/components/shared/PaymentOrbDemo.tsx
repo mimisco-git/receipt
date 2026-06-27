@@ -217,15 +217,15 @@ export default function PaymentOrbDemo() {
                   exit={{ opacity: 0 }}
                   style={{
                     padding: "12px 13px", borderRadius: "var(--r)",
-                    background: "linear-gradient(135deg, rgba(0,209,132,0.04), rgba(74,144,232,0.03))",
-                    boxShadow: "inset 0 1px 0 rgba(0,209,132,0.08), inset 0 0 0 0.5px rgba(0,209,132,0.10)",
+                    background: "rgba(0,229,195,0.04)",
+                    boxShadow: "inset 0 1px 0 rgba(0,229,195,0.08), inset 0 0 0 0.5px rgba(0,229,195,0.10)",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                     <div style={{
                       width: 26, height: 26, borderRadius: 7,
-                      background: "linear-gradient(135deg, rgba(0,209,132,0.18), rgba(74,144,232,0.14))",
-                      boxShadow: "inset 0 0 0 0.5px rgba(0,209,132,0.2)",
+                      background: "rgba(0,229,195,0.12)",
+                      boxShadow: "inset 0 0 0 0.5px rgba(0,229,195,0.2)",
                       display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
                     }}>🤖</div>
                     <div>
@@ -256,7 +256,7 @@ export default function PaymentOrbDemo() {
                           background: "rgba(255,255,255,0.06)", overflow: "hidden",
                         }}>
                           <motion.div
-                            style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #00D184, #38BDF8)" }}
+                            style={{ height: "100%", borderRadius: 999, background: "#00E5C3" }}
                             initial={{ width: "0%" }}
                             animate={{ width: `${score}%` }}
                             transition={{ duration: 0.65, ease: "easeOut" }}
@@ -297,7 +297,7 @@ export default function PaymentOrbDemo() {
                   style={{
                     width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13,
                     fontWeight: 600, border: "none", cursor: "pointer",
-                    background: "var(--amber)", color: "#02040A",
+                    background: "var(--accent)", color: "#000000",
                     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 0 rgba(0,0,0,0.3)",
                     transition: "opacity 0.15s",
                   }}
@@ -321,7 +321,7 @@ export default function PaymentOrbDemo() {
                 >
                   <span style={{
                     width: 12, height: 12, borderRadius: "50%",
-                    border: "1.5px solid var(--amber)", borderTopColor: "transparent",
+                    border: "1.5px solid var(--accent)", borderTopColor: "transparent",
                     display: "inline-block", animation: "spin 0.7s linear infinite",
                   }} />
                   Depositing to Circle escrow...

@@ -23,7 +23,7 @@ export const DEFAULT_PROFILE: ProfileData = {
   website: "",
   twitter: "",
   skills: "",
-  avatarColor: "#12E89A",
+  avatarColor: "#00E5C3",
   avatarUrl: null,
   hourlyRate: "",
   availability: "available",

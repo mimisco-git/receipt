@@ -30,7 +30,7 @@ function AgentSVG() {
 function LockSVG() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="1.5"
-      strokeLinecap="round" strokeLinejoin="round" stroke="var(--amber)">
+      strokeLinecap="round" strokeLinejoin="round" stroke="var(--green)">
       <rect x="3" y="11" width="18" height="11" rx="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
@@ -46,9 +46,9 @@ function ArrowRight() {
 }
 
 const features = [
-  { icon: <ZapSVG />,   iconBg: "rgba(18,232,154,0.08)", title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
-  { icon: <AgentSVG />, iconBg: "rgba(74,158,248,0.08)", title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
-  { icon: <LockSVG />,  iconBg: "rgba(245,166,35,0.08)", title: "Zero invoice chasing",   desc: "USDC or EURC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
+  { icon: <ZapSVG />,   iconBg: "rgba(0,229,195,0.06)", title: "Sub-500ms settlement",  desc: "Arc finalizes via submitBatch() faster than your bank sends a confirmation SMS. No waiting." },
+  { icon: <AgentSVG />, iconBg: "rgba(0,229,195,0.06)", title: "Agent-verified scope",   desc: "The Receipt Agent reads brief vs delivery, scores alignment, and releases funds autonomously." },
+  { icon: <LockSVG />,  iconBg: "rgba(0,229,195,0.06)", title: "Zero invoice chasing",   desc: "USDC or EURC locks in Circle escrow before work begins. The client cannot withdraw. Payment is guaranteed." },
 ];
 
 export default function HomePage() {
@@ -57,14 +57,6 @@ export default function HomePage() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav />
-
-      {/* Ambient glow */}
-      <div style={{
-        position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
-        width: "min(900px, 100vw)", height: 500, pointerEvents: "none", zIndex: 0,
-        background: "radial-gradient(ellipse, rgba(18,232,154,0.05) 0%, rgba(74,158,248,0.02) 50%, transparent 70%)",
-        filter: "blur(60px)",
-      }} />
 
       {/* HERO */}
       <section style={{
@@ -108,12 +100,7 @@ export default function HomePage() {
         >
           Get paid the moment<br />
           your work is{" "}
-          <span style={{
-            background: "linear-gradient(135deg, #00D184 0%, #38BDF8 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}>
+          <span style={{ color: "var(--accent)" }}>
             approved.
           </span>
         </motion.h1>
@@ -260,7 +247,7 @@ export default function HomePage() {
           borderRadius: "var(--r-xl)",
           padding: "clamp(24px, 5vw, 40px)",
           textAlign: "center",
-          boxShadow: "0 0 0 1px rgba(18,232,154,0.05), 0 24px 48px rgba(0,0,0,0.3)",
+          boxShadow: "0 24px 48px rgba(0,0,0,0.3)",
         }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,

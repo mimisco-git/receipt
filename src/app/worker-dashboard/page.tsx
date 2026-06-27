@@ -9,7 +9,7 @@ import { timeAgo } from "@/lib/utils";
 
 export default function WorkerDashboardPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState({ name: "Freelancer", walletAddress: "", bio: "", avatarColor: "#00D184", avatarUrl: null as string | null, skills: "" });
+  const [profile, setProfile] = useState({ name: "Freelancer", walletAddress: "", bio: "", avatarColor: "#00E5C3", avatarUrl: null as string | null, skills: "" });
   const [contracts, setContracts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function WorkerDashboardPage() {
     delivered:  { label: "Under review",      color: "var(--blue)",  bg: "var(--blue-dim)" },
     evaluating: { label: "Agent reviewing",   color: "var(--blue)",  bg: "var(--blue-dim)" },
     settled:    { label: "Paid",              color: "var(--green)", bg: "var(--green-dim)" },
-    disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(240,82,82,0.1)" },
+    disputed:   { label: "Disputed",          color: "var(--red)",   bg: "rgba(255,68,68,0.1)" },
   };
 
   return (

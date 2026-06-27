@@ -51,24 +51,24 @@ export default function PaymentOrb({ amount, state, size = 180, currency = "USDC
       label:  "var(--text-3)",
     },
     locked: {
-      coreA:  "rgba(60,35,5,0.95)",
-      coreB:  "rgba(35,20,3,0.98)",
-      spec:   "rgba(245,166,35,0.18)",
-      fresnel:"rgba(245,166,35,0.10)",
-      ring:   "rgba(245,166,35,0.20)",
-      glow:   "rgba(245,166,35,0.18)",
+      coreA:  "rgba(0,30,25,0.95)",
+      coreB:  "rgba(0,18,15,0.98)",
+      spec:   "rgba(0,229,195,0.18)",
+      fresnel:"rgba(0,229,195,0.10)",
+      ring:   "rgba(0,229,195,0.20)",
+      glow:   "rgba(0,229,195,0.12)",
       anim:   "orb-glow-locked 3s ease-in-out infinite",
-      label:  "var(--amber)",
+      label:  "var(--accent)",
     },
     released: {
-      coreA:  "rgba(5,45,28,0.95)",
-      coreB:  "rgba(3,28,16,0.98)",
-      spec:   "rgba(18,232,154,0.22)",
-      fresnel:"rgba(18,232,154,0.14)",
-      ring:   "rgba(18,232,154,0.28)",
-      glow:   "rgba(18,232,154,0.22)",
+      coreA:  "rgba(0,35,28,0.95)",
+      coreB:  "rgba(0,20,16,0.98)",
+      spec:   "rgba(0,229,195,0.22)",
+      fresnel:"rgba(0,229,195,0.14)",
+      ring:   "rgba(0,229,195,0.28)",
+      glow:   "rgba(0,229,195,0.22)",
       anim:   "orb-glow-settled 2s ease-in-out infinite",
-      label:  "var(--green)",
+      label:  "var(--accent)",
     },
   };
 
@@ -127,7 +127,7 @@ export default function PaymentOrb({ amount, state, size = 180, currency = "USDC
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: "absolute", inset: 0, borderRadius: "50%",
-              boxShadow: "inset 0 0 0 1px rgba(18,232,154,0.6)",
+              boxShadow: "inset 0 0 0 1px rgba(0,229,195,0.6)",
               pointerEvents: "none",
             }}
           />
@@ -210,9 +210,7 @@ export default function PaymentOrb({ amount, state, size = 180, currency = "USDC
               width: "60%", height: "60%",
               top: "-8%", left: "-8%",
               borderRadius: "50%",
-              background: state === "released"
-                ? "radial-gradient(circle, rgba(18,232,154,0.14), transparent 70%)"
-                : "radial-gradient(circle, rgba(245,166,35,0.10), transparent 70%)",
+              background: "radial-gradient(circle, rgba(0,229,195,0.12), transparent 70%)",
               animation: "orb-rotate 10s linear infinite",
               transformOrigin: "82% 82%",
               pointerEvents: "none",
@@ -230,8 +228,8 @@ export default function PaymentOrb({ amount, state, size = 180, currency = "USDC
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, zIndex: 1 }}
               >
                 <svg width={size * 0.26} height={size * 0.26} viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="20" r="19" stroke="rgba(18,232,154,0.3)" strokeWidth="0.75"/>
-                  <polyline points="11 20 18 27 29 13" stroke="#00D184" strokeWidth="2.5"
+                  <circle cx="20" cy="20" r="19" stroke="rgba(0,229,195,0.3)" strokeWidth="0.75"/>
+                  <polyline points="11 20 18 27 29 13" stroke="#00E5C3" strokeWidth="2.5"
                     strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span className="font-mono" style={{

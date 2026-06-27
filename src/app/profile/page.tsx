@@ -7,8 +7,8 @@ import Nav from "@/components/layout/Nav";
 import { loadProfile, saveProfile, clearProfile, getInitials, type ProfileData } from "@/lib/profile";
 
 const AVATAR_COLORS = [
-  "#00D184","#4A9EF8","#F5A623","#F05252",
-  "#A855F7","#EC4899","#14B8A6","#F59E0B",
+  "#00E5C3","#FFFFFF","#888888","#333333",
+  "#00B89C","#66FFE5","#444444","#CCCCCC",
 ];
 
 const SELECT_STYLE: React.CSSProperties = {
@@ -43,7 +43,7 @@ export default function ProfilePage() {
   const [form, setForm] = useState<ProfileData>({
     role: "", name: "", bio: "", walletAddress: "",
     website: "", twitter: "", skills: "",
-    avatarColor: "#00D184", avatarUrl: null,
+    avatarColor: "#00E5C3", avatarUrl: null,
     hourlyRate: "", availability: "available",
   });
 
@@ -140,7 +140,7 @@ export default function ProfilePage() {
                 Your profile
               </h1>
               {form.role && (
-                <span className={form.role === "worker" ? "pill pill-green" : "pill pill-blue"}>
+                <span className={form.role === "worker" ? "pill pill-green" : "pill pill-muted"}>
                   <span className="pill-dot" />
                   {form.role === "worker" ? "Worker" : "Client"}
                 </span>
@@ -300,7 +300,7 @@ export default function ProfilePage() {
 
           {walletError && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: 12, padding: "11px 14px", background: "rgba(240,82,82,0.1)", border: "1px solid rgba(240,82,82,0.2)", borderRadius: "var(--r-sm)", fontSize: 13, color: "#F05252", textAlign: "center" }}>
+              style={{ marginTop: 12, padding: "11px 14px", background: "rgba(255,68,68,0.1)", border: "1px solid rgba(255,68,68,0.2)", borderRadius: "var(--r-sm)", fontSize: 13, color: "#ff4444", textAlign: "center" }}>
               Wallet error: {walletError}
             </motion.div>
           )}
@@ -309,12 +309,12 @@ export default function ProfilePage() {
           <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--line)", textAlign: "center" }}>
             <button onClick={handleSignOut}
               style={{
-                background: "none", border: "1px solid rgba(240,82,82,0.3)",
-                color: "#F05252", fontSize: 13, fontWeight: 500,
+                background: "none", border: "1px solid rgba(255,68,68,0.2)",
+                color: "#ff4444", fontSize: 13, fontWeight: 500,
                 padding: "10px 28px", borderRadius: "var(--r-sm)",
                 cursor: "pointer", transition: "all 0.15s ease",
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(240,82,82,0.1)"; }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,68,68,0.1)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
             >
               Sign out
@@ -324,7 +324,7 @@ export default function ProfilePage() {
         </motion.div>
       </main>
       <style>{`
-        select option { background: #1A2235; color: #fff; }
+        select option { background: #080808; color: #fff; }
         select:focus { border-color: var(--green-border) !important; box-shadow: 0 0 0 3px var(--green-dim) !important; }
       `}</style>
     </div>
