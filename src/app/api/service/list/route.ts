@@ -46,13 +46,19 @@ export async function GET(req: NextRequest) {
       ratingMap = new Map(ratingRows.map((r: { freelancerId: string; _avg: { rating: number | null }; _count: { rating: number } }) => [r.freelancerId, { avg: r._avg.rating, count: r._count.rating }]));
     } catch {}
 
-    const result = services.map((s: Record<string, unknown>) => ({
-      ...s,
-      funded: s.type === "job" ? fundedSet.has(s.id as string) : undefined,
-      avgRating: ratingMap.get(s.freelancerId as string)?.avg ?? null,
-      ratingCount: ratingMap.get(s.freelancerId as string)?.count ?? 0,
-      verified: (s.freelancer as Record<string, unknown> | null)?.verified ?? false,
-    }));
+    const result = services.map((s: Record<string, unknown>) => {
+      const fl = s.freelancer as Record<string, unknown> | null;
+      const bio = (fl?.bio as string | null) || "";
+      // Verified = wallet exists (always true in DB) + bio has real content
+      const verified = bio.trim().length >= 15;
+      return {
+        ...s,
+        funded: s.type === "job" ? fundedSet.has(s.id as string) : undefined,
+        avgRating: ratingMap.get(s.freelancerId as string)?.avg ?? null,
+        ratingCount: ratingMap.get(s.freelancerId as string)?.count ?? 0,
+        verified,
+      };
+    });
 
     return NextResponse.json({ services: result });
   } catch (err: unknown) {

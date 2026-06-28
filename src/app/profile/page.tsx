@@ -110,8 +110,7 @@ export default function ProfilePage() {
         }
       }
 
-      const verified = computeVerified({ ...form, walletAddress, avatarUrl });
-      const toSave: ProfileData = { ...form, walletAddress, avatarUrl, verified };
+      const toSave: ProfileData = { ...form, walletAddress, avatarUrl };
       saveProfile(toSave);
 
       // Upsert in DB so wallet sign-in works on return visits
@@ -120,7 +119,7 @@ export default function ProfilePage() {
           await fetch("/api/profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: toSave.name, bio: toSave.bio, walletAddress, avatarColor: toSave.avatarColor, verified }),
+            body: JSON.stringify({ name: toSave.name, bio: toSave.bio, walletAddress, avatarColor: toSave.avatarColor }),
           });
         } catch {
           // Non-fatal — localStorage save is the source of truth during the session
@@ -404,7 +403,7 @@ export default function ProfilePage() {
   );
 }
 
-function VerificationSection({ form }: { form: ProfileData & { avatarUrl: string | null } }) {
+function VerificationSection({ form }: { form: ProfileData }) {
   const isVerified = computeVerified(form);
 
   const workerCriteria = [

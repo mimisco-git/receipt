@@ -103,7 +103,9 @@ export default function EscrowPage() {
         const workerAddress = isJob ? "" : freelancerAddr;
         const payerName = isJob ? freelancerName : data.clientName;
 
-        const freelancerVerified = data.freelancer?.verified ?? data.service?.freelancer?.verified ?? false;
+        // Compute verified from available DB fields — bio length >= 15 chars
+        const flBio: string = data.freelancer?.bio || data.service?.freelancer?.bio || "";
+        const freelancerVerified = flBio.trim().length >= 15;
         const c: ContractData = {
           id: id as string,
           serviceId: data.serviceId || "",
