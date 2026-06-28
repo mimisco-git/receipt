@@ -50,7 +50,9 @@ export default function ClientDashboardPage() {
           return {
             id: c.id,
             serviceTitle: c.service?.title || "Service",
-            freelancerName: isJob ? c.clientName : (c.service?.freelancer?.name || "Worker"),
+            freelancerName: isJob
+              ? (c.clientName && c.clientName !== "open" ? c.clientName : "Awaiting worker")
+              : (c.service?.freelancer?.name || "Worker"),
             brief: c.brief,
             amountUsdc: c.amountUsdc,
             currency: c.currency || "USDC",

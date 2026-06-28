@@ -147,12 +147,21 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "No funded contract found for this job. The client may not have locked funds yet." }, { status: 404 });
     }
 
-    const updated = await db.contract.update({
-      where: { id: contract.id },
+    // Use updateMany with the "open" guard to prevent double-acceptance race condition
+    const result = await db.contract.updateMany({
+      where: { id: contract.id, clientName: "open" },
       data: {
         clientName: workerName,
         brief: workerProposal || contract.brief,
       },
+    });
+
+    if (result.count === 0) {
+      return NextResponse.json({ error: "This job has already been accepted by another worker." }, { status: 409 });
+    }
+
+    const updated = await db.contract.findUnique({
+      where: { id: contract.id },
       include: { service: { include: { freelancer: true } } },
     });
 

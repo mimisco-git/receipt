@@ -43,7 +43,22 @@ export async function POST(req: NextRequest) {
     const briefText = contract?.brief || brief || "Evaluate this delivery.";
     const price = contract?.amountUsdc || priceUsdc || 8.0;
     const currency = (contract?.currency || "USDC") as Currency;
-    const freelancerAddress = contract?.freelancer?.walletAddress || "";
+    const isJobContract = contract?.service?.type === "job";
+
+    // For SERVICE: freelancer record = worker (gets paid)
+    // For JOB: freelancer record = client (posted the job); worker = clientName — look up their wallet
+    let freelancerAddress = contract?.freelancer?.walletAddress || "";
+    if (isJobContract && contract?.clientName && contract.clientName !== "open") {
+      try {
+        const worker = await db.freelancer.findFirst({
+          where: { name: { equals: contract.clientName, mode: "insensitive" } },
+          select: { walletAddress: true },
+        });
+        if (worker?.walletAddress && !worker.walletAddress.startsWith("pending")) {
+          freelancerAddress = worker.walletAddress;
+        }
+      } catch {}
+    }
 
     // Update status to evaluating
     if (contract) {
@@ -143,16 +158,29 @@ export async function PUT(req: NextRequest) {
     const cur: Currency = currency === "EURC" ? "EURC" : "USDC";
 
     if (action === "APPROVE") {
-      // Get the real freelancer address from DB if not provided
+      // Get the real payment recipient from DB
       let toAddress = freelancerAddress;
       if (!toAddress || toAddress.startsWith("pending")) {
         try {
           const { db } = await import("@/lib/db");
           const contract = await db.contract.findUnique({
             where: { id: contractId },
-            include: { freelancer: true },
+            include: { freelancer: true, service: true },
           });
-          toAddress = contract?.freelancer?.walletAddress;
+          const isJob = contract?.service?.type === "job";
+          if (isJob && contract?.clientName && contract.clientName !== "open") {
+            // JOB: worker is stored as clientName — look up their wallet
+            const worker = await db.freelancer.findFirst({
+              where: { name: { equals: contract.clientName, mode: "insensitive" } },
+              select: { walletAddress: true },
+            });
+            if (worker?.walletAddress && !worker.walletAddress.startsWith("pending")) {
+              toAddress = worker.walletAddress;
+            }
+          } else {
+            // SERVICE: freelancer record is the worker
+            toAddress = contract?.freelancer?.walletAddress;
+          }
         } catch {}
       }
 

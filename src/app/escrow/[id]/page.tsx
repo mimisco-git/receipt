@@ -79,7 +79,10 @@ export default function EscrowPage() {
         // For SERVICE flow: freelancer = worker, clientName = payer
         // For JOB flow: freelancer = payer (posted the job), clientName = worker (accepted it)
         const isJob = serviceType === "job";
-        const workerName = isJob ? data.clientName : freelancerName;
+        const jobPending = isJob && (!data.clientName || data.clientName === "open");
+        const workerName = isJob
+          ? (jobPending ? "Awaiting acceptance" : data.clientName)
+          : freelancerName;
         const workerAddress = isJob ? "" : freelancerAddr;
         const payerName = isJob ? freelancerName : data.clientName;
 
@@ -111,12 +114,13 @@ export default function EscrowPage() {
 
         if (isJob) {
           // JOB: clientName = worker (accepter), freelancer = client (poster)
-          if (profileName && profileName === data.clientName?.toLowerCase()) {
-            setViewerRole("worker");
-          } else if (profileWallet && profileWallet === freelancerAddr) {
+          // When clientName is "open" (pre-acceptance), treat poster as client
+          if (profileWallet && profileWallet === freelancerAddr) {
             setViewerRole("client");
           } else if (profileName && profileName === freelancerName?.toLowerCase()) {
             setViewerRole("client");
+          } else if (!jobPending && profileName && profileName === data.clientName?.toLowerCase()) {
+            setViewerRole("worker");
           } else {
             setViewerRole(profile.role === "worker" ? "worker" : profile.role === "client" ? "client" : "unknown");
           }
@@ -199,6 +203,9 @@ export default function EscrowPage() {
               if (data.txHash) setTxHash(data.txHash);
               if (data.settlementMs) setSettlementMs(data.settlementMs);
               setPhase("settled");
+            } else {
+              // PARTIAL or DISPUTE score — drop to delivered so client can manually approve/flag
+              setPhase("delivered");
             }
           }
         }, 22);
