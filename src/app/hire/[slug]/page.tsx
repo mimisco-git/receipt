@@ -61,6 +61,8 @@ export default function HirePage() {
   const [walletStep, setWalletStep] = useState<WalletStep>("idle");
   const [walletError, setWalletError] = useState<string | null>(null);
   const [clientWalletAddress, setClientWalletAddress] = useState("");
+  const [workerWallet, setWorkerWallet] = useState("");
+  const [connectingWorkerWallet, setConnectingWorkerWallet] = useState(false);
   const [isOwnJob, setIsOwnJob] = useState(false);
 
   useEffect(() => {
@@ -87,6 +89,9 @@ export default function HirePage() {
                 clientName: profile.name || f.clientName,
                 brief: "",
               }));
+              if (profile.walletAddress && !profile.walletAddress.startsWith("pending")) {
+                setWorkerWallet(profile.walletAddress);
+              }
             }
           } else {
             setNotFound(true);
@@ -236,6 +241,32 @@ export default function HirePage() {
     // JOB FLOW: client already locked funds when posting — worker just accepts
     if (isJob) {
       try {
+        // Ensure worker has a wallet connected so settlement can pay them
+        let wallet = workerWallet;
+        if (!wallet) {
+          const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+          if (!eth) throw new Error("Install MetaMask or Rabby to accept jobs and receive payment.");
+          const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+          wallet = accounts[0];
+          setWorkerWallet(wallet);
+        }
+
+        // Upsert worker into DB so the settlement agent can look up their wallet by name
+        if (wallet && form.clientName.trim()) {
+          try {
+            await fetch("/api/profile", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: form.clientName.trim(),
+                walletAddress: wallet,
+                bio: null,
+                avatarColor: "#00E5C3",
+              }),
+            });
+          } catch {}
+        }
+
         const res = await fetch("/api/escrow", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -540,6 +571,48 @@ export default function HirePage() {
 
                   {isJob && (
                     <>
+                      {/* Wallet connect — required so settlement knows where to pay */}
+                      <div className="p-4 rounded-xl" style={{ background: workerWallet ? "linear-gradient(135deg, rgba(0,229,195,0.08), transparent)" : "rgba(255,255,255,.04)", border: workerWallet ? "1px solid rgba(0,229,195,0.25)" : "1px solid rgba(255,255,255,.08)" }}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-xs font-semibold mb-0.5" style={{ color: workerWallet ? "var(--mint)" : "rgba(255,255,255,.55)" }}>
+                              {workerWallet ? "Wallet connected — payment will go here" : "Connect wallet to receive payment"}
+                            </div>
+                            <div className="text-xs font-mono" style={{ color: workerWallet ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.3)" }}>
+                              {workerWallet ? `${workerWallet.slice(0, 6)}...${workerWallet.slice(-4)}` : "Required — the client's locked funds pay your wallet on approval"}
+                            </div>
+                          </div>
+                          {workerWallet ? (
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--mint)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={connectingWorkerWallet}
+                              onClick={async () => {
+                                const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+                                if (!eth) { setWalletError("Install MetaMask or Rabby to receive payment."); return; }
+                                setConnectingWorkerWallet(true);
+                                try {
+                                  const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+                                  setWorkerWallet(accounts[0]);
+                                  setWalletError(null);
+                                } catch (e) {
+                                  setWalletError((e as { message?: string })?.message || "Wallet connection failed");
+                                } finally {
+                                  setConnectingWorkerWallet(false);
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                              style={{ background: "rgba(0,229,195,0.12)", color: "var(--mint)", border: "1px solid rgba(0,229,195,0.3)", cursor: "pointer", flexShrink: 0 }}
+                            >
+                              {connectingWorkerWallet ? "Connecting..." : "Connect wallet"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="p-4 rounded-xl text-sm" style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
                         <div className="font-semibold mb-2">Job requirements</div>
                         <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,.72)" }}>
@@ -609,7 +682,7 @@ export default function HirePage() {
                   </button>
                   <button
                     onClick={submitBrief}
-                    disabled={!form.clientName.trim() || (!isJob && !form.brief.trim()) || submitting}
+                    disabled={!form.clientName.trim() || (!isJob && !form.brief.trim()) || (isJob && !workerWallet) || submitting}
                     className="flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
                   >
