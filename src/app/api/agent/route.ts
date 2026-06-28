@@ -261,9 +261,12 @@ export async function PUT(req: NextRequest) {
         });
 
         const isJob = contract?.service?.type === "job";
-        // For jobs: payer is the freelancer (job poster) — refund to their wallet
-        // For services: payer wallet not stored — platform team handles manually
-        const refundAddress = isJob ? contract?.freelancer?.walletAddress : null;
+        // For jobs: refund the actual payer — stored in clientWalletId (captured at funding time)
+        // Fall back to freelancer.walletAddress only if clientWalletId is missing/pending
+        const rawRefund = isJob
+          ? (contract?.clientWalletId || contract?.freelancer?.walletAddress || null)
+          : null;
+        const refundAddress = rawRefund && !rawRefund.startsWith("pending") ? rawRefund : null;
 
         if (refundAddress && !refundAddress.startsWith("pending") && contract) {
           const result = await releaseEscrow({

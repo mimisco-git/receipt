@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
 
       const hasJobs = freelancer.services.some((s: { type: string | null }) => s.type === "job");
       const hasServices = freelancer.services.some((s: { type: string | null }) => s.type === "service");
-      const role = hasJobs && !hasServices ? "client" : "worker";
+      // If they have any services → worker; if only jobs → client
+      const role = hasServices ? "worker" : hasJobs ? "client" : "worker";
 
       return NextResponse.json({
         name: freelancer.name,
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     const hasJobs2 = freelancer.services.some((s: { type: string | null }) => s.type === "job");
     const hasServices2 = freelancer.services.some((s: { type: string | null }) => s.type === "service");
-    const role2 = hasJobs2 && !hasServices2 ? "client" : "worker";
+    const role2 = hasServices2 ? "worker" : hasJobs2 ? "client" : "worker";
 
     return NextResponse.json({
       name: freelancer.name,

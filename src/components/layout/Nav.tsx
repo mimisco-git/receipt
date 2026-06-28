@@ -126,6 +126,17 @@ export default function Nav() {
           <div className="nav-desktop" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {hasProfile ? (
               <>
+                <button onClick={() => navigate("/profile")}
+                  style={{
+                    padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
+                    background: "none", color: "rgba(255,255,255,0.5)",
+                    border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer", transition: "all 0.15s ease",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "var(--text-1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+                >
+                  Profile
+                </button>
                 <button onClick={signOut}
                   style={{
                     padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
