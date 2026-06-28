@@ -218,10 +218,41 @@ export default function HirePage() {
 
   async function submitBrief() {
     if (!service) return;
-    if (!form.clientName.trim() || (!isJob && !form.brief.trim())) return;
+    if (!form.clientName.trim()) return;
 
     setSubmitting(true);
     setWalletError(null);
+
+    // JOB FLOW: client already locked funds when posting — worker just accepts
+    if (isJob) {
+      try {
+        const res = await fetch("/api/escrow", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            serviceId: service.id,
+            workerName: form.clientName,
+            workerProposal: form.brief || `Accepting job: ${service.title}`,
+          }),
+        });
+        const data = await res.json();
+        if (!data.id) throw new Error(data.error || "No funded contract found. The client may not have locked funds yet.");
+
+        setContractId(data.id);
+        setEscrowDeposited(true);
+        setPhase("success");
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Something went wrong";
+        setWalletError(msg);
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    // SERVICE FLOW: client pays escrow now
+    if (!form.brief.trim()) { setSubmitting(false); return; }
+
     setWalletStep("idle");
     setPhase("funding");
 
@@ -413,7 +444,7 @@ export default function HirePage() {
                     style={{ color: "var(--text-muted)" }}
                   >
                     {isJob
-                      ? `${sym}${formatUsdc(price)} ${cur} will be locked in escrow. You deliver the work, get paid when approved.`
+                      ? `${sym}${formatUsdc(price)} ${cur} is already locked in escrow by the client. Deliver the work and get paid when approved.`
                       : `Your ${cur} is locked in Circle escrow until you approve the delivery. Payment settles on Arc in under 500ms.`
                     }
                   </div>
@@ -432,11 +463,11 @@ export default function HirePage() {
                 className="p-8"
               >
                 <h2 className="text-xl font-bold mb-2" style={{ letterSpacing: "-0.04em" }}>
-                  {isJob ? "Confirm your details" : "Describe what you need"}
+                  {isJob ? "Accept this job" : "Describe what you need"}
                 </h2>
                 <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>
                   {isJob
-                    ? "Confirm your name and the job will be assigned to you."
+                    ? "The client already locked the budget in escrow. Accept and you can start work immediately."
                     : "Be specific. The AI agent reads this against the delivery to validate the work."
                   }
                 </p>
@@ -502,10 +533,10 @@ export default function HirePage() {
                     className="p-4 rounded-xl text-sm space-y-2"
                     style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}
                   >
-                    <div className="font-semibold mb-3">{isJob ? "Payment summary" : "Escrow summary"}</div>
+                    <div className="font-semibold mb-3">{isJob ? "Your earnings" : "Escrow summary"}</div>
                     {[
-                      [isJob ? "Job budget" : "You deposit",  `${sym}${formatUsdc(price)} ${cur}`],
-                      [isJob ? "You receive" : "Freelancer receives", `${sym}${formatUsdc(netAmount(price))} ${cur}`],
+                      [isJob ? "Locked by client" : "You deposit",  `${sym}${formatUsdc(price)} ${cur}`],
+                      [isJob ? "You receive (worker)" : "Freelancer receives", `${sym}${formatUsdc(netAmount(price))} ${cur}`],
                       ["Platform fee",       "10%"],
                       ["Settlement",         "Arc, under 500ms"],
                     ].map(([k, v]) => (
@@ -547,9 +578,9 @@ export default function HirePage() {
                     style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
                   >
                     {submitting
-                      ? "Opening wallet..."
+                      ? (isJob ? "Accepting..." : "Opening wallet...")
                       : isJob
-                      ? "Accept and lock escrow"
+                      ? "Accept job · no payment needed"
                       : `Pay ${sym}${formatUsdc(price)} ${cur} · fund escrow`
                     }
                     <ArrowRight size={14} />
@@ -667,7 +698,7 @@ export default function HirePage() {
                 <p className="text-sm mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {escrowDeposited
                     ? (isJob
-                        ? `${sym}${formatUsdc(price)} ${cur} is locked in escrow. Start working on the job and submit your delivery when ready.`
+                        ? `Budget confirmed. ${sym}${formatUsdc(price)} ${cur} is locked and waiting for your delivery. Complete the work and submit.`
                         : `${sym}${formatUsdc(price)} ${cur} is locked in escrow. ${service.freelancer.name} can now start your work.`)
                     : `Contract is active but the escrow wallet has insufficient funds. Top up the platform wallet with ${cur} on Arc Testnet and retry.`
                   }

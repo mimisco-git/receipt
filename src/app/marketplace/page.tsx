@@ -17,6 +17,7 @@ interface Listing {
   freelancerBio?: string;
   avatarColor?: string;
   createdAt: string;
+  funded?: boolean;
 }
 
 export default function Marketplace() {
@@ -42,6 +43,7 @@ export default function Marketplace() {
             freelancerBio: (s.freelancer as Record<string, string>)?.bio,
             avatarColor: (s.freelancer as Record<string, string>)?.avatarColor,
             createdAt: s.createdAt as string,
+            funded: s.funded as boolean | undefined,
           })));
         }
       })
@@ -151,6 +153,7 @@ export default function Marketplace() {
                   .split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
                 const sym = item.currency === "EURC" ? "€" : "$";
                 const isJob = item.type === "job";
+                const isFunded = isJob && item.funded;
                 return (
                   <motion.div
                     key={item.id}
@@ -220,13 +223,37 @@ export default function Marketplace() {
                           </div>
                         </div>
 
-                        <h3 style={{
-                          fontSize: 15, fontWeight: 700,
-                          letterSpacing: "-0.01em",
-                          marginBottom: 8, lineHeight: 1.3,
-                        }}>
-                          {item.title}
-                        </h3>
+                        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                          <h3 style={{
+                            fontSize: 15, fontWeight: 700,
+                            letterSpacing: "-0.01em",
+                            lineHeight: 1.3, margin: 0,
+                          }}>
+                            {item.title}
+                          </h3>
+                          {isFunded && (
+                            <span style={{
+                              fontSize: 10, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                              padding: "3px 8px", borderRadius: 999,
+                              background: "rgba(0,229,195,0.12)",
+                              color: "var(--green)",
+                              border: "1px solid rgba(0,229,195,0.25)",
+                            }}>
+                              ✓ Budget locked
+                            </span>
+                          )}
+                          {isJob && !isFunded && (
+                            <span style={{
+                              fontSize: 10, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                              padding: "3px 8px", borderRadius: 999,
+                              background: "rgba(255,255,255,0.04)",
+                              color: "rgba(255,255,255,0.35)",
+                              border: "1px solid rgba(255,255,255,0.08)",
+                            }}>
+                              Pending funding
+                            </span>
+                          )}
+                        </div>
 
                         <p style={{
                           fontSize: 13, opacity: 0.72, color: "inherit", lineHeight: 1.5,
@@ -244,11 +271,13 @@ export default function Marketplace() {
                             </span>
                             <span style={{ fontSize: 11, color: "var(--text-3)", marginLeft: 4 }}>{item.currency}</span>
                           </div>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: isJob ? "var(--blue)" : "var(--green)", display: "flex", alignItems: "center", gap: 4 }}>
-                            {isJob ? "Apply" : "Hire"}
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                              <polyline points="9 18 15 12 9 6" />
-                            </svg>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: isFunded ? "var(--green)" : isJob ? "rgba(255,255,255,0.3)" : "var(--green)", display: "flex", alignItems: "center", gap: 4 }}>
+                            {isJob ? (isFunded ? "Accept →" : "View") : "Hire"}
+                            {!isJob && (
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                <polyline points="9 18 15 12 9 6" />
+                              </svg>
+                            )}
                           </span>
                         </div>
 

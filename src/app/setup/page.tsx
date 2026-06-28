@@ -9,6 +9,7 @@ import { loadProfile } from "@/lib/profile";
 
 type Mode = "service" | "job";
 type Step = "profile" | "details" | "done";
+type FundStep = "idle" | "connecting" | "signing" | "relaying" | "funded";
 
 function CheckIcon({ size = 12 }: { size?: number }) {
   return (
@@ -100,6 +101,120 @@ export default function SetupPage() {
   }, []);
 
   const [slug, setSlug] = useState("");
+  const [serviceId, setServiceId] = useState("");
+  const [fundStep, setFundStep] = useState<FundStep>("idle");
+  const [fundError, setFundError] = useState("");
+  const [jobContractId, setJobContractId] = useState("");
+
+  const TOKEN_ADDRESSES: Record<string, string> = {
+    USDC: "0x3600000000000000000000000000000000000000",
+    EURC: "0x3700000000000000000000000000000000000000",
+  };
+  const TOKEN_NAMES: Record<string, string> = { USDC: "USD Coin", EURC: "Euro Coin" };
+  const ARC_CHAIN_ID_DEC = 5042002;
+  const ARC_CHAIN_ID_HEX = "0x4CEF52";
+
+  async function fundJobEscrow() {
+    setFundError("");
+    const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
+    if (!eth) { setFundError("No wallet detected. Install MetaMask or Rabby."); return; }
+
+    try {
+      const addrRes = await fetch("/api/escrow/address");
+      const { escrowAddress } = await addrRes.json();
+      if (!escrowAddress) throw new Error("Escrow address unavailable.");
+
+      const amount = parseFloat(form.priceUsdc) || 8;
+      const currency = form.currency as "USDC" | "EURC";
+
+      let txHash = "";
+      let from = "";
+
+      // Try EIP-3009 gasless first
+      try {
+        setFundStep("connecting");
+        const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+        from = accounts[0];
+
+        setFundStep("signing");
+        const nonceBytes = crypto.getRandomValues(new Uint8Array(32));
+        const nonce = `0x${Array.from(nonceBytes).map(b => b.toString(16).padStart(2, "0")).join("")}`;
+        const validAfter = 0;
+        const validBefore = Math.floor(Date.now() / 1000) + 3600;
+        const atomicValue = Math.round(amount * 1e6).toString();
+
+        const typedData = {
+          domain: { name: TOKEN_NAMES[currency], version: "2", chainId: ARC_CHAIN_ID_DEC, verifyingContract: TOKEN_ADDRESSES[currency] },
+          types: {
+            EIP712Domain: [{ name: "name", type: "string" }, { name: "version", type: "string" }, { name: "chainId", type: "uint256" }, { name: "verifyingContract", type: "address" }],
+            TransferWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }],
+          },
+          primaryType: "TransferWithAuthorization",
+          message: { from, to: escrowAddress, value: atomicValue, validAfter: validAfter.toString(), validBefore: validBefore.toString(), nonce },
+        };
+
+        const signature = await eth.request({ method: "eth_signTypedData_v4", params: [from, JSON.stringify(typedData)] }) as string;
+        setFundStep("relaying");
+
+        const relayRes = await fetch("/api/escrow/authorize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ from, to: escrowAddress, value: atomicValue, validAfter, validBefore, nonce, signature, currency }),
+        });
+
+        if (!relayRes.ok) {
+          const err = await relayRes.json();
+          if (relayRes.status === 422 && err.fallback) throw new Error("EIP3009_UNSUPPORTED");
+          throw new Error(err.error || "Relay failed");
+        }
+        txHash = (await relayRes.json()).txHash;
+      } catch (eip3009Err) {
+        // Fallback: direct ERC20 transfer via MetaMask
+        setFundStep("connecting");
+        const { createWalletClient, createPublicClient, custom, http, erc20Abi, parseUnits } = await import("viem");
+        const { arcTestnet } = await import("viem/chains");
+
+        if (!eth) throw new Error("No wallet detected.");
+        const accounts = await eth.request({ method: "eth_requestAccounts" }) as string[];
+        from = accounts[0];
+
+        const currentChain = await eth.request({ method: "eth_chainId" }) as string;
+        if (currentChain.toLowerCase() !== ARC_CHAIN_ID_HEX.toLowerCase()) {
+          try {
+            await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ARC_CHAIN_ID_HEX }] });
+          } catch (e: unknown) {
+            const se = e as { code?: number };
+            if (se?.code === 4902) {
+              await eth.request({ method: "wallet_addEthereumChain", params: [{ chainId: ARC_CHAIN_ID_HEX, chainName: "Arc Testnet", nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 }, rpcUrls: ["https://rpc.testnet.arc.network"], blockExplorerUrls: ["https://testnet.arcscan.app"] }] });
+            } else throw new Error("Switch your wallet to Arc Testnet.");
+          }
+        }
+
+        setFundStep("signing");
+        const walletClient = createWalletClient({ account: from as `0x${string}`, chain: arcTestnet, transport: custom(eth as Parameters<typeof custom>[0]) });
+        const hash = await walletClient.writeContract({ address: TOKEN_ADDRESSES[currency] as `0x${string}`, abi: erc20Abi, functionName: "transfer", args: [escrowAddress as `0x${string}`, parseUnits(amount.toFixed(6), 6)] });
+        setFundStep("relaying");
+        const publicClient = createPublicClient({ chain: arcTestnet, transport: http("https://rpc.testnet.arc.network") });
+        await publicClient.waitForTransactionReceipt({ hash });
+        txHash = hash;
+      }
+
+      // Create the pre-funded contract with sentinel worker name "open"
+      const contractRes = await fetch("/api/escrow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceId, clientName: "open", brief: form.description, currency, clientTxHash: txHash, clientWalletAddress: from }),
+      });
+      const contractData = await contractRes.json();
+      if (!contractData.id) throw new Error(contractData.error || "Failed to create contract");
+
+      setJobContractId(contractData.id);
+      setFundStep("funded");
+    } catch (err) {
+      setFundError(err instanceof Error ? err.message : "Something went wrong");
+      setFundStep("idle");
+    }
+  }
 
   async function connectWallet() {
     const eth = (window as unknown as { ethereum?: { request: (a: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
@@ -150,6 +265,7 @@ export default function SetupPage() {
       const data = await res.json();
       if (data.slug) {
         setSlug(data.slug);
+        setServiceId(data.id || "");
         setStep("done");
       } else {
         setError(data.error || "Failed to create. Please try again.");
@@ -377,8 +493,8 @@ export default function SetupPage() {
               </motion.div>
             )}
 
-            {/* STEP 3: DONE */}
-            {step === "done" && (
+            {/* STEP 3: DONE — service mode or job mode after funding */}
+            {step === "done" && (mode === "service" || fundStep === "funded") && (
               <motion.div key="done" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} style={{ padding: 36, textAlign: "center" }}>
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -395,10 +511,12 @@ export default function SetupPage() {
                 </motion.div>
 
                 <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 8 }}>
-                  {cfg.successTitle}
+                  {mode === "job" ? "Budget locked. Job is live." : cfg.successTitle}
                 </h1>
                 <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 24, lineHeight: 1.65 }}>
-                  {cfg.successSub}
+                  {mode === "job"
+                    ? "Your budget is in escrow. Workers can now accept this job — payment releases automatically when you approve their delivery."
+                    : cfg.successSub}
                 </p>
 
                 {/* Link box */}
@@ -440,9 +558,9 @@ export default function SetupPage() {
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <button onClick={() => router.push(`/hire/${slug}`)} className="btn-primary"
+                  <button onClick={() => router.push(mode === "job" && jobContractId ? `/escrow/${jobContractId}` : `/hire/${slug}`)} className="btn-primary"
                     style={{ width: "100%", padding: "13px", borderRadius: "var(--r-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    {mode === "service" ? "Preview as client" : "View job listing"} <ArrowRight />
+                    {mode === "service" ? "Preview as client" : "View contract"} <ArrowRight />
                   </button>
                   <button onClick={() => router.push("/marketplace")} className="btn-ghost"
                     style={{ width: "100%", padding: "13px", borderRadius: "var(--r-sm)" }}>
@@ -453,6 +571,86 @@ export default function SetupPage() {
                     Go to dashboard
                   </button>
                 </div>
+              </motion.div>
+            )}
+
+            {/* STEP 3: DONE — job mode, escrow not yet funded */}
+            {step === "done" && mode === "job" && fundStep !== "funded" && (
+              <motion.div key="fund-job" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }} style={{ padding: 36 }}>
+                <div style={{ textAlign: "center", marginBottom: 28 }}>
+                  <div style={{
+                    width: 52, height: 52, borderRadius: "50%", margin: "0 auto 16px",
+                    background: "radial-gradient(circle at 35% 30%, rgba(0,229,195,0.25), rgba(0,229,195,0.06) 50%, transparent)",
+                    border: "1px solid var(--green-border)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="#00E5C3">
+                      <rect x="2" y="7" width="20" height="14" rx="2" />
+                      <path d="M16 3H8l-2 4h12l-2-4z" />
+                    </svg>
+                  </div>
+                  <h1 style={{ fontSize: 21, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6 }}>
+                    Lock budget to activate job
+                  </h1>
+                  <p style={{ fontSize: 13.5, opacity: 0.7, lineHeight: 1.6 }}>
+                    Your job listing is created. Lock {sym}{form.priceUsdc} {form.currency} in escrow so workers know funds are guaranteed — no one accepts unpaid jobs.
+                  </p>
+                </div>
+
+                {/* Steps */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                  {([
+                    ["connecting", "Connect wallet",     "Approve wallet access"],
+                    ["signing",    "Sign authorization", "Gasless EIP-3009 signature"],
+                    ["relaying",   "Platform relays",    "Submitting on-chain"],
+                  ] as [FundStep, string, string][]).map(([s, label, sub], i) => {
+                    const order: FundStep[] = ["connecting", "signing", "relaying"];
+                    const curIdx = order.indexOf(fundStep === "idle" ? "connecting" : fundStep);
+                    const thisIdx = i;
+                    const done = fundStep !== "idle" && curIdx > thisIdx;
+                    const active = fundStep !== "idle" && curIdx === thisIdx;
+                    return (
+                      <div key={s} style={{
+                        display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: "var(--r-sm)",
+                        background: active ? "rgba(0,229,195,0.06)" : "rgba(255,255,255,0.025)",
+                        border: `1px solid ${active ? "rgba(0,229,195,0.2)" : "rgba(255,255,255,0.06)"}`,
+                      }}>
+                        <div style={{
+                          width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 11, fontWeight: 700,
+                          background: done ? "var(--green)" : active ? "rgba(0,229,195,0.15)" : "rgba(255,255,255,0.06)",
+                          color: done ? "#060E0A" : active ? "var(--green)" : "rgba(255,255,255,0.3)",
+                          border: active ? "1px solid rgba(0,229,195,0.3)" : "none",
+                        }}>
+                          {done ? <CheckIcon size={10} /> : i + 1}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: active ? "#fff" : done ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)" }}>{label}</div>
+                          <div style={{ fontSize: 11, color: active ? "var(--text-2)" : "rgba(255,255,255,0.2)" }}>{sub}</div>
+                        </div>
+                        {active && (
+                          <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(0,229,195,0.3)", borderTopColor: "var(--green)", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {fundError && (
+                  <p style={{ fontSize: 12.5, color: "var(--red)", textAlign: "center", marginBottom: 12 }}>{fundError}</p>
+                )}
+
+                <button
+                  onClick={fundJobEscrow}
+                  disabled={fundStep !== "idle"}
+                  className="btn-primary"
+                  style={{ width: "100%", padding: "13px", borderRadius: "var(--r-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: fundStep !== "idle" ? 0.7 : 1 }}>
+                  {fundStep === "idle"
+                    ? <>{`Lock ${sym}${form.priceUsdc} ${form.currency} in escrow`} <ArrowRight /></>
+                    : <><span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(6,14,10,0.4)", borderTopColor: "#060E0A", display: "inline-block", animation: "spin 0.7s linear infinite" }} /> Locking...</>}
+                </button>
               </motion.div>
             )}
 

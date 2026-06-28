@@ -83,16 +83,28 @@ export async function POST(req: NextRequest) {
 }
 
 // GET /api/escrow?id=xxx — get contract details
+// GET /api/escrow?serviceId=xxx — find open (pre-funded) contract for a job
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json({ error: "id required" }, { status: 400 });
-    }
+    const serviceId = searchParams.get("serviceId");
 
     const { db } = await import("@/lib/db");
+
+    if (serviceId) {
+      const contract = await db.contract.findFirst({
+        where: { serviceId, clientName: "open" },
+        orderBy: { createdAt: "desc" },
+        include: { service: { include: { freelancer: true } }, freelancer: true },
+      });
+      if (!contract) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json(contract);
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: "id or serviceId required" }, { status: 400 });
+    }
 
     const contract = await db.contract.findUnique({
       where: { id },
@@ -110,6 +122,44 @@ export async function GET(req: NextRequest) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("GET /api/escrow error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+// PATCH /api/escrow — worker accepts a pre-funded job contract
+// Updates the clientName (worker) and brief (proposal) on the open contract
+export async function PATCH(req: NextRequest) {
+  try {
+    const { serviceId, workerName, workerProposal } = await req.json();
+
+    if (!serviceId || !workerName) {
+      return NextResponse.json({ error: "serviceId and workerName required" }, { status: 400 });
+    }
+
+    const { db } = await import("@/lib/db");
+
+    const contract = await db.contract.findFirst({
+      where: { serviceId, clientName: "open" },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!contract) {
+      return NextResponse.json({ error: "No funded contract found for this job. The client may not have locked funds yet." }, { status: 404 });
+    }
+
+    const updated = await db.contract.update({
+      where: { id: contract.id },
+      data: {
+        clientName: workerName,
+        brief: workerProposal || contract.brief,
+      },
+      include: { service: { include: { freelancer: true } } },
+    });
+
+    return NextResponse.json(updated);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("PATCH /api/escrow error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
