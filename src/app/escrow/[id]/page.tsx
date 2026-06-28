@@ -520,10 +520,12 @@ export default function EscrowPage() {
                     textAlign: "center",
                   }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)", marginBottom: 4 }}>
-                      Waiting for delivery
+                      {contract.workerName === "Awaiting acceptance" ? "Waiting for a worker" : "Waiting for delivery"}
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      {contract.workerName} is working on your job. You&apos;ll be able to review and approve once they submit.
+                      {contract.workerName === "Awaiting acceptance"
+                        ? "Budget is locked. Share the job link so workers can accept and start."
+                        : `${contract.workerName} is working on your job. You'll be able to review and approve once they submit.`}
                     </div>
                   </div>
                 )}

@@ -60,6 +60,7 @@ export default function HirePage() {
   const [walletStep, setWalletStep] = useState<WalletStep>("idle");
   const [walletError, setWalletError] = useState<string | null>(null);
   const [clientWalletAddress, setClientWalletAddress] = useState("");
+  const [isOwnJob, setIsOwnJob] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -69,13 +70,21 @@ export default function HirePage() {
           const data = await res.json();
           if (data.id) {
             setService(data);
-            // For jobs, pre-fill the brief with the job description and the worker's name
             if (data.type === "job") {
               const profile = loadProfile();
+              // Block job poster from self-accepting
+              const posterWallet = data.freelancer?.walletAddress || "";
+              const posterName = (data.freelancer?.name || "").toLowerCase();
+              const myWallet = (profile.walletAddress || "").toLowerCase();
+              const myName = (profile.name || "").toLowerCase();
+              if ((myWallet && posterWallet && myWallet === posterWallet) ||
+                  (myName && posterName && myName === posterName)) {
+                setIsOwnJob(true);
+              }
               setForm(f => ({
                 ...f,
                 clientName: profile.name || f.clientName,
-                brief: data.description,
+                brief: "",
               }));
             }
           } else {
@@ -430,14 +439,21 @@ export default function HirePage() {
                     ))}
                   </div>
 
-                  <button
-                    onClick={() => setPhase("brief")}
-                    className="w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5"
-                    style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
-                  >
-                    {isJob ? "Accept this job" : "Submit brief and fund escrow"}
-                    <ArrowRight size={14} />
-                  </button>
+                  {isOwnJob ? (
+                    <div className="w-full py-4 rounded-xl text-sm text-center"
+                      style={{ background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", color: "rgba(255,255,255,.45)" }}>
+                      This is your job posting — you can&apos;t accept your own job.
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setPhase("brief")}
+                      className="w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5"
+                      style={{ background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000", boxShadow: "0 8px 30px rgba(0,229,195,.15)" }}
+                    >
+                      {isJob ? "Accept this job" : "Submit brief and fund escrow"}
+                      <ArrowRight size={14} />
+                    </button>
+                  )}
 
                   <div
                     className="text-center text-xs mt-4 leading-relaxed"
@@ -520,12 +536,29 @@ export default function HirePage() {
                   )}
 
                   {isJob && (
-                    <div className="p-4 rounded-xl text-sm" style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
-                      <div className="font-semibold mb-2">Job requirements</div>
-                      <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,.72)" }}>
-                        {service.description}
-                      </p>
-                    </div>
+                    <>
+                      <div className="p-4 rounded-xl text-sm" style={{ background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,.010) 100%)", border: "1px solid rgba(255,255,255,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
+                        <div className="font-semibold mb-2">Job requirements</div>
+                        <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,.72)" }}>
+                          {service.description}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+                          Your approach / proposal <span style={{ color: "rgba(255,255,255,.35)" }}>(optional)</span>
+                        </label>
+                        <textarea
+                          rows={3}
+                          placeholder="Briefly describe how you'll approach this job, your relevant experience, or any questions..."
+                          value={form.brief}
+                          onChange={(e) => setForm((f) => ({ ...f, brief: e.target.value }))}
+                          className="w-full px-4 py-3 rounded-lg text-sm outline-none resize-none transition-all duration-200"
+                          style={{ background: "rgba(255,255,255,.025)", border: "1px solid rgba(255,255,255,.08)", color: "#FFFFFF" }}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)")}
+                          onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,.08)")}
+                        />
+                      </div>
+                    </>
                   )}
 
                   {/* Escrow summary */}
