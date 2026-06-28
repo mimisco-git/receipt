@@ -1,10 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getTokenBalance, getBuyerAddress, getSellerAddress } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // ?address=0x... — check a specific user wallet balance
+    const userAddress = new URL(req.url).searchParams.get("address");
+    if (userAddress) {
+      const [usdc, eurc] = await Promise.all([
+        getTokenBalance(userAddress, "USDC"),
+        getTokenBalance(userAddress, "EURC"),
+      ]);
+      return NextResponse.json({ address: userAddress, usdc, eurc, chain: "Arc Testnet" });
+    }
+
     const buyerAddr = await getBuyerAddress();
     const sellerAddr = await getSellerAddress();
 

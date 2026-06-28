@@ -152,7 +152,9 @@ export async function PATCH(req: NextRequest) {
       where: { id: contract.id, clientName: "open" },
       data: {
         clientName: workerName,
-        brief: workerProposal || contract.brief,
+        // brief stays as original job requirements so AI evaluates correctly
+        // worker's acceptance note stored in clientEmail (reused field)
+        clientEmail: workerProposal || null,
       },
     });
 

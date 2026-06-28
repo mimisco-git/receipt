@@ -13,15 +13,14 @@ type ViewerRole = "worker" | "client" | "unknown";
 interface ContractData {
   id: string;
   brief: string;
+  workerProposal: string;
   amountUsdc: number;
   netAmountUsdc: number;
   currency: "USDC" | "EURC";
   serviceTitle: string;
   serviceType: "service" | "job";
-  // Who actually does the work
   workerName: string;
   workerAddress: string;
-  // Who pays
   payerName: string;
   deliveryNote: string;
   status: Phase;
@@ -43,10 +42,13 @@ export default function EscrowPage() {
   const [agentReasoning, setAgentReasoning] = useState("");
   const [agentModel, setAgentModel]     = useState("");
   const [x402Info, setX402Info]         = useState<{ paid: boolean; fee: string; payer: string } | null>(null);
+  const [linkCopied, setLinkCopied]     = useState(false);
+  const [refundMsg, setRefundMsg]       = useState("");
 
   const [contract, setContract] = useState<ContractData>({
     id: id as string,
     brief: "",
+    workerProposal: "",
     amountUsdc: 0,
     netAmountUsdc: 0,
     currency: "USDC",
@@ -89,6 +91,8 @@ export default function EscrowPage() {
         const c: ContractData = {
           id: id as string,
           brief: data.brief,
+          // For jobs, worker acceptance note is stored in clientEmail
+          workerProposal: isJob ? (data.clientEmail || "") : "",
           amountUsdc: data.amountUsdc || 0,
           netAmountUsdc: data.netAmountUsdc || 0,
           currency: data.currency || "USDC",
@@ -255,6 +259,32 @@ export default function EscrowPage() {
     setPhase("disputed");
   }
 
+  async function requestRefund() {
+    try {
+      const res = await fetch("/api/agent", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractId: id, action: "REFUND", currency: contract.currency }),
+      });
+      const data = await res.json();
+      if (data.settled) {
+        if (data.txHash) setTxHash(data.txHash);
+        if (data.settlementMs) setSettlementMs(data.settlementMs);
+        setPhase("settled");
+      } else {
+        setRefundMsg(data.message || "Refund request submitted. Platform team will follow up.");
+      }
+    } catch {
+      setRefundMsg("Refund request submitted. Platform team will follow up.");
+    }
+  }
+
+  function copyContractLink() {
+    navigator.clipboard?.writeText(window.location.href).catch(() => {});
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2200);
+  }
+
   const orbState = phase === "settled" || phase === "approved" ? "released"
     : (phase === "pending" || phase === "delivered" || phase === "evaluating") ? "locked"
     : "idle";
@@ -271,17 +301,33 @@ export default function EscrowPage() {
 
         {/* Header */}
         <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "3px 10px", borderRadius: 999,
-            background: "rgba(255,255,255,.025)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,.08)",
-            fontSize: 11, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
-            marginBottom: 12,
-          }}>
-            Contract #{(id as string)?.slice(0, 8)}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 12 }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "3px 10px", borderRadius: 999,
+              background: "rgba(255,255,255,.025)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,.08)",
+              fontSize: 11, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
+            }}>
+              Contract #{(id as string)?.slice(0, 8)}
+            </div>
+            <button onClick={copyContractLink} style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "3px 10px", borderRadius: 999, cursor: "pointer",
+              background: linkCopied ? "rgba(0,229,195,0.1)" : "rgba(255,255,255,.025)",
+              border: `1px solid ${linkCopied ? "rgba(0,229,195,0.3)" : "rgba(255,255,255,.08)"}`,
+              color: linkCopied ? "var(--green)" : "var(--text-3)",
+              fontSize: 11, transition: "all 0.2s ease",
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {linkCopied
+                  ? <polyline points="20 6 9 17 4 12" />
+                  : <><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>}
+              </svg>
+              {linkCopied ? "Copied" : "Share"}
+            </button>
           </div>
           <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.04em", marginBottom: 4 }}>
             {contract.serviceTitle}
@@ -388,11 +434,11 @@ export default function EscrowPage() {
             {/* Right: Flow */}
             <div style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 14 }}>
               <div>
-                {/* Brief */}
+                {/* Brief / Job requirements */}
                 <div style={{
                   padding: "12px 14px", borderRadius: "var(--r)",
                   background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)",
-                  marginBottom: 12,
+                  marginBottom: contract.workerProposal ? 8 : 12,
                 }}>
                   <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
                     {isWorker ? "Job requirements" : "Your brief"}
@@ -401,6 +447,22 @@ export default function EscrowPage() {
                     {contract.brief}
                   </div>
                 </div>
+
+                {/* Worker acceptance note (job flow only) */}
+                {contract.workerProposal && (
+                  <div style={{
+                    padding: "12px 14px", borderRadius: "var(--r)",
+                    background: "rgba(0,229,195,0.03)", border: "1px solid rgba(0,229,195,0.1)",
+                    marginBottom: 12,
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--green)", textTransform: "uppercase", marginBottom: 7 }}>
+                      Worker acceptance note
+                    </div>
+                    <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", fontStyle: "italic", paddingLeft: 10, borderLeft: "2px solid rgba(0,229,195,0.2)" }}>
+                      {contract.workerProposal}
+                    </div>
+                  </div>
+                )}
 
                 {/* WORKER: Delivery input (only in pending phase) */}
                 <AnimatePresence>
@@ -631,8 +693,16 @@ export default function EscrowPage() {
                 )}
 
                 {phase === "disputed" && (
-                  <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
-                    Dispute opened. Both parties can review the contract details and reach a resolution.
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
+                      {refundMsg || "Dispute opened. Both parties can review the contract details and reach a resolution."}
+                    </div>
+                    {isClient && !refundMsg && (
+                      <button onClick={requestRefund} className="btn-ghost"
+                        style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13, borderColor: "rgba(255,68,68,0.3)", color: "var(--red)" }}>
+                        Request refund
+                      </button>
+                    )}
                   </div>
                 )}
 

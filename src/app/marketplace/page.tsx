@@ -154,14 +154,19 @@ export default function Marketplace() {
                 const sym = item.currency === "EURC" ? "€" : "$";
                 const isJob = item.type === "job";
                 const isFunded = isJob && item.funded;
+                const expiresAt = new Date(item.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000;
+                const msLeft = expiresAt - Date.now();
+                const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+                const isExpired = isJob && !isFunded && msLeft <= 0;
                 return (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04 }}
+                    style={{ opacity: isExpired ? 0.45 : 1 }}
                   >
-                    <Link href={`/hire/${item.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <Link href={isExpired ? "#" : `/hire/${item.slug}`} style={{ textDecoration: "none", color: "inherit", pointerEvents: isExpired ? "none" : "auto" }}>
                       <div
                         style={{
                           padding: 20,
@@ -281,12 +286,22 @@ export default function Marketplace() {
                           </span>
                         </div>
 
-                        {/* Posted time */}
-                        {item.createdAt && (
-                          <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 10 }}>
-                            Posted {timeAgo(new Date(item.createdAt))}
-                          </div>
-                        )}
+                        {/* Posted time + expiry */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+                          {item.createdAt && (
+                            <div style={{ fontSize: 11, color: "var(--text-3)" }}>
+                              Posted {timeAgo(new Date(item.createdAt))}
+                            </div>
+                          )}
+                          {isJob && (
+                            <div style={{
+                              fontSize: 10, fontWeight: 600,
+                              color: isExpired ? "var(--red)" : daysLeft <= 2 ? "var(--amber)" : "var(--text-3)",
+                            }}>
+                              {isExpired ? "Expired" : `Expires in ${daysLeft}d`}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </Link>
                   </motion.div>

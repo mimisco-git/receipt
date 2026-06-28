@@ -252,6 +252,43 @@ export async function PUT(req: NextRequest) {
       });
     }
 
+    if (action === "REFUND") {
+      try {
+        const { db } = await import("@/lib/db");
+        const contract = await db.contract.findUnique({
+          where: { id: contractId },
+          include: { freelancer: true, service: true },
+        });
+
+        const isJob = contract?.service?.type === "job";
+        // For jobs: payer is the freelancer (job poster) — refund to their wallet
+        // For services: payer wallet not stored — platform team handles manually
+        const refundAddress = isJob ? contract?.freelancer?.walletAddress : null;
+
+        if (refundAddress && !refundAddress.startsWith("pending") && contract) {
+          const result = await releaseEscrow({
+            toAddress: refundAddress,
+            amount: contract.amountUsdc, // full refund
+            currency: (contract.currency || "USDC") as Currency,
+          });
+
+          await db.contract.update({
+            where: { id: contractId },
+            data: { status: result.success ? "SETTLED" : "DISPUTED", settledAt: result.success ? new Date() : null, settleTxHash: result.txHash || null },
+          });
+
+          return NextResponse.json({ contractId, action: "REFUND", settled: result.success, txHash: result.txHash, settlementMs: result.settlementMs, toAddress: refundAddress });
+        }
+
+        // Can't auto-refund — log dispute for manual review
+        await db.contract.update({ where: { id: contractId }, data: { status: "DISPUTED" } });
+        return NextResponse.json({ contractId, action: "REFUND", settled: false, message: "Dispute logged. Platform team will process your refund within 24 hours." });
+      } catch (refundErr) {
+        console.error("REFUND error:", refundErr);
+        return NextResponse.json({ contractId, action: "REFUND", settled: false, message: "Refund request received. Platform team will follow up." });
+      }
+    }
+
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

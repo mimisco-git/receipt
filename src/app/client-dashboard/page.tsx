@@ -32,10 +32,18 @@ export default function ClientDashboardPage() {
   const router = useRouter();
   const [contracts, setContracts] = useState<ClientContract[]>([]);
   const [profile, setProfile] = useState({ name: "Client", walletAddress: "", bio: "", avatarColor: "#00E5C3", avatarUrl: null as string | null });
+  const [balance, setBalance] = useState<{ usdc: number; eurc: number } | null>(null);
 
   useEffect(() => {
     const p = loadProfile();
     if (p.name) setProfile({ name: p.name, walletAddress: p.walletAddress, bio: p.bio, avatarColor: p.avatarColor, avatarUrl: p.avatarUrl });
+
+    if (p.walletAddress && !p.walletAddress.startsWith("pending")) {
+      fetch(`/api/wallet/balances?address=${p.walletAddress}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.usdc !== undefined) setBalance({ usdc: d.usdc, eurc: d.eurc }); })
+        .catch(() => {});
+    }
 
     if (!p.name) return;
 
@@ -113,6 +121,19 @@ export default function ClientDashboardPage() {
                 </div>
               )}
             </div>
+            {balance && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginRight: 8, alignItems: "flex-end" }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
+                  ${balance.usdc.toFixed(2)} USDC
+                </div>
+                {balance.eurc > 0 && (
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--blue)", fontFamily: '"DM Mono", monospace' }}>
+                    €{balance.eurc.toFixed(2)} EURC
+                  </div>
+                )}
+                <div style={{ fontSize: 9, color: "var(--text-3)", letterSpacing: "0.04em" }}>WALLET</div>
+              </div>
+            )}
             <button onClick={() => router.push("/profile")} className="btn-ghost"
               style={{ padding: "8px 14px", borderRadius: "var(--r-sm)", fontSize: 12, flexShrink: 0 }}>
               Edit
