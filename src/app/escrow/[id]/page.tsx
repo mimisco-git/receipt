@@ -247,7 +247,10 @@ export default function EscrowPage() {
         }, 16);
       } catch (err) {
         console.error("Agent evaluation failed:", err);
-        setAgentReasoning("Evaluation encountered an error.");
+        const errMsg = "Evaluation encountered an error. Client can manually approve or flag the delivery.";
+        setAgentReasoning(errMsg);
+        setDisplayReasoning(errMsg);
+        setTypingDone(true);
         setAgentScore(50);
         setScoreRunning(false);
       }
