@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { saveProfile, clearProfile, getInitials, type ProfileData, loadProfile } from "@/lib/profile";
+import { saveProfile, clearProfile, getInitials, computeVerified, type ProfileData, loadProfile } from "@/lib/profile";
 import Nav from "@/components/layout/Nav";
 
 const AVATAR_COLORS = [
@@ -110,7 +110,8 @@ export default function ProfilePage() {
         }
       }
 
-      const toSave: ProfileData = { ...form, walletAddress, avatarUrl };
+      const verified = computeVerified({ ...form, walletAddress, avatarUrl });
+      const toSave: ProfileData = { ...form, walletAddress, avatarUrl, verified };
       saveProfile(toSave);
 
       // Upsert in DB so wallet sign-in works on return visits
@@ -119,7 +120,7 @@ export default function ProfilePage() {
           await fetch("/api/profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: toSave.name, bio: toSave.bio, walletAddress, avatarColor: toSave.avatarColor }),
+            body: JSON.stringify({ name: toSave.name, bio: toSave.bio, walletAddress, avatarColor: toSave.avatarColor, verified }),
           });
         } catch {
           // Non-fatal — localStorage save is the source of truth during the session
@@ -164,7 +165,7 @@ export default function ProfilePage() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
 
           <div style={{ marginBottom: 28 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
               <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 700, letterSpacing: "-0.04em" }}>
                 Your profile
               </h1>
@@ -172,6 +173,19 @@ export default function ProfilePage() {
                 <span className={form.role === "worker" ? "pill pill-green" : "pill pill-muted"}>
                   <span className="pill-dot" />
                   {form.role === "worker" ? "Worker" : "Client"}
+                </span>
+              )}
+              {form.role && computeVerified({ ...form, avatarUrl }) && (
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
+                  background: "rgba(0,229,195,0.12)", color: "var(--green)",
+                  border: "1px solid rgba(0,229,195,0.25)",
+                }}>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Verified
                 </span>
               )}
             </div>
@@ -323,6 +337,9 @@ export default function ProfilePage() {
             )}
           </Section>
 
+          {/* VERIFICATION */}
+          {form.role && <VerificationSection form={{ ...form, avatarUrl }} />}
+
           {/* ACTIONS */}
           <div style={{ display: "flex", gap: 10 }}>
             <button onClick={handleSave} disabled={saving || !form.name.trim() || !form.role} className="btn-primary"
@@ -383,6 +400,109 @@ export default function ProfilePage() {
         select option { background: #080808; color: #fff; }
         select:focus { border-color: var(--green-border) !important; box-shadow: 0 0 0 3px var(--green-dim) !important; }
       `}</style>
+    </div>
+  );
+}
+
+function VerificationSection({ form }: { form: ProfileData & { avatarUrl: string | null } }) {
+  const isVerified = computeVerified(form);
+
+  const workerCriteria = [
+    { label: "Wallet connected", met: !!(form.walletAddress && !form.walletAddress.startsWith("pending")) },
+    { label: "Name provided", met: form.name.trim().length >= 2 },
+    { label: "Bio (min 15 characters)", met: form.bio.trim().length >= 15 },
+    { label: "Skills, website, or Twitter/X", met: !!(form.skills.trim() || form.website.trim() || form.twitter.trim()) },
+  ];
+
+  const clientCriteria = [
+    { label: "Wallet connected", met: !!(form.walletAddress && !form.walletAddress.startsWith("pending")) },
+    { label: "Name provided", met: form.name.trim().length >= 2 },
+    { label: "Bio or company description (min 10 characters)", met: form.bio.trim().length >= 10 },
+  ];
+
+  const criteria = form.role === "worker" ? workerCriteria : clientCriteria;
+
+  return (
+    <div style={{
+      background: isVerified
+        ? "linear-gradient(135deg, rgba(0,229,195,0.08) 0%, transparent 60%)"
+        : "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%)",
+      backdropFilter: "blur(30px) saturate(180%)",
+      WebkitBackdropFilter: "blur(30px) saturate(180%)",
+      border: isVerified ? "1px solid rgba(0,229,195,0.2)" : "1px solid rgba(255,255,255,.08)",
+      borderRadius: 28, padding: 24, marginBottom: 12,
+      boxShadow: isVerified
+        ? "0 16px 40px rgba(0,229,195,0.06), inset 0 1px 0 rgba(0,229,195,0.12)"
+        : "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Verification
+        </div>
+        {isVerified ? (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "5px 12px", borderRadius: 999,
+            background: "rgba(0,229,195,0.12)",
+            border: "1px solid rgba(0,229,195,0.3)",
+          }}>
+            <div style={{
+              width: 16, height: 16, borderRadius: "50%",
+              background: "var(--green)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#060E0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--green)" }}>Verified</span>
+          </div>
+        ) : (
+          <div style={{
+            padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600,
+            background: "rgba(255,255,255,0.04)",
+            color: "rgba(255,255,255,0.35)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}>
+            Unverified
+          </div>
+        )}
+      </div>
+
+      {/* Criteria list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {criteria.map((c, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
+              background: c.met ? "var(--green)" : "rgba(255,255,255,0.06)",
+              border: c.met ? "none" : "1px solid rgba(255,255,255,0.12)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.25s ease",
+            }}>
+              {c.met ? (
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#060E0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              ) : (
+                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
+              )}
+            </div>
+            <span style={{ fontSize: 13, color: c.met ? "var(--text-1)" : "var(--text-3)", transition: "color 0.25s ease" }}>
+              {c.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Status message */}
+      <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 14, lineHeight: 1.6 }}>
+        {isVerified
+          ? `Your profile shows a verified badge on the marketplace. Clients${form.role === "worker" ? "" : " and workers"} trust verified ${form.role === "worker" ? "workers" : "clients"} more.`
+          : `Complete all criteria above and save your profile to earn a verified badge on the marketplace.`}
+      </p>
     </div>
   );
 }

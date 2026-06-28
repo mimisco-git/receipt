@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 // Called on every profile save so sign-in by wallet always finds the user
 export async function POST(req: NextRequest) {
   try {
-    const { name, bio, walletAddress, avatarColor } = await req.json();
+    const { name, bio, walletAddress, avatarColor, verified } = await req.json();
 
     if (!name?.trim() || !walletAddress?.trim()) {
       return NextResponse.json({ error: "name and walletAddress required" }, { status: 400 });
@@ -24,12 +24,14 @@ export async function POST(req: NextRequest) {
         name: name.trim(),
         bio: bio?.trim() || null,
         avatarColor: avatarColor || "#00E5C3",
+        ...(typeof verified === "boolean" ? { verified } : {}),
       },
       create: {
         name: name.trim(),
         bio: bio?.trim() || null,
         walletAddress: walletAddress.toLowerCase(),
         avatarColor: avatarColor || "#00E5C3",
+        ...(typeof verified === "boolean" ? { verified } : {}),
       },
     });
 

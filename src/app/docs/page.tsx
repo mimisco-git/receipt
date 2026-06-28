@@ -8,6 +8,7 @@ const sections = [
     title: "Platform Overview",
     items: [
       { label: "Receipt is an AI-mediated freelance escrow platform. Workers offer services or clients post jobs. Payment is held in escrow (USDC or EURC on Arc) and released automatically when the AI agent approves the delivery." },
+      { label: "Key features: streaming AI evaluation with real-time reasoning, AI worker matching for jobs, 1-5 star rating system, AI description enhancer, contract timeline, and confetti on settlement." },
     ],
   },
   {
@@ -31,11 +32,38 @@ const sections = [
   {
     title: "AI Agent",
     items: [
-      { label: "Model: NVIDIA NIM (meta/llama-3.3-70b-instruct)" },
+      { label: "Model: NVIDIA NIM (meta/llama-3.3-70b-instruct) with Groq and Anthropic fallback" },
       { label: "The agent scores delivery vs brief from 0-100, analyzing content quality, keyword alignment, and scope coverage." },
       { label: "APPROVE (>= 75): auto-release payment" },
       { label: "PARTIAL (40-74): human review required" },
       { label: "DISPUTE (< 40): auto-freeze funds" },
+      { label: "Evaluation streams in real-time — reasoning appears character-by-character as the agent thinks, then the score bar animates to the final value." },
+    ],
+  },
+  {
+    title: "Worker Matching Agent",
+    items: [
+      { label: "When a client posts a job, the AI matching agent scans all active freelancers and ranks the top 3 best fits." },
+      { label: "Rankings consider the job brief, worker titles, and service descriptions — not random ordering." },
+      { label: "Each match includes a one-line reason explaining why that worker fits the brief." },
+      { label: "POST /api/agent/match — { brief, serviceId } → { matches: [{ name, title, slug, reason, jobsDone }] }", mono: true },
+    ],
+  },
+  {
+    title: "Rating System",
+    items: [
+      { label: "After a contract settles, clients can rate the worker 1–5 stars with an optional note." },
+      { label: "Ratings are averaged per freelancer and displayed on their marketplace listing card." },
+      { label: "Only SETTLED contracts with a non-null rating count toward the average — no fake or pending ratings." },
+      { label: "POST /api/rating — { contractId, rating, note } → updates contract record", mono: true },
+    ],
+  },
+  {
+    title: "AI Description Enhancer",
+    items: [
+      { label: "When creating a service or job listing, click '✦ Enhance with AI' to rewrite your description." },
+      { label: "The AI rewrites the description to be clearer, more professional, and more likely to attract quality clients or workers." },
+      { label: "POST /api/ai/enhance — { text, context } → { enhanced, model }", mono: true },
     ],
   },
   {
@@ -54,10 +82,13 @@ const sections = [
       { label: "GET  /api/service/list — list all active services/jobs", mono: true },
       { label: "POST /api/escrow — fund escrow (real on-chain deposit)", mono: true },
       { label: "GET  /api/escrow?id=xxx — get contract details", mono: true },
-      { label: "POST /api/agent — submit delivery for AI evaluation", mono: true },
+      { label: "POST /api/agent — submit delivery for AI evaluation (streaming)", mono: true },
       { label: "PUT  /api/agent — manual approve or dispute", mono: true },
       { label: "POST /api/evaluate — x402-protected AI evaluation", mono: true },
       { label: "GET  /api/evaluate — x402 payment requirements", mono: true },
+      { label: "POST /api/agent/match — AI worker matching for job briefs", mono: true },
+      { label: "POST /api/ai/enhance — AI description enhancer", mono: true },
+      { label: "POST /api/rating — submit rating after settlement", mono: true },
       { label: "GET  /api/wallet/balances — live wallet balances", mono: true },
       { label: "GET  /api/stats — live platform metrics", mono: true },
       { label: "POST /api/wallet — provision Circle wallet", mono: true },

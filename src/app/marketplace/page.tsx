@@ -20,6 +20,7 @@ interface Listing {
   funded?: boolean;
   avgRating?: number | null;
   ratingCount?: number;
+  verified?: boolean;
 }
 
 export default function Marketplace() {
@@ -48,6 +49,7 @@ export default function Marketplace() {
             funded: s.funded as boolean | undefined,
             avgRating: s.avgRating as number | null | undefined,
             ratingCount: s.ratingCount as number | undefined,
+            verified: s.verified as boolean | undefined,
           })));
         }
       })
@@ -201,17 +203,46 @@ export default function Marketplace() {
                         {/* Header row */}
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{
-                              width: 38, height: 38, borderRadius: "50%",
-                              background: item.avatarColor || "var(--green)",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              fontSize: 13, fontWeight: 700, flexShrink: 0, color: "#fff",
-                            }}>
-                              {initials}
+                            <div style={{ position: "relative", flexShrink: 0 }}>
+                              <div style={{
+                                width: 38, height: 38, borderRadius: "50%",
+                                background: item.avatarColor || "var(--green)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 13, fontWeight: 700, color: "#fff",
+                              }}>
+                                {initials}
+                              </div>
+                              {item.verified && (
+                                <div title="Verified" style={{
+                                  position: "absolute", bottom: -2, right: -2,
+                                  width: 16, height: 16, borderRadius: "50%",
+                                  background: "var(--green)",
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  border: "2px solid var(--bg)",
+                                }}>
+                                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#060E0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                  </svg>
+                                </div>
+                              )}
                             </div>
                             <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: 13, fontWeight: 600 }}>
-                                {item.freelancerName}
+                              <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+                                <span style={{ fontSize: 13, fontWeight: 600 }}>
+                                  {item.freelancerName}
+                                </span>
+                                {item.verified && (
+                                  <span style={{
+                                    fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+                                    padding: "1px 6px", borderRadius: 999,
+                                    background: "rgba(0,229,195,0.12)",
+                                    color: "var(--green)",
+                                    border: "1px solid rgba(0,229,195,0.25)",
+                                    textTransform: "uppercase",
+                                  }}>
+                                    Verified
+                                  </span>
+                                )}
                               </div>
                               {item.freelancerBio && (
                                 <div style={{ fontSize: 11, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -283,21 +314,52 @@ export default function Marketplace() {
                         </p>
 
                         {/* Price + CTA */}
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
                           <div>
                             <span className="font-mono" style={{ fontSize: 18, fontWeight: 700, color: "var(--green)" }}>
                               {sym}{formatUsdc(item.priceUsdc)}
                             </span>
                             <span style={{ fontSize: 11, color: "var(--text-3)", marginLeft: 4 }}>{item.currency}</span>
                           </div>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: isFunded ? "var(--green)" : isJob ? "rgba(255,255,255,0.3)" : "var(--green)", display: "flex", alignItems: "center", gap: 4 }}>
-                            {isJob ? (isFunded ? "Accept →" : "View") : "Hire"}
-                            {!isJob && (
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                                <polyline points="9 18 15 12 9 6" />
-                              </svg>
-                            )}
-                          </span>
+                          {isJob ? (
+                            isFunded ? (
+                              <span style={{
+                                padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 700,
+                                background: "linear-gradient(135deg, rgba(0,229,195,0.18) 0%, rgba(0,229,195,0.09) 100%)",
+                                color: "var(--green)",
+                                border: "1px solid rgba(0,229,195,0.35)",
+                                display: "inline-flex", alignItems: "center", gap: 5,
+                                letterSpacing: "0.01em",
+                                boxShadow: "0 2px 8px rgba(0,229,195,0.12)",
+                              }}>
+                                Accept
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                              </span>
+                            ) : (
+                              <span style={{
+                                padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 600,
+                                background: "rgba(255,255,255,0.04)",
+                                color: "rgba(255,255,255,0.35)",
+                                border: "1px solid rgba(255,255,255,0.08)",
+                                display: "inline-flex", alignItems: "center", gap: 5,
+                              }}>
+                                View
+                              </span>
+                            )
+                          ) : (
+                            <span style={{
+                              padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 700,
+                              background: "linear-gradient(135deg, rgba(0,229,195,0.18) 0%, rgba(0,229,195,0.09) 100%)",
+                              color: "var(--green)",
+                              border: "1px solid rgba(0,229,195,0.35)",
+                              display: "inline-flex", alignItems: "center", gap: 5,
+                              letterSpacing: "0.01em",
+                              boxShadow: "0 2px 8px rgba(0,229,195,0.12)",
+                            }}>
+                              Hire
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            </span>
+                          )}
                         </div>
 
                         {/* Posted time + expiry */}

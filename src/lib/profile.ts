@@ -13,6 +13,7 @@ export interface ProfileData {
   avatarUrl: string | null;
   hourlyRate: string;
   availability: string;
+  verified?: boolean;
 }
 
 export const DEFAULT_PROFILE: ProfileData = {
@@ -27,7 +28,21 @@ export const DEFAULT_PROFILE: ProfileData = {
   avatarUrl: null,
   hourlyRate: "",
   availability: "available",
+  verified: false,
 };
+
+export function computeVerified(p: ProfileData): boolean {
+  const hasWallet = !!(p.walletAddress && !p.walletAddress.startsWith("pending"));
+  const hasName = p.name.trim().length >= 2;
+  if (!hasWallet || !hasName) return false;
+  if (p.role === "worker") {
+    return p.bio.trim().length >= 15 && !!(p.skills.trim() || p.website.trim() || p.twitter.trim());
+  }
+  if (p.role === "client") {
+    return p.bio.trim().length >= 10;
+  }
+  return false;
+}
 
 export function loadProfile(): ProfileData {
   if (typeof window === "undefined") return DEFAULT_PROFILE;

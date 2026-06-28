@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
       funded: s.type === "job" ? fundedSet.has(s.id as string) : undefined,
       avgRating: ratingMap.get(s.freelancerId as string)?.avg ?? null,
       ratingCount: ratingMap.get(s.freelancerId as string)?.count ?? 0,
+      verified: (s.freelancer as Record<string, unknown> | null)?.verified ?? false,
     }));
 
     return NextResponse.json({ services: result });

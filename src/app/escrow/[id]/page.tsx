@@ -27,6 +27,7 @@ interface ContractData {
   payerName: string;
   deliveryNote: string;
   status: Phase;
+  workerVerified?: boolean;
 }
 
 export default function EscrowPage() {
@@ -102,6 +103,7 @@ export default function EscrowPage() {
         const workerAddress = isJob ? "" : freelancerAddr;
         const payerName = isJob ? freelancerName : data.clientName;
 
+        const freelancerVerified = data.freelancer?.verified ?? data.service?.freelancer?.verified ?? false;
         const c: ContractData = {
           id: id as string,
           serviceId: data.serviceId || "",
@@ -118,6 +120,7 @@ export default function EscrowPage() {
           payerName,
           deliveryNote: data.deliveryNote || "",
           status: rawStatus || "pending",
+          workerVerified: isJob ? false : freelancerVerified,
         };
         setContract(c);
         if (rawStatus) setPhase(rawStatus);
@@ -412,11 +415,24 @@ export default function EscrowPage() {
           <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.04em", marginBottom: 4 }}>
             {contract.serviceTitle}
           </h1>
-          <p style={{ fontSize: 14, color: "var(--text-2)" }}>
-            {isWorker
-              ? `Client: ${contract.payerName}`
-              : `Worker: ${contract.workerName}`}
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: 14, color: "var(--text-2)" }}>
+            <span>
+              {isWorker ? `Client: ${contract.payerName}` : `Worker: ${contract.workerName}`}
+            </span>
+            {!isWorker && contract.workerVerified && contract.workerName !== "Awaiting acceptance" && (
+              <span title="Verified worker" style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                padding: "2px 8px", borderRadius: 999, fontSize: 10, fontWeight: 700,
+                background: "rgba(0,229,195,0.12)", color: "var(--green)",
+                border: "1px solid rgba(0,229,195,0.25)", letterSpacing: "0.05em",
+              }}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                VERIFIED
+              </span>
+            )}
+          </div>
           {viewerRole !== "unknown" && (
             <div style={{
               display: "inline-block", marginTop: 6,
