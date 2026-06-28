@@ -62,6 +62,20 @@ export default function QuizPage() {
         setPhase("error");
         return;
       }
+      // Enforce 24h cooldown after a failed attempt
+      const lastAttempt = localStorage.getItem("quiz_last_attempt");
+      if (lastAttempt) {
+        const elapsed = Date.now() - parseInt(lastAttempt, 10);
+        const cooldown = 24 * 60 * 60 * 1000;
+        if (elapsed < cooldown) {
+          const hoursLeft = Math.ceil((cooldown - elapsed) / (60 * 60 * 1000));
+          setErrorMsg(`Assessment on cooldown. You can retake in ${hoursLeft} hour${hoursLeft !== 1 ? "s" : ""}.`);
+          setPhase("error");
+          return;
+        } else {
+          localStorage.removeItem("quiz_last_attempt");
+        }
+      }
       setSkills(profile.skills);
       generateQuiz(profile.walletAddress, profile.skills);
     } catch {
@@ -385,18 +399,28 @@ export default function QuizPage() {
               </div>
 
               {isLast ? (
-                <button
-                  onClick={submitQuiz}
-                  disabled={!allAnswered}
-                  className="btn-primary"
-                  style={{
-                    padding: "12px 22px", borderRadius: 12, fontSize: 13, fontWeight: 700,
-                    opacity: allAnswered ? 1 : 0.45,
-                    cursor: allAnswered ? "pointer" : "default",
-                  }}
-                >
-                  Submit Assessment →
-                </button>
+                <div style={{ position: "relative", display: "inline-flex", borderRadius: 14, padding: allAnswered ? 1.5 : 0, opacity: allAnswered ? 1 : 0.45 }}>
+                  {allAnswered && (
+                    <div style={{
+                      position: "absolute", inset: 0, borderRadius: 14,
+                      background: "conic-gradient(from 0deg, transparent 0deg, rgba(0,229,195,0.9) 55deg, #23FFE0 100deg, rgba(0,229,195,0.9) 145deg, transparent 210deg)",
+                      animation: "spin 2.5s linear infinite",
+                      zIndex: 0,
+                    }} />
+                  )}
+                  <button
+                    onClick={submitQuiz}
+                    disabled={!allAnswered}
+                    className="btn-primary"
+                    style={{
+                      position: "relative", zIndex: 1,
+                      padding: "12px 22px", borderRadius: allAnswered ? 12 : 12, fontSize: 13, fontWeight: 700,
+                      cursor: allAnswered ? "pointer" : "default",
+                    }}
+                  >
+                    Submit Assessment →
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={goNext}
@@ -624,15 +648,15 @@ export default function QuizPage() {
           >
             <div style={{
               width: 64, height: 64, borderRadius: "50%",
-              background: "linear-gradient(135deg, #00E5C3, #00B89C)",
+              background: "rgba(255,170,0,0.12)", border: "1px solid rgba(255,170,0,0.3)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 0 32px rgba(0,229,195,0.35)", marginBottom: 8,
+              boxShadow: "0 0 32px rgba(255,170,0,0.2)", marginBottom: 8,
             }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#060E0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#FFAA00" stroke="none">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.04em", color: "var(--green)" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.04em", color: "#FFAA00" }}>
               You&apos;re already Qualified
             </h2>
             <p style={{ fontSize: 14, color: "var(--text-2)", maxWidth: 320 }}>

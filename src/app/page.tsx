@@ -149,17 +149,26 @@ export default function HomePage() {
           transition={{ delay: 0.3, duration: 0.5 }}
           style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 60 }}
         >
-          <button
-            className="btn-primary"
-            onClick={() => router.push("/setup")}
-            style={{
-              padding: "13px 24px", borderRadius: 12,
-              display: "flex", alignItems: "center", gap: 8,
-            }}
-          >
-            Create your service link
-            <ArrowRight />
-          </button>
+          <div style={{ position: "relative", display: "inline-flex", borderRadius: 14, padding: 1.5 }}>
+            <div style={{
+              position: "absolute", inset: 0, borderRadius: 14,
+              background: "conic-gradient(from 0deg, transparent 0deg, rgba(0,229,195,0.9) 55deg, #23FFE0 100deg, rgba(0,229,195,0.9) 145deg, transparent 210deg)",
+              animation: "spin 2.5s linear infinite",
+              zIndex: 0,
+            }} />
+            <button
+              className="btn-primary"
+              onClick={() => router.push("/setup")}
+              style={{
+                position: "relative", zIndex: 1,
+                padding: "13px 24px", borderRadius: 12,
+                display: "flex", alignItems: "center", gap: 8,
+              }}
+            >
+              Create your service link
+              <ArrowRight />
+            </button>
+          </div>
           <button
             className="btn-ghost"
             onClick={() => router.push("/marketplace")}
@@ -400,18 +409,26 @@ export default function HomePage() {
           }}>
             Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
-          <button
-            className="btn-primary"
-            onClick={() => router.push("/setup")}
-            style={{
-              padding: "14px 32px", borderRadius: 13, fontSize: 14.5, fontWeight: 600,
-              display: "inline-flex", alignItems: "center", gap: 9,
-              position: "relative",
-            }}
-          >
-            Create your service link
-            <ArrowRight />
-          </button>
+          <div style={{ position: "relative", display: "inline-flex", borderRadius: 15, padding: 1.5 }}>
+            <div style={{
+              position: "absolute", inset: 0, borderRadius: 15,
+              background: "conic-gradient(from 0deg, transparent 0deg, rgba(0,229,195,0.9) 55deg, #23FFE0 100deg, rgba(0,229,195,0.9) 145deg, transparent 210deg)",
+              animation: "spin 2.5s linear infinite",
+              zIndex: 0,
+            }} />
+            <button
+              className="btn-primary"
+              onClick={() => router.push("/setup")}
+              style={{
+                position: "relative", zIndex: 1,
+                padding: "14px 32px", borderRadius: 13, fontSize: 14.5, fontWeight: 600,
+                display: "inline-flex", alignItems: "center", gap: 9,
+              }}
+            >
+              Create your service link
+              <ArrowRight />
+            </button>
+          </div>
           <div style={{ fontSize: 12, color: "rgba(255,255,255,.30)", marginTop: 14, position: "relative" }}>
             Free to use · No subscription · 10% fee per settled contract
           </div>

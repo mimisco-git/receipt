@@ -546,25 +546,37 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                 <span style={{ fontSize: 12, fontWeight: 700, color: "#FFAA00" }}>Qualified</span>
               </div>
             ) : (
-              <button
-                onClick={onNavigateToQuiz}
-                style={{
-                  padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
-                  background: "linear-gradient(135deg, rgba(255,170,0,0.15), rgba(255,170,0,0.06))",
-                  border: "1px solid rgba(255,170,0,0.35)",
-                  color: "#FFAA00", cursor: "pointer",
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  transition: "all 0.15s ease",
-                  whiteSpace: "nowrap",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,170,0,0.2)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,170,0,0.15), rgba(255,170,0,0.06))"; }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                Take Assessment →
-              </button>
+              <div style={{ position: "relative", display: "inline-flex", borderRadius: 12, padding: 1.5 }}>
+                {/* Amber spinning ring */}
+                <div style={{
+                  position: "absolute", inset: 0, borderRadius: 12,
+                  background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,170,0,0.9) 55deg, #FFD460 100deg, rgba(255,170,0,0.9) 145deg, transparent 210deg)",
+                  animation: "spin 2.5s linear infinite",
+                  zIndex: 0,
+                }} />
+                {/* Dark inner mask so ring is only visible at edges */}
+                <div style={{ position: "absolute", inset: 1.5, borderRadius: 10.5, background: "#060E0A", zIndex: 1 }} />
+                <button
+                  onClick={onNavigateToQuiz}
+                  style={{
+                    position: "relative", zIndex: 2,
+                    padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
+                    background: "rgba(255,170,0,0.1)",
+                    border: "none",
+                    color: "#FFAA00", cursor: "pointer",
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    transition: "background 0.15s ease",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,170,0,0.18)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,170,0,0.1)"; }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  Take Assessment →
+                </button>
+              </div>
             )}
           </div>
         </div>
