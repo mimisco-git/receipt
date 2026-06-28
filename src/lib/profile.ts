@@ -14,6 +14,8 @@ export interface ProfileData {
   hourlyRate: string;
   availability: string;
   verified?: boolean;
+  quizPassed?: boolean;
+  quizScore?: number;
 }
 
 export const DEFAULT_PROFILE: ProfileData = {
@@ -29,6 +31,8 @@ export const DEFAULT_PROFILE: ProfileData = {
   hourlyRate: "",
   availability: "available",
   verified: false,
+  quizPassed: false,
+  quizScore: undefined,
 };
 
 export function computeVerified(p: ProfileData): boolean {

@@ -187,6 +187,19 @@ export default function ProfilePage() {
                   Verified
                 </span>
               )}
+              {form.role === "worker" && form.quizPassed && (
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
+                  background: "rgba(255,170,0,0.12)", color: "#FFAA00",
+                  border: "1px solid rgba(255,170,0,0.3)",
+                }}>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  Qualified
+                </span>
+              )}
             </div>
             <p style={{ fontSize: 14, color: "var(--text-2)" }}>
               Saved automatically. Clients see this when they open your service link.
@@ -337,7 +350,7 @@ export default function ProfilePage() {
           </Section>
 
           {/* VERIFICATION */}
-          {form.role && <VerificationSection form={{ ...form, avatarUrl }} />}
+          {form.role && <VerificationSection form={{ ...form, avatarUrl }} onNavigateToQuiz={() => router.push("/quiz")} />}
 
           {/* ACTIONS */}
           <div style={{ display: "flex", gap: 10 }}>
@@ -403,8 +416,9 @@ export default function ProfilePage() {
   );
 }
 
-function VerificationSection({ form }: { form: ProfileData }) {
+function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; onNavigateToQuiz: () => void }) {
   const isVerified = computeVerified(form);
+  const isQualified = !!form.quizPassed;
 
   const workerCriteria = [
     { label: "Wallet connected", met: !!(form.walletAddress && !form.walletAddress.startsWith("pending")) },
@@ -502,6 +516,59 @@ function VerificationSection({ form }: { form: ProfileData }) {
           ? `Your profile shows a verified badge on the marketplace. Clients${form.role === "worker" ? "" : " and workers"} trust verified ${form.role === "worker" ? "workers" : "clients"} more.`
           : `Complete all criteria above and save your profile to earn a verified badge on the marketplace.`}
       </p>
+
+      {/* Skills Assessment (workers only) */}
+      {form.role === "worker" && (
+        <div style={{
+          marginTop: 16, paddingTop: 16,
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 3 }}>
+                Skills Assessment
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-3)", lineHeight: 1.5 }}>
+                {isQualified
+                  ? `Passed with ${form.quizScore ?? "—"}% — Qualified badge visible on marketplace`
+                  : "Pass a 6-question AI quiz to earn the Qualified badge"}
+              </div>
+            </div>
+            {isQualified ? (
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "6px 14px", borderRadius: 999,
+                background: "rgba(255,170,0,0.1)", border: "1px solid rgba(255,170,0,0.3)",
+              }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFAA00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#FFAA00" }}>Qualified</span>
+              </div>
+            ) : (
+              <button
+                onClick={onNavigateToQuiz}
+                style={{
+                  padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
+                  background: "linear-gradient(135deg, rgba(255,170,0,0.15), rgba(255,170,0,0.06))",
+                  border: "1px solid rgba(255,170,0,0.35)",
+                  color: "#FFAA00", cursor: "pointer",
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  transition: "all 0.15s ease",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,170,0,0.2)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,170,0,0.15), rgba(255,170,0,0.06))"; }}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Take Assessment →
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -21,6 +21,7 @@ interface Listing {
   avgRating?: number | null;
   ratingCount?: number;
   verified?: boolean;
+  quizPassed?: boolean;
 }
 
 export default function Marketplace() {
@@ -50,6 +51,7 @@ export default function Marketplace() {
             avgRating: s.avgRating as number | null | undefined,
             ratingCount: s.ratingCount as number | undefined,
             verified: s.verified as boolean | undefined,
+            quizPassed: s.quizPassed as boolean | undefined,
           })));
         }
       })
@@ -241,6 +243,22 @@ export default function Marketplace() {
                                     textTransform: "uppercase",
                                   }}>
                                     Verified
+                                  </span>
+                                )}
+                                {item.quizPassed && (
+                                  <span title="Skills assessment passed" style={{
+                                    fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+                                    padding: "1px 6px", borderRadius: 999,
+                                    background: "rgba(255,170,0,0.12)",
+                                    color: "#FFAA00",
+                                    border: "1px solid rgba(255,170,0,0.3)",
+                                    textTransform: "uppercase",
+                                    display: "inline-flex", alignItems: "center", gap: 3,
+                                  }}>
+                                    <svg width="7" height="7" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    Qualified
                                   </span>
                                 )}
                               </div>

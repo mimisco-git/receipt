@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
         role,
         avatarColor: freelancer.avatarColor || "#00E5C3",
         freelancerId: freelancer.id,
+        quizPassed: freelancer.quizPassed || false,
+        quizScore: freelancer.quizScore ?? undefined,
       });
     }
 
@@ -73,6 +75,8 @@ export async function POST(req: NextRequest) {
       role: role2,
       avatarColor: freelancer.avatarColor || "#00E5C3",
       freelancerId: freelancer.id,
+      quizPassed: freelancer.quizPassed || false,
+      quizScore: freelancer.quizScore ?? undefined,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

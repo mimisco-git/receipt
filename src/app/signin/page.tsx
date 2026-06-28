@@ -82,6 +82,8 @@ export default function SignInPage() {
         avatarUrl: null,
         hourlyRate: "",
         availability: "available",
+        quizPassed: data.quizPassed || false,
+        quizScore: data.quizScore ?? undefined,
       };
       saveProfile(profile);
       setConnectStep("done");
@@ -114,6 +116,8 @@ export default function SignInPage() {
         walletAddress: data.walletAddress || "", website: "", twitter: "", skills: "",
         avatarColor: data.avatarColor || "#00E5C3", avatarUrl: null,
         hourlyRate: "", availability: "available",
+        quizPassed: data.quizPassed || false,
+        quizScore: data.quizScore ?? undefined,
       };
       saveProfile(profile);
       router.push("/dashboard");

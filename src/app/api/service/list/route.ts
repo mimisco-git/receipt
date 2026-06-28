@@ -49,14 +49,15 @@ export async function GET(req: NextRequest) {
     const result = services.map((s: Record<string, unknown>) => {
       const fl = s.freelancer as Record<string, unknown> | null;
       const bio = (fl?.bio as string | null) || "";
-      // Verified = wallet exists (always true in DB) + bio has real content
       const verified = bio.trim().length >= 15;
+      const quizPassed = !!(fl?.quizPassed as boolean | null);
       return {
         ...s,
         funded: s.type === "job" ? fundedSet.has(s.id as string) : undefined,
         avgRating: ratingMap.get(s.freelancerId as string)?.avg ?? null,
         ratingCount: ratingMap.get(s.freelancerId as string)?.count ?? 0,
         verified,
+        quizPassed,
       };
     });
 
