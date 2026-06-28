@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import Footer from "@/components/layout/Footer";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Receipt: Get paid the moment your work is approved",
@@ -27,6 +28,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         <div style={{ flex: 1 }}>{children}</div>
         <Footer />
+        <Toaster
+          theme="dark"
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: "rgba(10,20,17,0.95)",
+              border: "1px solid rgba(0,229,195,0.15)",
+              color: "#fff",
+              backdropFilter: "blur(20px)",
+              fontFamily: "inherit",
+              fontSize: 13,
+            },
+          }}
+        />
       </body>
     </html>
   );

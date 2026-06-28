@@ -7,6 +7,7 @@ import { ArrowRight, Shield, Zap, Clock } from "lucide-react";
 import Nav from "@/components/layout/Nav";
 import { formatUsdc, netAmount, getInitials } from "@/lib/utils";
 import { loadProfile } from "@/lib/profile";
+import { toast } from "sonner";
 
 const TOKEN_ADDRESSES: Record<string, `0x${string}`> = {
   USDC: "0x3600000000000000000000000000000000000000",
@@ -250,6 +251,7 @@ export default function HirePage() {
         setContractId(data.id);
         setEscrowDeposited(true);
         setPhase("success");
+        toast.success("Job accepted! Funds are locked and waiting.");
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Something went wrong";
         setWalletError(msg);
@@ -309,6 +311,7 @@ export default function HirePage() {
         createdAt: new Date().toISOString(),
       }));
       setPhase("success");
+      toast.success("Payment sent! Escrow contract created.");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       setWalletError(msg);
@@ -808,11 +811,28 @@ function BriefField({ label, placeholder, value, onChange, type = "text" }: {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--space)" }}>
-      <div className="flex gap-1.5">
-        {[0, 0.2, 0.4].map((d) => (
-          <div key={d} className="w-2 h-2 rounded-full" style={{ background: "var(--mint)", opacity: 0.4, animation: `thinking 1.2s ${d}s ease-in-out infinite` }} />
-        ))}
+    <div style={{ background: "var(--space)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "100px 24px 60px" }}>
+      <div style={{
+        width: "100%", maxWidth: 480,
+        background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%)",
+        border: "1px solid rgba(255,255,255,.06)",
+        borderRadius: 28, overflow: "hidden",
+        animation: "skeleton-pulse 1.8s ease-in-out infinite",
+      }}>
+        <div style={{ padding: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,.06)", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ height: 14, borderRadius: 6, background: "rgba(255,255,255,.06)", width: "55%", marginBottom: 8 }} />
+              <div style={{ height: 10, borderRadius: 6, background: "rgba(255,255,255,.04)", width: "35%" }} />
+            </div>
+          </div>
+          <div style={{ height: 22, borderRadius: 6, background: "rgba(255,255,255,.06)", width: "70%", marginBottom: 14 }} />
+          <div style={{ height: 10, borderRadius: 6, background: "rgba(255,255,255,.04)", marginBottom: 7 }} />
+          <div style={{ height: 10, borderRadius: 6, background: "rgba(255,255,255,.04)", width: "80%", marginBottom: 7 }} />
+          <div style={{ height: 10, borderRadius: 6, background: "rgba(255,255,255,.04)", width: "60%", marginBottom: 28 }} />
+          <div style={{ height: 48, borderRadius: 12, background: "rgba(255,255,255,.06)" }} />
+        </div>
       </div>
     </div>
   );

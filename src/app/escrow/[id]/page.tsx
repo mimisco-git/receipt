@@ -5,7 +5,9 @@ import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/layout/Nav";
 import PaymentOrb from "@/components/shared/PaymentOrb";
+import Confetti from "@/components/shared/Confetti";
 import { loadProfile } from "@/lib/profile";
+import { toast } from "sonner";
 
 type Phase = "pending" | "delivered" | "evaluating" | "approved" | "settled" | "disputed";
 type ViewerRole = "worker" | "client" | "unknown";
@@ -54,6 +56,7 @@ export default function EscrowPage() {
   const [contractDates, setContractDates] = useState<{ created?: string; delivered?: string; settled?: string }>({});
   const [matches, setMatches]           = useState<{ name: string; title: string; slug: string; reason: string; jobsDone: number }[]>([]);
   const [matchesLoaded, setMatchesLoaded] = useState(false);
+  const [showConfetti, setShowConfetti]   = useState(false);
 
   const [contract, setContract] = useState<ContractData>({
     id: id as string,
@@ -179,6 +182,8 @@ export default function EscrowPage() {
     setSubmitting(true);
     setPhase("delivered");
 
+    toast("Delivery submitted — agent is reviewing...", { icon: "🤖" });
+
     setTimeout(async () => {
       setPhase("evaluating");
       setScoreRunning(true);
@@ -238,6 +243,9 @@ export default function EscrowPage() {
                   if (data.txHash) setTxHash(data.txHash);
                   if (data.settlementMs) setSettlementMs(data.settlementMs);
                   setPhase("settled");
+                  setShowConfetti(true);
+                  toast.success(`Payment settled in ${data.settlementMs || 0}ms on Arc`, { duration: 5000 });
+                  setTimeout(() => setShowConfetti(false), 4000);
                 } else {
                   setPhase("delivered");
                 }
@@ -276,7 +284,15 @@ export default function EscrowPage() {
       const data = await res.json();
       if (data.txHash) setTxHash(data.txHash);
       if (data.settlementMs) setSettlementMs(data.settlementMs);
-      setTimeout(() => setPhase(data.settled !== false ? "settled" : "disputed"), 600);
+      setTimeout(() => {
+        const settled = data.settled !== false;
+        setPhase(settled ? "settled" : "disputed");
+        if (settled) {
+          setShowConfetti(true);
+          toast.success(`Payment released in ${data.settlementMs || 0}ms`, { duration: 5000 });
+          setTimeout(() => setShowConfetti(false), 4000);
+        }
+      }, 600);
     } catch (err) {
       console.error("Settlement failed:", err);
       setTimeout(() => setPhase("disputed"), 600);
@@ -323,6 +339,7 @@ export default function EscrowPage() {
         body: JSON.stringify({ contractId: id, rating: myRating, note: ratingNote }),
       });
       setRatingSubmitted(true);
+      toast.success("Rating submitted");
     } catch {}
   }
 
@@ -343,6 +360,7 @@ export default function EscrowPage() {
   function copyContractLink() {
     navigator.clipboard?.writeText(window.location.href).catch(() => {});
     setLinkCopied(true);
+    toast("Contract link copied");
     setTimeout(() => setLinkCopied(false), 2200);
   }
 
@@ -356,6 +374,7 @@ export default function EscrowPage() {
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      {showConfetti && <Confetti />}
       <Nav />
 
       <main style={{ maxWidth: 760, margin: "0 auto", padding: "clamp(80px,12vw,100px) 20px 60px" }}>

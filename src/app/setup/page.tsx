@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/layout/Nav";
 import { netAmount } from "@/lib/utils";
 import { loadProfile } from "@/lib/profile";
+import { toast } from "sonner";
 
 type Mode = "service" | "job";
 type Step = "profile" | "details" | "done";
@@ -268,6 +269,7 @@ export default function SetupPage() {
         setSlug(data.slug);
         setServiceId(data.id || "");
         setStep("done");
+        toast.success(mode === "job" ? "Job posted!" : "Service link is live!");
       } else {
         setError(data.error || "Failed to create. Please try again.");
       }
@@ -289,7 +291,10 @@ export default function SetupPage() {
         body: JSON.stringify({ text: form.description, context: mode === "job" ? "job requirements" : "service description" }),
       });
       const data = await res.json();
-      if (data.enhanced) update("description", data.enhanced);
+      if (data.enhanced) {
+        update("description", data.enhanced);
+        toast.success("Description enhanced with AI");
+      }
     } catch {}
     setEnhancing(false);
   }
