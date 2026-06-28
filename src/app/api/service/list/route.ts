@@ -33,9 +33,24 @@ export async function GET(req: NextRequest) {
       funded.forEach((c: { serviceId: string }) => fundedSet.add(c.serviceId));
     }
 
+    // Compute avg rating per freelancer from settled contracts (gracefully skip if column not yet migrated)
+    const freelancerIds = Array.from(new Set(services.map((s: { freelancerId: string }) => s.freelancerId)));
+    let ratingMap = new Map<string, { avg: number | null; count: number }>();
+    try {
+      const ratingRows = await db.contract.groupBy({
+        by: ["freelancerId"],
+        where: { freelancerId: { in: freelancerIds }, status: "SETTLED", rating: { not: null } },
+        _avg: { rating: true },
+        _count: { rating: true },
+      });
+      ratingMap = new Map(ratingRows.map((r: { freelancerId: string; _avg: { rating: number | null }; _count: { rating: number } }) => [r.freelancerId, { avg: r._avg.rating, count: r._count.rating }]));
+    } catch {}
+
     const result = services.map((s: Record<string, unknown>) => ({
       ...s,
       funded: s.type === "job" ? fundedSet.has(s.id as string) : undefined,
+      avgRating: ratingMap.get(s.freelancerId as string)?.avg ?? null,
+      ratingCount: ratingMap.get(s.freelancerId as string)?.count ?? 0,
     }));
 
     return NextResponse.json({ services: result });

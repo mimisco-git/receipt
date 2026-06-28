@@ -61,6 +61,8 @@ model Contract {
   circleEscrowId String?        @map("circle_escrow_id")
   clientWalletId String?        @map("client_wallet_id")
   deliveryNote   String?        @map("delivery_note")
+  rating         Int?           @map("rating")
+  ratingNote     String?        @map("rating_note")
   deliveredAt    DateTime?      @map("delivered_at")
   settledAt      DateTime?      @map("settled_at")
   disputedAt     DateTime?      @map("disputed_at")

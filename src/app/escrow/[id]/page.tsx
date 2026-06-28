@@ -12,6 +12,7 @@ type ViewerRole = "worker" | "client" | "unknown";
 
 interface ContractData {
   id: string;
+  serviceId: string;
   brief: string;
   workerProposal: string;
   amountUsdc: number;
@@ -44,9 +45,19 @@ export default function EscrowPage() {
   const [x402Info, setX402Info]         = useState<{ paid: boolean; fee: string; payer: string } | null>(null);
   const [linkCopied, setLinkCopied]     = useState(false);
   const [refundMsg, setRefundMsg]       = useState("");
+  const [displayReasoning, setDisplayReasoning] = useState("");
+  const [typingDone, setTypingDone]     = useState(true);
+  const [myRating, setMyRating]         = useState(0);
+  const [hoverRating, setHoverRating]   = useState(0);
+  const [ratingNote, setRatingNote]     = useState("");
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [contractDates, setContractDates] = useState<{ created?: string; delivered?: string; settled?: string }>({});
+  const [matches, setMatches]           = useState<{ name: string; title: string; slug: string; reason: string; jobsDone: number }[]>([]);
+  const [matchesLoaded, setMatchesLoaded] = useState(false);
 
   const [contract, setContract] = useState<ContractData>({
     id: id as string,
+    serviceId: "",
     brief: "",
     workerProposal: "",
     amountUsdc: 0,
@@ -90,6 +101,7 @@ export default function EscrowPage() {
 
         const c: ContractData = {
           id: id as string,
+          serviceId: data.serviceId || "",
           brief: data.brief,
           // For jobs, worker acceptance note is stored in clientEmail
           workerProposal: isJob ? (data.clientEmail || "") : "",
@@ -109,8 +121,18 @@ export default function EscrowPage() {
         if (data.escrowTxHash) setTxHash(data.escrowTxHash);
         if (data.settleTxHash) setTxHash(data.settleTxHash);
         if (data.agentScore) setAgentScore(data.agentScore);
-        if (data.agentReasoning) setAgentReasoning(data.agentReasoning);
+        if (data.agentReasoning) {
+          setAgentReasoning(data.agentReasoning);
+          setDisplayReasoning(data.agentReasoning);
+          setTypingDone(true);
+        }
         if (data.deliveryNote) setDeliveryText(data.deliveryNote);
+        if (data.rating) { setMyRating(data.rating); setRatingSubmitted(true); }
+        setContractDates({
+          created: data.createdAt,
+          delivered: data.deliveredAt || undefined,
+          settled: data.settledAt || undefined,
+        });
 
         // Determine viewer role based on service type
         const profileName = (profile.name || "").toLowerCase();
@@ -195,24 +217,34 @@ export default function EscrowPage() {
         if (model) setAgentModel(model);
         if (data.x402?.paid) setX402Info({ paid: true, fee: data.x402.fee, payer: data.x402.payer });
 
-        let s = 0;
-        const timer = setInterval(() => {
-          s = Math.min(s + 1.5, score);
-          setAgentScore(Math.round(s));
-          if (s >= score) {
-            clearInterval(timer);
-            setScoreRunning(false);
-
-            if (data.autoSettled) {
-              if (data.txHash) setTxHash(data.txHash);
-              if (data.settlementMs) setSettlementMs(data.settlementMs);
-              setPhase("settled");
-            } else {
-              // PARTIAL or DISPUTE score — drop to delivered so client can manually approve/flag
-              setPhase("delivered");
-            }
+        // Typewriter: reveal reasoning char-by-char, then animate the score bar
+        setDisplayReasoning("");
+        setTypingDone(false);
+        let charIdx = 0;
+        const typingTimer = setInterval(() => {
+          charIdx++;
+          setDisplayReasoning(reasoning.slice(0, charIdx));
+          if (charIdx >= reasoning.length) {
+            clearInterval(typingTimer);
+            setTypingDone(true);
+            let s = 0;
+            const scoreTimer = setInterval(() => {
+              s = Math.min(s + 1.5, score);
+              setAgentScore(Math.round(s));
+              if (s >= score) {
+                clearInterval(scoreTimer);
+                setScoreRunning(false);
+                if (data.autoSettled) {
+                  if (data.txHash) setTxHash(data.txHash);
+                  if (data.settlementMs) setSettlementMs(data.settlementMs);
+                  setPhase("settled");
+                } else {
+                  setPhase("delivered");
+                }
+              }
+            }, 22);
           }
-        }, 22);
+        }, 16);
       } catch (err) {
         console.error("Agent evaluation failed:", err);
         setAgentReasoning("Evaluation encountered an error.");
@@ -278,6 +310,32 @@ export default function EscrowPage() {
       setRefundMsg("Refund request submitted. Platform team will follow up.");
     }
   }
+
+  async function submitRating() {
+    if (!myRating) return;
+    try {
+      await fetch("/api/rating", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractId: id, rating: myRating, note: ratingNote }),
+      });
+      setRatingSubmitted(true);
+    } catch {}
+  }
+
+  // Fetch AI-suggested workers when a job is pending and client is viewing
+  useEffect(() => {
+    if (matchesLoaded || contract.serviceType !== "job" || contract.workerName !== "Awaiting acceptance" || viewerRole !== "client" || !contract.brief || !contract.serviceId) return;
+    setMatchesLoaded(true);
+    fetch("/api/agent/match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brief: contract.brief, serviceId: contract.serviceId }),
+    })
+      .then(r => r.json())
+      .then(d => { if (d.matches?.length) setMatches(d.matches); })
+      .catch(() => {});
+  }, [contract.brief, contract.workerName, contract.serviceType, contract.serviceId, viewerRole, matchesLoaded]);
 
   function copyContractLink() {
     navigator.clipboard?.writeText(window.location.href).catch(() => {});
@@ -564,7 +622,7 @@ export default function EscrowPage() {
 
                 {/* Agent evaluation (visible to both) */}
                 <AnimatePresence>
-                  {(phase === "evaluating" || phase === "delivered" || phase === "settled" || phase === "approved") && agentScore > 0 && (
+                  {(phase === "evaluating" || phase === "delivered" || phase === "settled" || phase === "approved") && (agentScore > 0 || displayReasoning) && (
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -607,11 +665,14 @@ export default function EscrowPage() {
                         )}
                       </div>
 
-                      {scoreRunning ? (
-                        <div style={{ display: "flex", gap: 5 }}>
-                          {[0,0.17,0.34].map(d => (
-                            <div key={d} style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--green)", opacity: 0.3, animation: `thinking 1.1s ${d}s ease-in-out infinite` }} />
-                          ))}
+                      {!typingDone ? (
+                        <div style={{ fontSize: 11.5, color: "var(--text-2)", lineHeight: 1.6, marginBottom: 4 }}>
+                          {displayReasoning}
+                          <span style={{
+                            display: "inline-block", width: 1.5, height: "1em",
+                            verticalAlign: "text-bottom", background: "var(--green)",
+                            marginLeft: 2, animation: "cursor-blink 0.65s step-end infinite",
+                          }} />
                         </div>
                       ) : (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -620,22 +681,116 @@ export default function EscrowPage() {
                               {agentReasoning}
                             </div>
                           )}
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                              <motion.div
-                                style={{ height: "100%", borderRadius: 999, background: "#00E5C3" }}
-                                initial={{ width: "0%" }}
-                                animate={{ width: `${agentScore}%` }}
-                                transition={{ duration: 0.7, ease: "easeOut" }}
-                              />
+                          {agentScore > 0 && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                                <motion.div
+                                  style={{ height: "100%", borderRadius: 999, background: "#00E5C3" }}
+                                  initial={{ width: "0%" }}
+                                  animate={{ width: `${agentScore}%` }}
+                                  transition={{ duration: 0.7, ease: "easeOut" }}
+                                />
+                              </div>
+                              <span className="font-mono" style={{ fontSize: 12, color: "var(--green)", minWidth: 34 }}>{agentScore}%</span>
                             </div>
-                            <span className="font-mono" style={{ fontSize: 12, color: "var(--green)", minWidth: 34 }}>{agentScore}%</span>
-                          </div>
+                          )}
                         </motion.div>
                       )}
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* AI-suggested workers (pending job, client view) */}
+                {phase === "pending" && isClient && contract.workerName === "Awaiting acceptance" && matches.length > 0 && (
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--green)", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+                      Receipt AI suggests
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {matches.map((m, i) => (
+                        <a key={i} href={`/hire/${m.slug}`}
+                          style={{
+                            display: "block", padding: "10px 12px", borderRadius: "var(--r-sm)",
+                            background: "rgba(0,229,195,0.03)", border: "1px solid rgba(0,229,195,0.1)",
+                            textDecoration: "none", transition: "border-color 0.2s ease",
+                          }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(0,229,195,0.25)"; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(0,229,195,0.1)"; }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-1)" }}>{m.name}</span>
+                            <span style={{ fontSize: 10, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>Match {i + 1}</span>
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 3 }}>{m.title}</div>
+                          <div style={{ fontSize: 11, color: "var(--text-2)", lineHeight: 1.5, fontStyle: "italic" }}>{m.reason}</div>
+                        </a>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Rating (after settled, client only) */}
+                {phase === "settled" && isClient && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                    style={{
+                      padding: "12px 14px", borderRadius: "var(--r)",
+                      background: "rgba(255,255,255,0.025)", border: "1px solid var(--line)",
+                      marginBottom: 12,
+                    }}>
+                    {ratingSubmitted ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-2)" }}>
+                        <div style={{ display: "flex", gap: 2 }}>
+                          {[1,2,3,4,5].map(s => (
+                            <span key={s} style={{ fontSize: 14, color: s <= myRating ? "#FFB800" : "rgba(255,255,255,0.12)" }}>★</span>
+                          ))}
+                        </div>
+                        Rating submitted
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
+                          Rate this work
+                        </div>
+                        <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
+                          {[1,2,3,4,5].map(star => (
+                            <button key={star}
+                              onClick={() => setMyRating(star)}
+                              onMouseEnter={() => setHoverRating(star)}
+                              onMouseLeave={() => setHoverRating(0)}
+                              style={{
+                                fontSize: 22, background: "none", border: "none", cursor: "pointer",
+                                padding: "0 2px", lineHeight: 1,
+                                color: star <= (hoverRating || myRating) ? "#FFB800" : "rgba(255,255,255,0.15)",
+                                transition: "color 0.1s ease",
+                              }}>★</button>
+                          ))}
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Add a note (optional)"
+                          value={ratingNote}
+                          onChange={e => setRatingNote(e.target.value)}
+                          className="input"
+                          style={{ fontSize: 12, padding: "8px 10px", marginBottom: 8, background: "rgba(0,0,0,0.2)" }}
+                        />
+                        <button
+                          onClick={submitRating}
+                          disabled={!myRating}
+                          style={{
+                            padding: "7px 14px", borderRadius: "var(--r-sm)", fontSize: 12, fontWeight: 600,
+                            background: myRating ? "var(--green-dim)" : "rgba(255,255,255,0.04)",
+                            border: `1px solid ${myRating ? "var(--green-border)" : "var(--line)"}`,
+                            color: myRating ? "var(--green)" : "var(--text-3)",
+                            cursor: myRating ? "pointer" : "default",
+                          }}>
+                          Submit rating
+                        </button>
+                      </>
+                    )}
+                  </motion.div>
+                )}
 
                 {/* Settled */}
                 <AnimatePresence>
@@ -660,6 +815,44 @@ export default function EscrowPage() {
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* Contract timeline */}
+              {contractDates.created && (
+                <div style={{ marginTop: 8, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 10 }}>
+                    Timeline
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    {([
+                      { label: "Funded",    date: contractDates.created, done: true },
+                      { label: "Delivered", date: contractDates.delivered, done: !!contractDates.delivered },
+                      { label: "Settled",   date: contractDates.settled,  done: !!contractDates.settled },
+                    ] as { label: string; date?: string; done: boolean }[]).map((ev, i, arr) => (
+                      <div key={i} style={{ display: "flex", gap: 10 }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 14 }}>
+                          <div style={{
+                            width: 8, height: 8, borderRadius: "50%", flexShrink: 0, marginTop: 2,
+                            background: ev.done ? "var(--green)" : "rgba(255,255,255,0.1)",
+                            border: `1px solid ${ev.done ? "var(--green)" : "var(--line)"}`,
+                            boxShadow: ev.done ? "0 0 6px rgba(0,229,195,0.35)" : "none",
+                          }} />
+                          {i < arr.length - 1 && (
+                            <div style={{ width: 1, flex: 1, minHeight: 12, background: ev.done ? "rgba(0,229,195,0.25)" : "var(--line)", margin: "2px 0" }} />
+                          )}
+                        </div>
+                        <div style={{ paddingBottom: 10, paddingTop: 0 }}>
+                          <div style={{ fontSize: 11, fontWeight: 500, color: ev.done ? "var(--text-2)" : "var(--text-3)" }}>{ev.label}</div>
+                          {ev.date && (
+                            <div style={{ fontSize: 10, color: "var(--text-3)", fontFamily: '"DM Mono", monospace' }}>
+                              {new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Action buttons */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

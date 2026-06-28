@@ -18,6 +18,8 @@ interface Listing {
   avatarColor?: string;
   createdAt: string;
   funded?: boolean;
+  avgRating?: number | null;
+  ratingCount?: number;
 }
 
 export default function Marketplace() {
@@ -44,6 +46,8 @@ export default function Marketplace() {
             avatarColor: (s.freelancer as Record<string, string>)?.avatarColor,
             createdAt: s.createdAt as string,
             funded: s.funded as boolean | undefined,
+            avgRating: s.avgRating as number | null | undefined,
+            ratingCount: s.ratingCount as number | undefined,
           })));
         }
       })
@@ -212,6 +216,16 @@ export default function Marketplace() {
                               {item.freelancerBio && (
                                 <div style={{ fontSize: 11, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {item.freelancerBio}
+                                </div>
+                              )}
+                              {item.avgRating != null && item.avgRating > 0 && (
+                                <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 2 }}>
+                                  {[1,2,3,4,5].map(s => (
+                                    <span key={s} style={{ fontSize: 10, color: s <= Math.round(item.avgRating!) ? "#FFB800" : "rgba(255,255,255,0.15)" }}>★</span>
+                                  ))}
+                                  <span style={{ fontSize: 10, color: "var(--text-3)", marginLeft: 2 }}>
+                                    {item.avgRating.toFixed(1)} ({item.ratingCount})
+                                  </span>
                                 </div>
                               )}
                             </div>

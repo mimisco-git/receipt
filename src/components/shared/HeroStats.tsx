@@ -1,12 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface Stats {
   services: number;
   contracts: number;
   settled: number;
   volume: number;
+}
+
+function useCountUp(target: number | null, duration = 1400): string {
+  const [display, setDisplay] = useState("—");
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (target === null) { setDisplay("—"); return; }
+    const start = Date.now();
+    const step = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(String(Math.round(eased * target)));
+      if (progress < 1) timerRef.current = setTimeout(step, 16);
+    };
+    step();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [target, duration]);
+
+  return display;
 }
 
 export default function HeroStats() {
@@ -19,12 +40,16 @@ export default function HeroStats() {
       .catch(() => {});
   }, []);
 
+  const servicesVal = useCountUp(stats ? stats.services : null);
+  const settledVal  = useCountUp(stats ? stats.settled : null);
+  const volumeInt   = useCountUp(stats ? Math.floor(stats.volume) : null);
+
   const items = [
     { label: "Settlement speed",  value: "<500ms" },
     { label: "Currencies",        value: "USDC · EURC" },
-    { label: "Services live",     value: stats ? String(stats.services) : "—" },
-    { label: "Contracts settled", value: stats ? String(stats.settled) : "—" },
-    { label: "Volume (USDC)",     value: stats ? `$${stats.volume.toFixed(2)}` : "—" },
+    { label: "Services live",     value: servicesVal },
+    { label: "Contracts settled", value: settledVal },
+    { label: "Volume (USDC)",     value: stats ? `$${volumeInt}` : "—" },
   ];
 
   return (

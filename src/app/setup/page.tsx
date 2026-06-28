@@ -100,6 +100,7 @@ export default function SetupPage() {
     if (profile.role === "worker") setMode("service");
   }, []);
 
+  const [enhancing, setEnhancing] = useState(false);
   const [slug, setSlug] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [fundStep, setFundStep] = useState<FundStep>("idle");
@@ -278,6 +279,21 @@ export default function SetupPage() {
     }
   }
 
+  async function enhanceDescription() {
+    if (!form.description.trim() || enhancing) return;
+    setEnhancing(true);
+    try {
+      const res = await fetch("/api/ai/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: form.description, context: mode === "job" ? "job requirements" : "service description" }),
+      });
+      const data = await res.json();
+      if (data.enhanced) update("description", data.enhanced);
+    } catch {}
+    setEnhancing(false);
+  }
+
   function copyLink() {
     navigator.clipboard?.writeText(link).catch(() => {});
     setCopied(true);
@@ -425,7 +441,40 @@ export default function SetupPage() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <Field label={cfg.titleLabel} placeholder={cfg.titlePlaceholder} value={form.title} onChange={v => update("title", v)} />
-                  <Field label={cfg.descLabel} placeholder={cfg.descPlaceholder} value={form.description} onChange={v => update("description", v)} as="textarea" rows={4} />
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+                      <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-2)" }}>{cfg.descLabel}</label>
+                      <button
+                        type="button"
+                        onClick={enhanceDescription}
+                        disabled={!form.description.trim() || enhancing}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 5,
+                          fontSize: 11, fontWeight: 600,
+                          color: enhancing ? "var(--text-3)" : "var(--green)",
+                          background: "none",
+                          border: "1px solid var(--green-border)", borderRadius: 6,
+                          padding: "3px 9px", cursor: !form.description.trim() || enhancing ? "default" : "pointer",
+                          opacity: !form.description.trim() ? 0.4 : 1,
+                          transition: "opacity 0.2s ease",
+                        }}
+                      >
+                        {enhancing ? (
+                          <><span style={{ width: 9, height: 9, borderRadius: "50%", border: "1.5px solid rgba(0,229,195,0.3)", borderTopColor: "var(--green)", display: "inline-block", animation: "spin 0.7s linear infinite" }} /> Enhancing...</>
+                        ) : (
+                          <>✦ Enhance with AI</>
+                        )}
+                      </button>
+                    </div>
+                    <textarea
+                      rows={4}
+                      placeholder={cfg.descPlaceholder}
+                      value={form.description}
+                      onChange={e => update("description", e.target.value)}
+                      className="input"
+                      style={{ resize: "none" }}
+                    />
+                  </div>
 
                   {/* Currency */}
                   <div>
