@@ -535,3 +535,22 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
 @keyframes orb-glow-settled {
   0%,100% { box-shadow: 0 0 40px rgba(0,229,195,0.15), inset 0 1px 0 rgba(255,255,255,0.08); }
 }
+
+/* ── Footer responsive ─────────────────────────────── */
+.footer-inner {
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 36px 24px 28px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+@media (max-width: 600px) {
+  .footer-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 28px 20px 24px;
+    gap: 20px;
+  }
+  .footer-brand { align-items: center; }
+}
