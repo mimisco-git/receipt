@@ -125,16 +125,21 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.55 }}
           style={{
-            fontSize: "clamp(18px, 2.0vw, 21px)",
+            fontSize: "clamp(19px, 2.1vw, 23px)",
             color: "rgba(255,255,255,0.85)",
             lineHeight: 1.80,
-            maxWidth: 520,
+            maxWidth: 540,
             marginBottom: 44,
             padding: "0 4px",
           }}
         >
-          AI-mediated freelance escrow on Arc. Client deposits USDC or EURC.
-          You deliver. The agent verifies scope. Payment clears in under 500ms.
+          AI-mediated freelance escrow on Arc. Client deposits{" "}
+          <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>USDC</strong> or{" "}
+          <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>EURC</strong>.
+          You deliver. The agent{" "}
+          <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>verifies scope</strong>.
+          Payment clears in{" "}
+          <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>under 500ms</strong>.
         </motion.p>
 
         {/* CTAs */}
@@ -273,7 +278,8 @@ export default function HomePage() {
           fontSize: "clamp(17px,1.9vw,20px)", color: "rgba(255,255,255,.85)",
           textAlign: "center", maxWidth: 440, marginBottom: 52, lineHeight: 1.80,
         }}>
-          Real interface. Real orb. The ripple is exactly what your client sees when payment settles.
+          <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>Real interface. Real orb.</strong> The ripple is exactly what your client sees when{" "}
+          <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>payment settles</strong>.
         </p>
 
         {/* Cyan ambient glow behind window */}

@@ -81,12 +81,13 @@ export default function HowItWorks() {
         Three steps. No invoices.
       </h2>
       <p style={{
-        fontSize: 18, color: "var(--text-2)",
+        fontSize: 19, color: "var(--text-2)",
         textAlign: "center", maxWidth: 420,
-        marginBottom: 52, lineHeight: 1.65,
+        marginBottom: 52, lineHeight: 1.70,
       }}>
-        From brief to payment in one flow. The agent handles evaluation
-        and dispute resolution automatically.
+        <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>From brief to payment</strong> in one flow.
+        The agent handles <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>evaluation</strong> and{" "}
+        <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>dispute resolution</strong> automatically.
       </p>
 
       <div className="how-grid" style={{
