@@ -470,71 +470,70 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
 }
 
-/* @property lets the browser interpolate --menu-orbit as an angle,
-   which makes the conic-gradient starting point animate smoothly */
-@property --menu-orbit {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
+/* Border Beam — hardware-accelerated via transform: rotate(), 60fps on all mobile */
+@keyframes border-beam-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg);   }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
 }
-@keyframes menu-orbit-spin  { to { --menu-orbit: 360deg; } }
-@keyframes menu-orbit-pulse { 0%,100% { opacity: 0.65; } 50% { opacity: 1; } }
 
-/* Mobile "Menu" button — neutral Liquid Glass with orbiting edge reflection */
+/* Mobile "Menu" button — Liquid Glass capsule with orbiting border beam */
 .nav-menu-btn {
   position: relative;
-  overflow: visible;
-  background: rgba(255,255,255,0.055);
-  backdrop-filter: blur(28px) saturate(170%);
-  -webkit-backdrop-filter: blur(28px) saturate(170%);
-  border: 1px solid rgba(255,255,255,0.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(0,0,0,0.08),
-    0 4px 16px rgba(0,0,0,0.18);
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 14px;
   transition:
     transform 500ms cubic-bezier(0.34, 1.4, 0.64, 1),
-    box-shadow 500ms ease,
-    border-color 500ms ease,
-    background 500ms ease;
+    box-shadow 500ms ease;
 }
-/* Orbiting edge reflection — conic gradient masked to border-only strip */
+
+/* The beam: oversized spinning conic-gradient, clipped to button bounds */
+.nav-menu-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 400%; height: 400%;
+  background: conic-gradient(
+    from 0deg,
+    transparent              0deg,
+    transparent            342deg,
+    rgba(255,255,255,0.04) 348deg,
+    rgba(255,255,255,0.50) 354deg,
+    rgba(255,255,255,0.95) 357deg,
+    rgba(255,255,255,1.00) 359deg,
+    rgba(255,255,255,0.55) 361deg,
+    transparent            365deg
+  );
+  animation: border-beam-spin 3s linear infinite;
+  will-change: transform;
+  filter: blur(0.6px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Center fill: dark glass interior — masks the beam to border-only ring */
 .nav-menu-btn::after {
   content: "";
   position: absolute;
-  inset: -1px;
-  border-radius: 15px;
-  padding: 1.5px;
-  background: conic-gradient(
-    from var(--menu-orbit) at 50% 50%,
-    rgba(255,255,255,0.05) 0deg,
-    rgba(255,255,255,0.20) 3deg,
-    rgba(255,255,255,0.20) 5deg,
-    rgba(255,255,255,0.05) 8deg,
-    transparent 12deg,
-    transparent 360deg
-  );
-  /* Punch out the center: only the padding ring (= border area) is visible */
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  filter: blur(1px);
-  animation:
-    menu-orbit-spin  6s linear       infinite,
-    menu-orbit-pulse 2.8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 2;
-}
-.nav-menu-btn:hover {
-  transform: translateY(-2px);
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.16);
+  inset: 1.5px;
+  border-radius: 12.5px;
+  background: rgba(12, 12, 16, 0.82);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.24),
-    inset 0 -1px 0 rgba(0,0,0,0.08),
-    0 8px 24px rgba(0,0,0,0.24);
+    inset 0 1px 0 rgba(255,255,255,0.13),
+    inset 0 -1px 0 rgba(0,0,0,0.10);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nav-menu-btn:hover { transform: translateY(-2px); }
+.nav-menu-btn:hover::after {
+  background: rgba(22, 22, 28, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.10);
 }
 .nav-menu-btn:active {
   transform: scale(0.985) translateY(1px);

@@ -201,11 +201,12 @@ export default function Nav() {
             style={{
               display: "none", cursor: "pointer",
               padding: "9px 22px", borderRadius: 14,
-              fontSize: 16, fontWeight: 600, color: "rgba(255,255,255,0.90)",
-              letterSpacing: "-0.01em",
+              fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em",
             }}
           >
-            {menuOpen ? "Close" : "Menu"}
+            <span style={{ position: "relative", zIndex: 2, color: "rgba(255,255,255,0.90)" }}>
+              {menuOpen ? "Close" : "Menu"}
+            </span>
           </button>
         </div>
       </motion.nav>
