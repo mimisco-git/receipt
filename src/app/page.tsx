@@ -104,7 +104,7 @@ export default function HomePage() {
           transition={{ delay: 0.15, duration: 0.6 }}
           style={{
             fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(56px, 10vw, 128px)",
+            fontSize: "clamp(62px, 10vw, 128px)",
             fontWeight: 750,
             letterSpacing: "-0.03em",
             lineHeight: 1.04,
