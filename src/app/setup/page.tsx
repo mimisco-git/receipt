@@ -328,7 +328,7 @@ export default function SetupPage() {
                 onClick={() => { setMode(m); if (step === "details") setError(""); }}
                 style={{
                   padding: "8px 20px", borderRadius: 999, border: "none",
-                  fontSize: 13, fontWeight: mode === m ? 600 : 400,
+                  fontSize: 16, fontWeight: mode === m ? 600 : 400,
                   background: mode === m ? "var(--green-dim)" : "transparent",
                   color: mode === m ? "var(--green)" : "var(--text-3)",
                   cursor: "pointer", transition: "all 0.2s ease",
@@ -348,7 +348,7 @@ export default function SetupPage() {
                 <div style={{
                   width: 28, height: 28, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 12, fontWeight: 600, transition: "all 0.3s ease",
+                  fontSize: 15, fontWeight: 600, transition: "all 0.3s ease",
                   background: i < stepIdx ? "var(--green)" : i === stepIdx ? "var(--green-dim)" : "rgba(255,255,255,0.04)",
                   color: i < stepIdx ? "#060E0A" : i === stepIdx ? "var(--green)" : "var(--text-3)",
                   border: i === stepIdx ? "1px solid var(--green-border)" : i < stepIdx ? "none" : "1px solid var(--line)",
@@ -356,7 +356,7 @@ export default function SetupPage() {
                   {i < stepIdx ? <CheckIcon /> : i + 1}
                 </div>
                 <span style={{
-                  fontSize: 13, fontWeight: i === stepIdx ? 500 : 400,
+                  fontSize: 16, fontWeight: i === stepIdx ? 500 : 400,
                   color: i === stepIdx ? "var(--text-1)" : "var(--text-3)",
                 }}>
                   {label}
@@ -391,7 +391,7 @@ export default function SetupPage() {
                 <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6 }}>
                   Set up your profile
                 </h1>
-                <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
+                <p style={{ fontSize: 17, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
                   {mode === "service" ? "This is what clients see when they open your link." : "This is how workers will know who you are."}
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -401,12 +401,12 @@ export default function SetupPage() {
                     value={form.bio} onChange={v => update("bio", v)} />
                   <div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
-                      <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-2)" }}>Wallet address on Arc</label>
+                      <label style={{ fontSize: 15, fontWeight: 500, color: "var(--text-2)" }}>Wallet address on Arc</label>
                       <button
                         type="button"
                         onClick={connectWallet}
                         style={{
-                          fontSize: 11, fontWeight: 600, color: "var(--green)", background: "none",
+                          fontSize: 14, fontWeight: 600, color: "var(--green)", background: "none",
                           border: "1px solid var(--green-border)", borderRadius: 6, padding: "3px 9px",
                           cursor: "pointer", transition: "background 0.15s ease",
                         }}
@@ -422,7 +422,7 @@ export default function SetupPage() {
                       value={form.walletAddress}
                       onChange={e => update("walletAddress", e.target.value)}
                       className="input"
-                      style={{ fontFamily: '"DM Mono", monospace', fontSize: 13, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
+                      style={{ fontFamily: '"DM Mono", monospace', fontSize: 16, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
                     />
                   </div>
                 </div>
@@ -440,7 +440,7 @@ export default function SetupPage() {
                 <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 6 }}>
                   {cfg.detailsTitle}
                 </h1>
-                <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
+                <p style={{ fontSize: 17, opacity: 0.72, color: "inherit", marginBottom: 28, lineHeight: 1.6 }}>
                   {cfg.detailsSub}
                 </p>
 
@@ -448,14 +448,14 @@ export default function SetupPage() {
                   <Field label={cfg.titleLabel} placeholder={cfg.titlePlaceholder} value={form.title} onChange={v => update("title", v)} />
                   <div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
-                      <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-2)" }}>{cfg.descLabel}</label>
+                      <label style={{ fontSize: 15, fontWeight: 500, color: "var(--text-2)" }}>{cfg.descLabel}</label>
                       <button
                         type="button"
                         onClick={enhanceDescription}
                         disabled={!form.description.trim() || enhancing}
                         style={{
                           display: "flex", alignItems: "center", gap: 5,
-                          fontSize: 11, fontWeight: 600,
+                          fontSize: 14, fontWeight: 600,
                           color: enhancing ? "var(--text-3)" : "var(--green)",
                           background: "none",
                           border: "1px solid var(--green-border)", borderRadius: 6,
@@ -483,7 +483,7 @@ export default function SetupPage() {
 
                   {/* Currency */}
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Currency</label>
+                    <label style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Currency</label>
                     <div style={{ display: "flex", gap: 6 }}>
                       {(["USDC", "EURC"] as const).map(c => (
                         <button key={c} type="button" onClick={() => setForm(p => ({ ...p, currency: c }))}
@@ -492,38 +492,38 @@ export default function SetupPage() {
                             background: form.currency === c ? "var(--green-dim)" : "var(--card-2)",
                             border: `1px solid ${form.currency === c ? "var(--green-border)" : "var(--line)"}`,
                             color: form.currency === c ? "var(--green)" : "var(--text-2)",
-                            fontSize: 13, fontWeight: 600, cursor: "pointer",
+                            fontSize: 16, fontWeight: 600, cursor: "pointer",
                             fontFamily: '"DM Mono", monospace', transition: "all 0.15s ease",
                           }}>
                           {c === "USDC" ? "$ USDC" : "€ EURC"}
                         </button>
                       ))}
                     </div>
-                    <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 6 }}>
+                    <p style={{ fontSize: 14, color: "var(--text-3)", marginTop: 6 }}>
                       {form.currency === "USDC" ? "USD Coin" : "Euro Coin"} by Circle on Arc Testnet
                     </p>
                   </div>
 
                   {/* Price */}
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
+                    <label style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
                       {cfg.priceLabel} ({form.currency})
                     </label>
                     <div style={{ display: "flex", gap: 8 }}>
                       <div style={{
                         padding: "12px 14px", borderRadius: "var(--r-sm)",
                         background: "var(--card-2)", border: "1px solid var(--line)",
-                        fontSize: 13, fontWeight: 600, color: "var(--green)",
+                        fontSize: 16, fontWeight: 600, color: "var(--green)",
                         fontFamily: '"DM Mono", monospace', whiteSpace: "nowrap",
                       }}>
                         {form.currency}
                       </div>
                       <input type="number" step="0.01" min="0.01" value={form.priceUsdc}
                         onChange={e => update("priceUsdc", e.target.value)}
-                        className="input font-mono" style={{ fontSize: 16, fontWeight: 500 }} />
+                        className="input font-mono" style={{ fontSize: 19, fontWeight: 500 }} />
                     </div>
                     {priceNum > 0 && (
-                      <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6 }}>
+                      <p style={{ fontSize: 15, color: "var(--text-3)", marginTop: 6 }}>
                         {cfg.priceSub(form.currency, `${sym}${netAmount(priceNum).toFixed(2)} ${form.currency}`)}
                       </p>
                     )}
@@ -534,7 +534,7 @@ export default function SetupPage() {
 
                 <div style={{ display: "flex", gap: 8, marginTop: 24 }}>
                   <button onClick={() => setStep("profile")} className="btn-ghost"
-                    style={{ padding: "13px 18px", borderRadius: "var(--r-sm)", fontSize: 14 }}>Back</button>
+                    style={{ padding: "13px 18px", borderRadius: "var(--r-sm)", fontSize: 17 }}>Back</button>
                   <button onClick={handleNext} disabled={!form.title.trim() || !form.description.trim() || loading} className="btn-primary"
                     style={{ flex: 1, padding: "13px", borderRadius: "var(--r-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     {loading ? (
@@ -567,7 +567,7 @@ export default function SetupPage() {
                 <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: '"Geist", "Inter", sans-serif', letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 8 }}>
                   {mode === "job" ? "Budget locked. Job is live." : cfg.successTitle}
                 </h1>
-                <p style={{ fontSize: 14, opacity: 0.72, color: "inherit", marginBottom: 24, lineHeight: 1.65 }}>
+                <p style={{ fontSize: 17, opacity: 0.72, color: "inherit", marginBottom: 24, lineHeight: 1.65 }}>
                   {mode === "job"
                     ? "Your budget is in escrow. Workers can now accept this job — payment releases automatically when you approve their delivery."
                     : cfg.successSub}
@@ -580,7 +580,7 @@ export default function SetupPage() {
                   background: "var(--card-2)", border: "1px solid var(--line)",
                   marginBottom: 10, textAlign: "left",
                 }}>
-                  <span className="font-mono" style={{ flex: 1, fontSize: 12, color: "var(--green)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span className="font-mono" style={{ flex: 1, fontSize: 15, color: "var(--green)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {link}
                   </span>
                   <button onClick={copyLink} style={{
@@ -589,7 +589,7 @@ export default function SetupPage() {
                     background: copied ? "var(--green-dim)" : "rgba(255,255,255,0.06)",
                     border: `1px solid ${copied ? "var(--green-border)" : "var(--line)"}`,
                     color: copied ? "var(--green)" : "var(--text-2)",
-                    fontSize: 11.5, fontWeight: 500, cursor: "pointer", transition: "all 0.2s ease", whiteSpace: "nowrap",
+                    fontSize: 14, fontWeight: 500, cursor: "pointer", transition: "all 0.2s ease", whiteSpace: "nowrap",
                   }}>
                     <CopyIcon /> {copied ? "Copied" : "Copy"}
                   </button>
@@ -599,7 +599,7 @@ export default function SetupPage() {
                 <div style={{
                   padding: "12px 14px", borderRadius: "var(--r-sm)",
                   background: "var(--green-dim)", border: "1px solid var(--green-border)",
-                  fontSize: 13, color: "var(--text-2)", textAlign: "left", marginBottom: 20,
+                  fontSize: 16, color: "var(--text-2)", textAlign: "left", marginBottom: 20,
                 }}>
                   <span style={{ color: "var(--green)", fontWeight: 600 }}>
                     {mode === "service" ? "Each client pays" : "Budget:"} {sym}{form.priceUsdc} {form.currency}.
@@ -673,7 +673,7 @@ export default function SetupPage() {
                         <div style={{
                           width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
                           display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 11, fontWeight: 700,
+                          fontSize: 14, fontWeight: 700,
                           background: done ? "var(--green)" : active ? "rgba(0,229,195,0.15)" : "rgba(255,255,255,0.06)",
                           color: done ? "#060E0A" : active ? "var(--green)" : "rgba(255,255,255,0.3)",
                           border: active ? "1px solid rgba(0,229,195,0.3)" : "none",
@@ -681,8 +681,8 @@ export default function SetupPage() {
                           {done ? <CheckIcon size={10} /> : i + 1}
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: active ? "#fff" : done ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)" }}>{label}</div>
-                          <div style={{ fontSize: 11, color: active ? "var(--text-2)" : "rgba(255,255,255,0.2)" }}>{sub}</div>
+                          <div style={{ fontSize: 16, fontWeight: 500, color: active ? "#fff" : done ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)" }}>{label}</div>
+                          <div style={{ fontSize: 14, color: active ? "var(--text-2)" : "rgba(255,255,255,0.2)" }}>{sub}</div>
                         </div>
                         {active && (
                           <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(0,229,195,0.3)", borderTopColor: "var(--green)", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
@@ -723,7 +723,7 @@ function Field({
 }) {
   return (
     <div>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
+      <label style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
         {label}
       </label>
       {as === "textarea" ? (

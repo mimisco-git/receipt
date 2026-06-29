@@ -17,7 +17,7 @@ const SELECT_STYLE: React.CSSProperties = {
   border: "1px solid var(--line)",
   color: "var(--text-1)",
   fontFamily: "inherit",
-  fontSize: 14,
+  fontSize: 17,
   borderRadius: "var(--r-sm)",
   padding: "12px 14px",
   outline: "none",
@@ -177,7 +177,7 @@ export default function ProfilePage() {
               {form.role && computeVerified({ ...form, avatarUrl }) && (
                 <span style={{
                   display: "inline-flex", alignItems: "center", gap: 5,
-                  padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
+                  padding: "3px 10px", borderRadius: 999, fontSize: 14, fontWeight: 700,
                   background: "rgba(0,229,195,0.12)", color: "var(--green)",
                   border: "1px solid rgba(0,229,195,0.25)",
                 }}>
@@ -190,7 +190,7 @@ export default function ProfilePage() {
               {form.role === "worker" && form.quizPassed && (
                 <span style={{
                   display: "inline-flex", alignItems: "center", gap: 5,
-                  padding: "3px 10px", borderRadius: 999, fontSize: 11, fontWeight: 700,
+                  padding: "3px 10px", borderRadius: 999, fontSize: 14, fontWeight: 700,
                   background: "rgba(255,170,0,0.12)", color: "#FFAA00",
                   border: "1px solid rgba(255,170,0,0.3)",
                 }}>
@@ -201,7 +201,7 @@ export default function ProfilePage() {
                 </span>
               )}
             </div>
-            <p style={{ fontSize: 14, color: "var(--text-2)" }}>
+            <p style={{ fontSize: 17, color: "var(--text-2)" }}>
               Saved automatically. Clients see this when they open your service link.
             </p>
           </div>
@@ -223,10 +223,10 @@ export default function ProfilePage() {
                       color: active ? "var(--green)" : "var(--text-2)",
                       transition: "all 0.2s ease",
                     }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 3, color: active ? "var(--green)" : "var(--text-1)" }}>
+                    <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 3, color: active ? "var(--green)" : "var(--text-1)" }}>
                       {opt.label}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-3)" }}>{opt.sub}</div>
+                    <div style={{ fontSize: 14, color: "var(--text-3)" }}>{opt.sub}</div>
                   </button>
                 );
               })}
@@ -268,7 +268,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>Pick a color</div>
+                <div style={{ fontSize: 15, color: "var(--text-3)", marginBottom: 10 }}>Pick a color</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {AVATAR_COLORS.map(c => (
                     <button key={c} onClick={() => { update("avatarColor", c); setAvatarUrl(null); setForm(p => ({ ...p, avatarUrl: null })); }}
@@ -283,7 +283,7 @@ export default function ProfilePage() {
                 </div>
                 {displayAvatar && (
                   <button onClick={() => { setAvatarUrl(null); setForm(p => ({ ...p, avatarUrl: null })); }}
-                    style={{ marginTop: 10, fontSize: 12, color: "var(--red)", background: "none", border: "none", cursor: "pointer" }}>
+                    style={{ marginTop: 10, fontSize: 15, color: "var(--red)", background: "none", border: "none", cursor: "pointer" }}>
                     Remove photo
                   </button>
                 )}
@@ -308,14 +308,14 @@ export default function ProfilePage() {
           <Section title={form.role === "client" ? "Wallet" : "Payment details"}>
             <div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
-                <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-2)" }}>
+                <label style={{ fontSize: 15, fontWeight: 500, color: "var(--text-2)" }}>
                   Wallet address on Arc (USDC / EURC)
                 </label>
                 <button
                   type="button"
                   onClick={connectWalletForProfile}
                   style={{
-                    fontSize: 11, fontWeight: 600, color: "var(--green)", background: "none",
+                    fontSize: 14, fontWeight: 600, color: "var(--green)", background: "none",
                     border: "1px solid var(--green-border)", borderRadius: 6, padding: "3px 9px",
                     cursor: "pointer", transition: "background 0.15s ease",
                   }}
@@ -331,14 +331,14 @@ export default function ProfilePage() {
                 value={form.walletAddress}
                 onChange={e => update("walletAddress", e.target.value)}
                 className="input"
-                style={{ fontFamily: '"DM Mono", monospace', fontSize: 13, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
+                style={{ fontFamily: '"DM Mono", monospace', fontSize: 16, background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)" }}
               />
             </div>
             {form.role === "worker" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: 12 }}>
                 <Field label="Default hourly rate (USDC / EURC)" placeholder="e.g. 25.00" value={form.hourlyRate} onChange={v => update("hourlyRate", v)} />
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Availability</label>
+                  <label style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>Availability</label>
                   <select value={form.availability} onChange={e => update("availability", e.target.value)} style={SELECT_STYLE}>
                     <option value="available">Available for work</option>
                     <option value="busy">Currently busy</option>
@@ -378,14 +378,14 @@ export default function ProfilePage() {
 
           {saved && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: 12, padding: "11px 14px", background: "var(--green-dim)", borderRadius: "var(--r-sm)", fontSize: 13, color: "var(--green)", textAlign: "center" }}>
+              style={{ marginTop: 12, padding: "11px 14px", background: "var(--green-dim)", borderRadius: "var(--r-sm)", fontSize: 16, color: "var(--green)", textAlign: "center" }}>
               Profile saved.
             </motion.div>
           )}
 
           {walletError && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: 12, padding: "11px 14px", background: "rgba(255,68,68,0.1)", border: "1px solid rgba(255,68,68,0.2)", borderRadius: "var(--r-sm)", fontSize: 13, color: "#ff4444", textAlign: "center" }}>
+              style={{ marginTop: 12, padding: "11px 14px", background: "rgba(255,68,68,0.1)", border: "1px solid rgba(255,68,68,0.2)", borderRadius: "var(--r-sm)", fontSize: 16, color: "#ff4444", textAlign: "center" }}>
               Wallet error: {walletError}
             </motion.div>
           )}
@@ -395,7 +395,7 @@ export default function ProfilePage() {
             <button onClick={handleSignOut}
               style={{
                 background: "none", border: "1px solid rgba(255,68,68,0.2)",
-                color: "#ff4444", fontSize: 13, fontWeight: 500,
+                color: "#ff4444", fontSize: 16, fontWeight: 500,
                 padding: "10px 28px", borderRadius: "var(--r-sm)",
                 cursor: "pointer", transition: "all 0.15s ease",
               }}
@@ -450,7 +450,7 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
     }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           Verification
         </div>
         {isVerified ? (
@@ -470,11 +470,11 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
             </div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--green)" }}>Verified</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "var(--green)" }}>Verified</span>
           </div>
         ) : (
           <div style={{
-            padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600,
+            padding: "5px 12px", borderRadius: 999, fontSize: 15, fontWeight: 600,
             background: "rgba(255,255,255,0.04)",
             color: "rgba(255,255,255,0.35)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -503,7 +503,7 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
               )}
             </div>
-            <span style={{ fontSize: 13, color: c.met ? "var(--text-1)" : "var(--text-3)", transition: "color 0.25s ease" }}>
+            <span style={{ fontSize: 16, color: c.met ? "var(--text-1)" : "var(--text-3)", transition: "color 0.25s ease" }}>
               {c.label}
             </span>
           </div>
@@ -511,7 +511,7 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
       </div>
 
       {/* Status message */}
-      <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 14, lineHeight: 1.6 }}>
+      <p style={{ fontSize: 15, color: "var(--text-3)", marginTop: 14, lineHeight: 1.6 }}>
         {isVerified
           ? `Your profile shows a verified badge on the marketplace. Clients${form.role === "worker" ? "" : " and workers"} trust verified ${form.role === "worker" ? "workers" : "clients"} more.`
           : `Complete all criteria above and save your profile to earn a verified badge on the marketplace.`}
@@ -525,10 +525,10 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 3 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-2)", marginBottom: 3 }}>
                 Skills Assessment
               </div>
-              <div style={{ fontSize: 11, color: "var(--text-3)", lineHeight: 1.5 }}>
+              <div style={{ fontSize: 14, color: "var(--text-3)", lineHeight: 1.5 }}>
                 {isQualified
                   ? `Passed with ${form.quizScore ?? "—"}% — Qualified badge visible on marketplace`
                   : "Pass a 6-question AI quiz to earn the Qualified badge"}
@@ -543,14 +543,14 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFAA00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
                 </svg>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#FFAA00" }}>Qualified</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#FFAA00" }}>Qualified</span>
               </div>
             ) : (
               <button
                 onClick={onNavigateToQuiz}
                 className="btn-amber-glass"
                 style={{
-                  padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
+                  padding: "8px 16px", borderRadius: 10, fontSize: 15, fontWeight: 700,
                   background: "rgba(255,170,0,0.1)",
                   border: "1px solid rgba(255,170,0,0.2)",
                   color: "#FFAA00", cursor: "pointer",
@@ -587,7 +587,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
       display: "flex", flexDirection: "column", gap: 14,
     }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</div>
       {children}
     </div>
   );
@@ -606,7 +606,7 @@ function Field({ label, placeholder, value, onChange, as = "input", rows = 3, mo
   };
   return (
     <div>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>{label}</label>
+      <label style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>{label}</label>
       {as === "textarea"
         ? <textarea rows={rows} placeholder={placeholder} value={value} onChange={e => onChange(e.target.value)} className="input" style={inputStyle} />
         : <input type="text" placeholder={placeholder} value={value} onChange={e => onChange(e.target.value)} className="input" style={inputStyle} />}

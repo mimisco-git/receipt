@@ -116,7 +116,7 @@ export default function DocsPage() {
           <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", marginBottom: 8 }}>
             Documentation
           </h1>
-          <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 36, lineHeight: 1.7 }}>
+          <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 36, lineHeight: 1.7 }}>
             Everything you need to know about Receipt — AI-mediated escrow on Arc with USDC and EURC.
           </p>
 
@@ -129,7 +129,7 @@ export default function DocsPage() {
               transition={{ delay: si * 0.05 }}
               style={{ marginBottom: 28 }}
             >
-              <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--green)" }}>
+              <h2 style={{ fontSize: 19, fontWeight: 700, marginBottom: 12, color: "var(--green)" }}>
                 {section.title}
               </h2>
               <div style={{
@@ -158,7 +158,7 @@ export default function DocsPage() {
           ))}
 
           {/* External links */}
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--green)" }}>
+          <h2 style={{ fontSize: 19, fontWeight: 700, marginBottom: 12, color: "var(--green)" }}>
             Resources
           </h2>
           <div style={{
@@ -195,10 +195,10 @@ export default function DocsPage() {
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--green)" }}>
+                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "var(--green)" }}>
                   {l.label} ↗
                 </div>
-                <div style={{ fontSize: 11, color: "var(--text-3)" }}>{l.desc}</div>
+                <div style={{ fontSize: 14, color: "var(--text-3)" }}>{l.desc}</div>
               </a>
             ))}
           </div>

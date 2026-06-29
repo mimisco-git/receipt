@@ -72,12 +72,12 @@ export default function Nav() {
           <img
             src="/receipt-logo.png"
             alt="Receipt"
-            width={36}
-            height={36}
-            style={{ borderRadius: 10, display: "block", objectFit: "cover" }}
+            width={42}
+            height={42}
+            style={{ borderRadius: 11, display: "block", objectFit: "cover" }}
             onError={e => { e.currentTarget.style.display = "none"; }}
           />
-          <span style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
+          <span style={{ fontSize: 25, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.04em" }}>
             Receipt
           </span>
         </button>
@@ -243,7 +243,7 @@ export default function Nav() {
                     background: active ? "rgba(255,255,255,0.07)" : "none",
                     border: "none", cursor: "pointer",
                     padding: "12px 16px", borderRadius: 12,
-                    fontSize: 15, fontWeight: active ? 600 : 400,
+                    fontSize: 18, fontWeight: active ? 600 : 400,
                     color: active ? "var(--text-1)" : "rgba(255,255,255,0.6)",
                     textAlign: "left", transition: "all 0.15s ease",
                   }}
@@ -258,26 +258,26 @@ export default function Nav() {
             {hasProfile ? (
               <>
                 <button onClick={() => navigate("/profile")}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "rgba(255,255,255,0.6)", textAlign: "left" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 18, color: "rgba(255,255,255,0.6)", textAlign: "left" }}>
                   Profile
                 </button>
                 <button onClick={() => navigate("/setup")}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "var(--green)", fontWeight: 600, textAlign: "left" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 18, color: "var(--green)", fontWeight: 600, textAlign: "left" }}>
                   Get started
                 </button>
                 <button onClick={signOut}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "#ff4444", textAlign: "left" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 18, color: "#ff4444", textAlign: "left" }}>
                   Sign out
                 </button>
               </>
             ) : (
               <>
                 <button onClick={() => navigate("/signin")}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "rgba(255,255,255,0.6)", textAlign: "left" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 18, color: "rgba(255,255,255,0.6)", textAlign: "left" }}>
                   Sign in
                 </button>
                 <button onClick={() => navigate("/profile")}
-                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 15, color: "var(--green)", fontWeight: 600, textAlign: "left" }}>
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "12px 16px", borderRadius: 12, fontSize: 18, color: "var(--green)", fontWeight: 600, textAlign: "left" }}>
                   Sign up
                 </button>
               </>

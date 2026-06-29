@@ -87,7 +87,7 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08, duration: 0.5 }}
           className="pill pill-green"
-          style={{ marginBottom: 28, fontSize: 11, gap: 8 }}
+          style={{ marginBottom: 28, fontSize: 14, gap: 8 }}
         >
           <span className="pill-dot" style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
           Circle · Arc · USDC · EURC
@@ -104,22 +104,17 @@ export default function HomePage() {
           transition={{ delay: 0.15, duration: 0.6 }}
           style={{
             fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(48px, 8.5vw, 110px)",
-            fontWeight: 730,
-            letterSpacing: "-0.04em",
-            lineHeight: 1.05,
-            maxWidth: 900,
-            marginBottom: 32,
+            fontSize: "clamp(56px, 10vw, 130px)",
+            fontWeight: 750,
+            letterSpacing: "-0.03em",
+            lineHeight: 1.04,
+            maxWidth: 1100,
+            marginBottom: 36,
             color: "#FFFFFF",
           }}
         >
-          Get paid the moment<br />
-          your work is<br />
-          <span style={{
-            color: "var(--accent)",
-            position: "relative",
-            display: "inline-block",
-          }}>
+          Get paid the moment your work is{" "}
+          <span style={{ color: "var(--accent)" }}>
             approved.
           </span>
         </motion.h1>
@@ -244,7 +239,7 @@ export default function HomePage() {
               <div style={{ fontSize: 19, fontWeight: 660, marginBottom: 10, color: "#FFFFFF", letterSpacing: "-0.025em", position: "relative" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 17, color: "rgba(255,255,255,0.82)", lineHeight: 1.80, position: "relative" }}>
+              <div style={{ fontSize: 21, color: "rgba(255,255,255,0.82)", lineHeight: 1.80, position: "relative" }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -260,7 +255,7 @@ export default function HomePage() {
         background: "radial-gradient(ellipse 70% 40% at 50% 50%, rgba(0,0,0,.18) 0%, transparent 100%)",
       }}>
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.12em",
+          fontSize: 14, fontWeight: 600, letterSpacing: "0.12em",
           color: "rgba(255,255,255,.35)", textTransform: "uppercase", marginBottom: 14,
         }}>
           Interactive demo
@@ -322,7 +317,7 @@ export default function HomePage() {
               ))}
               <div style={{
                 flex: 1, textAlign: "center",
-                fontSize: 11, fontFamily: '"DM Mono", monospace',
+                fontSize: 14, fontFamily: '"DM Mono", monospace',
                 color: "rgba(255,255,255,.32)", letterSpacing: "0.02em",
               }}>
                 receipt.app — escrow · Arc Testnet
@@ -405,7 +400,7 @@ export default function HomePage() {
             Create your service link
             <ArrowRight />
           </button>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,.30)", marginTop: 14, position: "relative" }}>
+          <div style={{ fontSize: 15, color: "rgba(255,255,255,.30)", marginTop: 14, position: "relative" }}>
             Free to use · No subscription · 10% fee per settled contract
           </div>
         </div>
@@ -423,7 +418,7 @@ export default function HomePage() {
           marginBottom: 20,
         }} />
         <div style={{
-          fontSize: 10.5, color: "var(--text-3)",
+          fontSize: 13, color: "var(--text-3)",
           fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
         }}>
           Built on
@@ -440,7 +435,7 @@ export default function HomePage() {
             "Next.js · Supabase",
           ].map(t => (
             <span key={t} className="font-mono" style={{
-              padding: "4px 12px", borderRadius: 999, fontSize: 11,
+              padding: "4px 12px", borderRadius: 999, fontSize: 14,
               background: "rgba(255,255,255,.025)",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
@@ -452,7 +447,7 @@ export default function HomePage() {
         {/* Lepton attribution */}
         <div style={{
           display: "flex", alignItems: "center", gap: 6,
-          fontSize: 12, color: "rgba(255,255,255,.65)", marginTop: 8,
+          fontSize: 15, color: "rgba(255,255,255,.65)", marginTop: 8,
         }}>
           Built for
           <LeptonLogo size={16} />

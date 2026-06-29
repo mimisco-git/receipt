@@ -70,7 +70,7 @@ export default function PaymentOrbDemo() {
           ))}
         </div>
         <div style={{
-          flex: 1, textAlign: "center", fontSize: 10.5,
+          flex: 1, textAlign: "center", fontSize: 13,
           color: "var(--mist)", fontFamily: '"DM Mono", monospace',
         }}>
           receipt.app — escrow · Arc Testnet
@@ -103,7 +103,7 @@ export default function PaymentOrbDemo() {
           minHeight: 380,
         }}>
           {/* Status label */}
-          <div style={{ fontSize: 10.5, color: "var(--ash)", fontWeight: 400, textAlign: "center", minHeight: 16 }}>
+          <div style={{ fontSize: 13, color: "var(--ash)", fontWeight: 400, textAlign: "center", minHeight: 16 }}>
             {phase === "idle"       && "No active contract"}
             {phase === "brief"      && "Brief received"}
             {phase === "locking"    && "Depositing to Circle"}
@@ -147,12 +147,12 @@ export default function PaymentOrbDemo() {
                 ].map(([k, v]) => (
                   <div key={k} style={{
                     display: "flex", justifyContent: "space-between",
-                    padding: "3px 0", fontSize: 10.5,
+                    padding: "3px 0", fontSize: 13,
                     boxShadow: "inset 0 -0.5px 0 rgba(255,255,255,0.04)",
                   }}>
                     <span style={{ color: "var(--mist)" }}>{k}</span>
                     <span className="font-mono" style={{
-                      fontSize: 10.5, fontWeight: 400,
+                      fontSize: 13, fontWeight: 400,
                       color: k === "You receive" ? "var(--ledger)" : "var(--ink-2)",
                     }}>{v}</span>
                   </div>
@@ -174,7 +174,7 @@ export default function PaymentOrbDemo() {
             <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 4, letterSpacing: "-0.01em" }}>
               SEO blog post · Lagos solar
             </div>
-            <div style={{ fontSize: 11.5, color: "var(--ash)", marginBottom: 16, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 14, color: "var(--ash)", marginBottom: 16, lineHeight: 1.6 }}>
               Walk through a real escrow contract. Each step is exactly what the freelancer and client see.
             </div>
 
@@ -199,7 +199,7 @@ export default function PaymentOrbDemo() {
                     Client brief
                   </div>
                   <div style={{
-                    fontSize: 11.5, lineHeight: 1.65, color: "var(--ash)", fontStyle: "italic",
+                    fontSize: 14, lineHeight: 1.65, color: "var(--ash)", fontStyle: "italic",
                     paddingLeft: 9, boxShadow: "inset 2px 0 0 rgba(255,255,255,0.06)",
                   }}>
                     Write a 1000-word blog post about solar panel installation for homeowners in Lagos, Nigeria. Focus on cost savings and the new government incentive program.
@@ -226,11 +226,11 @@ export default function PaymentOrbDemo() {
                       width: 26, height: 26, borderRadius: 7,
                       background: "rgba(0,229,195,0.12)",
                       boxShadow: "inset 0 0 0 0.5px rgba(0,229,195,0.2)",
-                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13,
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
                     }}>🤖</div>
                     <div>
-                      <div style={{ fontSize: 11.5, fontWeight: 600 }}>Receipt Agent</div>
-                      <div style={{ fontSize: 10, color: "var(--mist)" }}>Scope evaluator · autonomous</div>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>Receipt Agent</div>
+                      <div style={{ fontSize: 13, color: "var(--mist)" }}>Scope evaluator · autonomous</div>
                     </div>
                   </div>
 
@@ -246,7 +246,7 @@ export default function PaymentOrbDemo() {
                     </div>
                   ) : (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                      <div style={{ fontSize: 11, color: "var(--ash)", lineHeight: 1.65, marginBottom: 8 }}>
+                      <div style={{ fontSize: 14, color: "var(--ash)", lineHeight: 1.65, marginBottom: 8 }}>
                         Word count: <strong style={{ color: "var(--ink-2)" }}>1,023</strong>.
                         Lagos data: <strong style={{ color: "var(--ink-2)" }}>confirmed</strong>. Scope alignment:
                       </div>
@@ -262,7 +262,7 @@ export default function PaymentOrbDemo() {
                             transition={{ duration: 0.65, ease: "easeOut" }}
                           />
                         </div>
-                        <span className="font-mono" style={{ fontSize: 11, color: "var(--ledger)", minWidth: 32 }}>{score}%</span>
+                        <span className="font-mono" style={{ fontSize: 14, color: "var(--ledger)", minWidth: 32 }}>{score}%</span>
                       </div>
                     </motion.div>
                   )}
@@ -282,7 +282,7 @@ export default function PaymentOrbDemo() {
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
                   onMouseMove={trackMouse}
                   onClick={() => setPhase("brief")}
-                  style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}
+                  style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 16 }}
                 >
                   Submit brief as client
                 </motion.button>
@@ -295,7 +295,7 @@ export default function PaymentOrbDemo() {
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
                   onClick={fund}
                   style={{
-                    width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13,
+                    width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 16,
                     fontWeight: 600, border: "none", cursor: "pointer",
                     background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#000000",
                     boxShadow: "0 8px 30px rgba(0,229,195,.15), inset 0 1px 0 rgba(255,255,255,0.20)",
@@ -312,7 +312,7 @@ export default function PaymentOrbDemo() {
                 <motion.div key="locking"
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   style={{
-                    width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13,
+                    width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 16,
                     background: "rgba(0,0,0,0.22)",
                     boxShadow: "inset 0 0 0 0.5px rgba(255,255,255,0.07)",
                     color: "var(--ash)", textAlign: "center",
@@ -336,7 +336,7 @@ export default function PaymentOrbDemo() {
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
                   onMouseMove={trackMouse}
                   onClick={approve}
-                  style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}
+                  style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 16 }}
                 >
                   Approve · release payment
                 </motion.button>
@@ -348,14 +348,14 @@ export default function PaymentOrbDemo() {
                   className="btn-ghost"
                   whileTap={{ scale: 0.97 }}
                   onClick={reset}
-                  style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13 }}
+                  style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 16 }}
                 >
                   Reset demo
                 </motion.button>
               )}
             </AnimatePresence>
 
-            <div style={{ textAlign: "center", fontSize: 10.5, color: "var(--mist)", lineHeight: 1.55 }}>
+            <div style={{ textAlign: "center", fontSize: 13, color: "var(--mist)", lineHeight: 1.55 }}>
               {phase === "released"
                 ? "Settled via submitBatch() on Arc in 482ms. Transaction onchain."
                 : "Buyer signs EIP-3009 offchain. Gateway batches and settles via submitBatch()."}

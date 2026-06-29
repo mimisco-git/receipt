@@ -60,7 +60,7 @@ export default function FaucetPage() {
           <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", marginBottom: 8 }}>
             Get started with test funds
           </h1>
-          <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 32, lineHeight: 1.7 }}>
+          <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 32, lineHeight: 1.7 }}>
             Receipt runs on Arc Testnet with test USDC and EURC. Claim free tokens from the Circle faucet
             and start using the platform in under 2 minutes.
           </p>
@@ -84,8 +84,8 @@ export default function FaucetPage() {
                 💧
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>Circle Testnet Faucet</div>
-                <div style={{ fontSize: 12, color: "var(--text-3)" }}>Free USDC and EURC on Arc Testnet</div>
+                <div style={{ fontSize: 19, fontWeight: 700 }}>Circle Testnet Faucet</div>
+                <div style={{ fontSize: 15, color: "var(--text-3)" }}>Free USDC and EURC on Arc Testnet</div>
               </div>
             </div>
 
@@ -97,7 +97,7 @@ export default function FaucetPage() {
               style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 padding: "13px 24px", borderRadius: "var(--r-sm)",
-                textDecoration: "none", fontSize: 14,
+                textDecoration: "none", fontSize: 17,
               }}
             >
               Claim test USDC / EURC
@@ -107,10 +107,10 @@ export default function FaucetPage() {
             </a>
 
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
                 Network details
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 15 }}>
                 {[
                   ["Network", "Arc Testnet"],
                   ["Chain ID", "5042002"],
@@ -120,7 +120,7 @@ export default function FaucetPage() {
                 ].map(([k, v]) => (
                   <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                     <span style={{ color: "var(--text-3)" }}>{k}</span>
-                    <span className="font-mono" style={{ color: "var(--text-2)", fontSize: 11 }}>{v}</span>
+                    <span className="font-mono" style={{ color: "var(--text-2)", fontSize: 14 }}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -128,7 +128,7 @@ export default function FaucetPage() {
           </div>
 
           {/* Steps */}
-          <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>How to use Receipt</div>
+          <div style={{ fontSize: 19, fontWeight: 700, marginBottom: 16 }}>How to use Receipt</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
             {steps.map((s, i) => (
               <motion.div
@@ -150,18 +150,18 @@ export default function FaucetPage() {
                   width: 32, height: 32, borderRadius: 8, flexShrink: 0,
                   background: `${s.color}15`, border: `1px solid ${s.color}30`,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 13, fontWeight: 700, color: s.color,
+                  fontSize: 16, fontWeight: 700, color: s.color,
                 }}>
                   {s.num}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{s.title}</div>
-                  <div style={{ fontSize: 13, opacity: 0.72, color: "inherit", lineHeight: 1.55, marginBottom: 8 }}>{s.desc}</div>
+                  <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 4 }}>{s.title}</div>
+                  <div style={{ fontSize: 16, opacity: 0.72, color: "inherit", lineHeight: 1.55, marginBottom: 8 }}>{s.desc}</div>
                   <a
                     href={s.link}
                     target={s.link.startsWith("http") ? "_blank" : undefined}
                     rel={s.link.startsWith("http") ? "noreferrer" : undefined}
-                    style={{ fontSize: 12, fontWeight: 600, color: s.color, textDecoration: "none" }}
+                    style={{ fontSize: 15, fontWeight: 600, color: s.color, textDecoration: "none" }}
                   >
                     {s.linkLabel} →
                   </a>
@@ -175,10 +175,10 @@ export default function FaucetPage() {
             padding: "16px 20px", borderRadius: "var(--r-lg)",
             background: "var(--green-dim)", border: "1px solid var(--green-border)",
           }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--green)", marginBottom: 6 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "var(--green)", marginBottom: 6 }}>
               Supported wallets
             </div>
-            <div style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.6 }}>
               MetaMask, Rabby, Coinbase Wallet, Rainbow — any EVM wallet works. Add Arc Testnet
               as a custom network with chain ID <span className="font-mono">5042002</span> and
               RPC <span className="font-mono">https://rpc.testnet.arc.network</span>.

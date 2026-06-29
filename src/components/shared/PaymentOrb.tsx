@@ -233,7 +233,7 @@ export default function PaymentOrb({ amount, state, size = 180, currency = "USDC
                     strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span className="font-mono" style={{
-                  fontSize: 10, letterSpacing: "0.14em",
+                  fontSize: 13, letterSpacing: "0.14em",
                   color: "var(--green)", textTransform: "uppercase",
                 }}>Settled</span>
               </motion.div>

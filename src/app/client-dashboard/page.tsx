@@ -112,22 +112,22 @@ export default function ClientDashboardPage() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
                 <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.03em" }}>{profile.name}</h1>
-                <span className="pill pill-blue" style={{ fontSize: 10 }}><span className="pill-dot" />Client</span>
+                <span className="pill pill-blue" style={{ fontSize: 13 }}><span className="pill-dot" />Client</span>
               </div>
-              {profile.bio && <div style={{ fontSize: 12, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile.bio}</div>}
+              {profile.bio && <div style={{ fontSize: 15, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profile.bio}</div>}
               {profile.walletAddress && (
-                <div className="font-mono" style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>
+                <div className="font-mono" style={{ fontSize: 14, color: "var(--text-3)", marginTop: 2 }}>
                   {profile.walletAddress.slice(0, 10)}...{profile.walletAddress.slice(-6)}
                 </div>
               )}
             </div>
             {balance && (
               <div style={{ display: "flex", flexDirection: "column", gap: 4, marginRight: 8, alignItems: "flex-end" }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
                   ${balance.usdc.toFixed(2)} USDC
                 </div>
                 {balance.eurc > 0 && (
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--blue)", fontFamily: '"DM Mono", monospace' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--blue)", fontFamily: '"DM Mono", monospace' }}>
                     €{balance.eurc.toFixed(2)} EURC
                   </div>
                 )}
@@ -135,7 +135,7 @@ export default function ClientDashboardPage() {
               </div>
             )}
             <button onClick={() => router.push("/profile")} className="btn-ghost"
-              style={{ padding: "8px 14px", borderRadius: "var(--r-sm)", fontSize: 12, flexShrink: 0 }}>
+              style={{ padding: "8px 14px", borderRadius: "var(--r-sm)", fontSize: 15, flexShrink: 0 }}>
               Edit
             </button>
           </div>
@@ -148,15 +148,15 @@ export default function ClientDashboardPage() {
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)" }}>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "var(--accent)" }}>
                   {needsReview.length} delivery{needsReview.length > 1 ? "ies" : ""} ready for review
                 </div>
-                <div style={{ fontSize: 12, color: "var(--text-3)" }}>
+                <div style={{ fontSize: 15, color: "var(--text-3)" }}>
                   Workers have submitted — review and approve to release payment.
                 </div>
               </div>
               <button onClick={() => router.push(`/escrow/${needsReview[0].id}`)} className="btn-primary"
-                style={{ padding: "8px 16px", borderRadius: "var(--r-sm)", fontSize: 12, flexShrink: 0 }}>
+                style={{ padding: "8px 16px", borderRadius: "var(--r-sm)", fontSize: 15, flexShrink: 0 }}>
                 Review
               </button>
             </div>
@@ -179,7 +179,7 @@ export default function ClientDashboardPage() {
                 borderRadius: 16,
                 boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
               }}>
-                <div style={{ fontSize: 11, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
+                <div style={{ fontSize: 14, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
                 <div className="font-mono" style={{ fontSize: 24, fontWeight: 500, color: s.color }}>{s.value}</div>
               </div>
             ))}
@@ -188,17 +188,17 @@ export default function ClientDashboardPage() {
           {/* Quick actions */}
           <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
             <button onClick={() => router.push("/setup")} className="btn-primary"
-              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 16 }}>
               Post a job
             </button>
             <button onClick={() => router.push("/marketplace")} className="btn-ghost"
-              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+              style={{ padding: "10px 20px", borderRadius: "var(--r-sm)", fontSize: 16 }}>
               Browse workers
             </button>
           </div>
 
           {/* Contract list */}
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Your contracts</div>
+          <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 12 }}>Your contracts</div>
 
           {contracts.length === 0 ? (
             <div style={{
@@ -215,8 +215,8 @@ export default function ClientDashboardPage() {
                   <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /><line x1="12" y1="12" x2="12" y2="15" /><line x1="10.5" y1="13.5" x2="13.5" y2="13.5" />
                 </svg>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,.55)", marginBottom: 24, lineHeight: 1.65 }}>
+              <div style={{ fontSize: 19, fontWeight: 600, marginBottom: 8 }}>No contracts yet</div>
+              <p style={{ fontSize: 17, color: "rgba(255,255,255,.55)", marginBottom: 24, lineHeight: 1.65 }}>
                 Hire a worker or post a job to start.
               </p>
               <button onClick={() => router.push("/marketplace")} className="btn-primary"
@@ -269,19 +269,19 @@ export default function ClientDashboardPage() {
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.serviceTitle}</div>
-                      <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 2 }}>
+                      <div style={{ fontSize: 16, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.serviceTitle}</div>
+                      <div style={{ fontSize: 14, color: "var(--text-3)", marginTop: 2 }}>
                         {c.freelancerName}{c.agentScore ? ` · Agent: ${c.agentScore}%` : ""} · {timeAgo(new Date(c.createdAt || Date.now()))}
                       </div>
                     </div>
-                    <div style={{ padding: "2px 9px", borderRadius: 999, background: st.bg, color: st.color, fontSize: 10.5, fontWeight: 600, flexShrink: 0 }}>
+                    <div style={{ padding: "2px 9px", borderRadius: 999, background: st.bg, color: st.color, fontSize: 13, fontWeight: 600, flexShrink: 0 }}>
                       {st.action || st.label}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className="font-mono" style={{ fontSize: 13, color: "var(--text-1)" }}>
+                      <div className="font-mono" style={{ fontSize: 16, color: "var(--text-1)" }}>
                         {c.currency === "EURC" ? "€" : "$"}{c.amountUsdc?.toFixed(2)}
                       </div>
-                      <div style={{ fontSize: 10, color: "var(--text-3)" }}>{c.currency || "USDC"}</div>
+                      <div style={{ fontSize: 13, color: "var(--text-3)" }}>{c.currency || "USDC"}</div>
                     </div>
                   </motion.div>
                 );

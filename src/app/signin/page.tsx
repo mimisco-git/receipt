@@ -137,7 +137,7 @@ export default function SignInPage() {
           <h1 style={{ fontSize: "clamp(22px,4vw,28px)", fontWeight: 800, letterSpacing: "-0.05em", marginBottom: 6 }}>
             Welcome back
           </h1>
-          <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 32 }}>
+          <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 32 }}>
             Connect your wallet to sign in — one tap, no password.
           </p>
 
@@ -162,7 +162,7 @@ export default function SignInPage() {
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </div>
-                <div style={{ fontSize: 14, color: "var(--green)", fontWeight: 600 }}>Signed in</div>
+                <div style={{ fontSize: 17, color: "var(--green)", fontWeight: 600 }}>Signed in</div>
               </div>
             ) : active ? (
               <div>
@@ -197,7 +197,7 @@ export default function SignInPage() {
                             )}
                           </div>
                           <div style={{
-                            fontSize: 10, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase",
+                            fontSize: 13, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase",
                             color: curr ? "var(--green)" : done ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.22)",
                           }}>
                             {s.label}
@@ -215,7 +215,7 @@ export default function SignInPage() {
                     );
                   })}
                 </div>
-                <div style={{ textAlign: "center", fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}>
+                <div style={{ textAlign: "center", fontSize: 16, color: "var(--text-2)", lineHeight: 1.55 }}>
                   {connectStep === "connecting" && "Opening your wallet..."}
                   {connectStep === "signing"    && "Sign the message in your wallet to confirm it's you."}
                   {connectStep === "verifying"  && "Verifying your signature..."}
@@ -228,7 +228,7 @@ export default function SignInPage() {
                 style={{
                   width: "100%", padding: "14px", borderRadius: 12,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  gap: 10, fontSize: 14.5, fontWeight: 600,
+                  gap: 10, fontSize: 18, fontWeight: 600,
                 }}
               >
                 <WalletIcon />
@@ -248,7 +248,7 @@ export default function SignInPage() {
               style={{
                 marginBottom: 16, padding: "11px 14px",
                 background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.18)",
-                borderRadius: 12, fontSize: 13, color: "#ff5555", textAlign: "center",
+                borderRadius: 12, fontSize: 16, color: "#ff5555", textAlign: "center",
               }}
             >
               {error}
@@ -258,7 +258,7 @@ export default function SignInPage() {
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0 16px" }}>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,.07)" }} />
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.22)", letterSpacing: "0.07em", textTransform: "uppercase" }}>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,.22)", letterSpacing: "0.07em", textTransform: "uppercase" }}>
               or sign in with name
             </div>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,.07)" }} />
@@ -273,7 +273,7 @@ export default function SignInPage() {
               onChange={e => setName(e.target.value)}
               className="input"
               style={{
-                flex: 1, fontSize: 13,
+                flex: 1, fontSize: 16,
                 background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.5)",
               }}
             />
@@ -281,7 +281,7 @@ export default function SignInPage() {
               type="submit"
               disabled={nameLoading || !name.trim()}
               style={{
-                padding: "0 18px", borderRadius: "var(--r-sm)", fontSize: 13, fontWeight: 600,
+                padding: "0 18px", borderRadius: "var(--r-sm)", fontSize: 16, fontWeight: 600,
                 background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.09)",
                 color: "var(--text-1)", cursor: "pointer",
                 opacity: nameLoading || !name.trim() ? 0.38 : 1,
@@ -292,11 +292,11 @@ export default function SignInPage() {
             </button>
           </form>
 
-          <p style={{ marginTop: 24, fontSize: 13, color: "var(--text-3)", textAlign: "center" }}>
+          <p style={{ marginTop: 24, fontSize: 16, color: "var(--text-3)", textAlign: "center" }}>
             New here?{" "}
             <button
               onClick={() => router.push("/profile")}
-              style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer", fontSize: 13, fontWeight: 600 }}
+              style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer", fontSize: 16, fontWeight: 600 }}
             >
               Create your profile
             </button>

@@ -56,8 +56,8 @@ export default function Footer() {
           onError={e => (e.currentTarget.style.display = "none")}
         />
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Receipt</div>
-          <div style={{ fontSize: 11, color: "var(--text-3)", display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-1)" }}>Receipt</div>
+          <div style={{ fontSize: 14, color: "var(--text-3)", display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
             Circle · Arc · USDC · EURC
             <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
               <LeptonLogo size={12} />

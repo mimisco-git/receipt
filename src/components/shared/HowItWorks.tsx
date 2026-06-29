@@ -67,7 +67,7 @@ export default function HowItWorks() {
       display: "flex", flexDirection: "column", alignItems: "center",
     }}>
       <div style={{
-        fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
+        fontSize: 14, fontWeight: 600, letterSpacing: "0.1em",
         color: "var(--text-3)", textTransform: "uppercase", marginBottom: 14,
       }}>
         The process
@@ -81,7 +81,7 @@ export default function HowItWorks() {
         Three steps. No invoices.
       </h2>
       <p style={{
-        fontSize: 15, color: "var(--text-2)",
+        fontSize: 18, color: "var(--text-2)",
         textAlign: "center", maxWidth: 420,
         marginBottom: 52, lineHeight: 1.65,
       }}>
@@ -127,7 +127,7 @@ export default function HowItWorks() {
             {/* Step number */}
             <div style={{
               fontFamily: '"DM Mono", monospace',
-              fontSize: 11, color: "var(--text-3)",
+              fontSize: 14, color: "var(--text-3)",
               letterSpacing: "0.08em", marginBottom: 22,
             }}>
               {step.num}
@@ -155,13 +155,13 @@ export default function HowItWorks() {
             }} />
 
             <div style={{
-              fontSize: 15, fontWeight: 600, marginBottom: 10,
+              fontSize: 18, fontWeight: 600, marginBottom: 10,
               color: "var(--text-1)", letterSpacing: "-0.01em",
             }}>
               {step.title}
             </div>
             <div style={{
-              fontSize: 14, opacity: 0.72, color: "inherit",
+              fontSize: 17, opacity: 0.72, color: "inherit",
               lineHeight: 1.7,
             }}>
               {step.desc}

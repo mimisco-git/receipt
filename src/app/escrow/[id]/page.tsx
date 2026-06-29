@@ -394,7 +394,7 @@ export default function EscrowPage() {
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
               border: "1px solid rgba(255,255,255,.08)",
-              fontSize: 11, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
+              fontSize: 14, fontFamily: '"DM Mono", monospace', color: "var(--text-3)",
             }}>
               Contract #{(id as string)?.slice(0, 8)}
             </div>
@@ -404,7 +404,7 @@ export default function EscrowPage() {
               background: linkCopied ? "rgba(0,229,195,0.1)" : "rgba(255,255,255,.025)",
               border: `1px solid ${linkCopied ? "rgba(0,229,195,0.3)" : "rgba(255,255,255,.08)"}`,
               color: linkCopied ? "var(--green)" : "var(--text-3)",
-              fontSize: 11, transition: "all 0.2s ease",
+              fontSize: 14, transition: "all 0.2s ease",
             }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {linkCopied
@@ -417,14 +417,14 @@ export default function EscrowPage() {
           <h1 style={{ fontSize: "clamp(18px,3vw,24px)", fontWeight: 700, letterSpacing: "-0.04em", marginBottom: 4 }}>
             {contract.serviceTitle}
           </h1>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: 14, color: "var(--text-2)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: 17, color: "var(--text-2)" }}>
             <span>
               {isWorker ? `Client: ${contract.payerName}` : `Worker: ${contract.workerName}`}
             </span>
             {!isWorker && contract.workerVerified && contract.workerName !== "Awaiting acceptance" && (
               <span title="Verified worker" style={{
                 display: "inline-flex", alignItems: "center", gap: 4,
-                padding: "2px 8px", borderRadius: 999, fontSize: 10, fontWeight: 700,
+                padding: "2px 8px", borderRadius: 999, fontSize: 13, fontWeight: 700,
                 background: "rgba(0,229,195,0.12)", color: "var(--green)",
                 border: "1px solid rgba(0,229,195,0.25)", letterSpacing: "0.05em",
               }}>
@@ -438,7 +438,7 @@ export default function EscrowPage() {
           {viewerRole !== "unknown" && (
             <div style={{
               display: "inline-block", marginTop: 6,
-              padding: "2px 10px", borderRadius: 999, fontSize: 10.5, fontWeight: 600,
+              padding: "2px 10px", borderRadius: 999, fontSize: 13, fontWeight: 600,
               background: isWorker ? "var(--green-dim)" : "rgba(0,229,195,0.06)",
               color: isWorker ? "var(--green)" : "var(--accent)",
               border: `1px solid ${isWorker ? "var(--green-border)" : "var(--green-border)"}`,
@@ -473,7 +473,7 @@ export default function EscrowPage() {
               padding: "28px 16px",
               borderRight: "1px solid var(--line)",
             }}>
-              <div style={{ fontSize: 11, color: "var(--text-3)", textAlign: "center", minHeight: 16 }}>
+              <div style={{ fontSize: 14, color: "var(--text-3)", textAlign: "center", minHeight: 16 }}>
                 {phase === "pending"    && (isWorker ? "Submit your work" : "Awaiting delivery")}
                 {phase === "delivered"  && (isClient ? "Review delivery" : "Delivery submitted")}
                 {phase === "evaluating" && "Agent reviewing"}
@@ -500,7 +500,7 @@ export default function EscrowPage() {
                 {phase === "disputed"   && "Disputed"}
               </div>
 
-              <div style={{ width: "100%", fontSize: 11.5 }}>
+              <div style={{ width: "100%", fontSize: 14 }}>
                 {[
                   ["Contract",    `${sym}${contract.amountUsdc.toFixed(2)} ${contract.currency}`],
                   ["Fee",         "10%"],
@@ -517,12 +517,12 @@ export default function EscrowPage() {
                 ))}
                 {txHash && (
                   <a href={`https://testnet.arcscan.app/tx/${txHash}`} target="_blank" rel="noreferrer"
-                    style={{ display: "block", marginTop: 6, fontSize: 10.5, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace', textDecoration: "underline" }}>
+                    style={{ display: "block", marginTop: 6, fontSize: 13, color: "var(--green)", wordBreak: "break-all", fontFamily: '"DM Mono", monospace', textDecoration: "underline" }}>
                     Tx: {txHash.slice(0, 20)}... ↗
                   </a>
                 )}
                 {settlementMs > 0 && (
-                  <div style={{ marginTop: 4, fontSize: 10.5, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
+                  <div style={{ marginTop: 4, fontSize: 13, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>
                     Settled in {settlementMs}ms
                   </div>
                 )}
@@ -538,7 +538,7 @@ export default function EscrowPage() {
                   background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)",
                   marginBottom: contract.workerProposal ? 8 : 12,
                 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
                     {isWorker ? "Job requirements" : "Your brief"}
                   </div>
                   <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", fontStyle: "italic", paddingLeft: 10, borderLeft: "2px solid rgba(255,255,255,0.08)" }}>
@@ -553,7 +553,7 @@ export default function EscrowPage() {
                     background: "rgba(0,229,195,0.03)", border: "1px solid rgba(0,229,195,0.1)",
                     marginBottom: 12,
                   }}>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--green)", textTransform: "uppercase", marginBottom: 7 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: "var(--green)", textTransform: "uppercase", marginBottom: 7 }}>
                       Worker acceptance note
                     </div>
                     <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", fontStyle: "italic", paddingLeft: 10, borderLeft: "2px solid rgba(0,229,195,0.2)" }}>
@@ -566,7 +566,7 @@ export default function EscrowPage() {
                 <AnimatePresence>
                   {phase === "pending" && isWorker && (
                     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
+                      <label style={{ display: "block", fontSize: 15, fontWeight: 500, color: "var(--text-2)", marginBottom: 7 }}>
                         Your delivery
                       </label>
                       <textarea
@@ -598,7 +598,7 @@ export default function EscrowPage() {
                             <div key={i} style={{
                               display: "flex", alignItems: "center", justifyContent: "space-between",
                               padding: "6px 10px", borderRadius: "var(--r-sm)",
-                              background: "rgba(255,255,255,0.04)", border: "1px solid var(--line)", fontSize: 12,
+                              background: "rgba(255,255,255,0.04)", border: "1px solid var(--line)", fontSize: 15,
                             }}>
                               <span style={{ color: "var(--text-2)" }}>{a.name}</span>
                               <span style={{ color: "var(--text-3)" }}>{a.size}</span>
@@ -617,10 +617,10 @@ export default function EscrowPage() {
                     background: "rgba(255,255,255,0.03)", border: "1px solid var(--line)",
                     textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-2)", marginBottom: 4 }}>
                       {contract.workerName === "Awaiting acceptance" ? "Waiting for a worker" : "Waiting for delivery"}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-3)" }}>
+                    <div style={{ fontSize: 15, color: "var(--text-3)" }}>
                       {contract.workerName === "Awaiting acceptance"
                         ? "Budget is locked. Share the job link so workers can accept and start."
                         : `${contract.workerName} is working on your job. You'll be able to review and approve once they submit.`}
@@ -635,7 +635,7 @@ export default function EscrowPage() {
                     background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)",
                     marginBottom: 12,
                   }}>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 7 }}>
                       Worker&apos;s delivery
                     </div>
                     <div style={{ fontSize: 12.5, lineHeight: 1.65, color: "var(--text-2)", paddingLeft: 10, borderLeft: "2px solid rgba(0,229,195,0.2)" }}>
@@ -651,10 +651,10 @@ export default function EscrowPage() {
                     background: "rgba(0,229,195,0.04)", border: "1px solid var(--green-border)",
                     marginBottom: 12, textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--accent)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: "var(--accent)", marginBottom: 4 }}>
                       Delivery submitted
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-3)" }}>
+                    <div style={{ fontSize: 15, color: "var(--text-3)" }}>
                       Waiting for {contract.payerName} to review and approve your work.
                     </div>
                   </div>
@@ -684,8 +684,8 @@ export default function EscrowPage() {
                           </svg>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 12, fontWeight: 600 }}>Receipt Agent</div>
-                          <div style={{ fontSize: 10.5, color: "var(--text-3)" }}>
+                          <div style={{ fontSize: 15, fontWeight: 600 }}>Receipt Agent</div>
+                          <div style={{ fontSize: 13, color: "var(--text-3)" }}>
                             {agentModel ? `Model: ${agentModel}` : "AI Escrow Arbiter"}
                           </div>
                         </div>
@@ -706,7 +706,7 @@ export default function EscrowPage() {
                       </div>
 
                       {!typingDone ? (
-                        <div style={{ fontSize: 11.5, color: "var(--text-2)", lineHeight: 1.6, marginBottom: 4 }}>
+                        <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.6, marginBottom: 4 }}>
                           {displayReasoning}
                           <span style={{
                             display: "inline-block", width: 1.5, height: "1em",
@@ -717,7 +717,7 @@ export default function EscrowPage() {
                       ) : (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                           {agentReasoning && (
-                            <div style={{ fontSize: 11.5, color: "var(--text-2)", lineHeight: 1.6, marginBottom: 8 }}>
+                            <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.6, marginBottom: 8 }}>
                               {agentReasoning}
                             </div>
                           )}
@@ -731,7 +731,7 @@ export default function EscrowPage() {
                                   transition={{ duration: 0.7, ease: "easeOut" }}
                                 />
                               </div>
-                              <span className="font-mono" style={{ fontSize: 12, color: "var(--green)", minWidth: 34 }}>{agentScore}%</span>
+                              <span className="font-mono" style={{ fontSize: 15, color: "var(--green)", minWidth: 34 }}>{agentScore}%</span>
                             </div>
                           )}
                         </motion.div>
@@ -744,7 +744,7 @@ export default function EscrowPage() {
                 {phase === "pending" && isClient && contract.workerName === "Awaiting acceptance" && matches.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--green)", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: "var(--green)", textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
                       Receipt AI suggests
                     </div>
@@ -760,11 +760,11 @@ export default function EscrowPage() {
                           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(0,229,195,0.1)"; }}
                         >
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-1)" }}>{m.name}</span>
-                            <span style={{ fontSize: 10, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>Match {i + 1}</span>
+                            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)" }}>{m.name}</span>
+                            <span style={{ fontSize: 13, color: "var(--green)", fontFamily: '"DM Mono", monospace' }}>Match {i + 1}</span>
                           </div>
-                          <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 3 }}>{m.title}</div>
-                          <div style={{ fontSize: 11, color: "var(--text-2)", lineHeight: 1.5, fontStyle: "italic" }}>{m.reason}</div>
+                          <div style={{ fontSize: 14, color: "var(--text-3)", marginBottom: 3 }}>{m.title}</div>
+                          <div style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.5, fontStyle: "italic" }}>{m.reason}</div>
                         </a>
                       ))}
                     </div>
@@ -780,17 +780,17 @@ export default function EscrowPage() {
                       marginBottom: 12,
                     }}>
                     {ratingSubmitted ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-2)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, color: "var(--text-2)" }}>
                         <div style={{ display: "flex", gap: 2 }}>
                           {[1,2,3,4,5].map(s => (
-                            <span key={s} style={{ fontSize: 14, color: s <= myRating ? "#FFB800" : "rgba(255,255,255,0.12)" }}>★</span>
+                            <span key={s} style={{ fontSize: 17, color: s <= myRating ? "#FFB800" : "rgba(255,255,255,0.12)" }}>★</span>
                           ))}
                         </div>
                         Rating submitted
                       </div>
                     ) : (
                       <>
-                        <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>
                           Rate this work
                         </div>
                         <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
@@ -813,13 +813,13 @@ export default function EscrowPage() {
                           value={ratingNote}
                           onChange={e => setRatingNote(e.target.value)}
                           className="input"
-                          style={{ fontSize: 12, padding: "8px 10px", marginBottom: 8, background: "rgba(0,0,0,0.2)" }}
+                          style={{ fontSize: 15, padding: "8px 10px", marginBottom: 8, background: "rgba(0,0,0,0.2)" }}
                         />
                         <button
                           onClick={submitRating}
                           disabled={!myRating}
                           style={{
-                            padding: "7px 14px", borderRadius: "var(--r-sm)", fontSize: 12, fontWeight: 600,
+                            padding: "7px 14px", borderRadius: "var(--r-sm)", fontSize: 15, fontWeight: 600,
                             background: myRating ? "var(--green-dim)" : "rgba(255,255,255,0.04)",
                             border: `1px solid ${myRating ? "var(--green-border)" : "var(--line)"}`,
                             color: myRating ? "var(--green)" : "var(--text-3)",
@@ -847,7 +847,7 @@ export default function EscrowPage() {
                       <div className="font-mono" style={{ fontSize: 28, color: "var(--green)", fontWeight: 500, marginBottom: 2 }}>
                         {sym}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--green)", opacity: 0.75 }}>
+                      <div style={{ fontSize: 15, color: "var(--green)", opacity: 0.75 }}>
                         {isWorker ? "Payment received" : "Payment released to worker"}
                         {settlementMs > 0 && ` in ${settlementMs}ms`}
                       </div>
@@ -859,7 +859,7 @@ export default function EscrowPage() {
               {/* Contract timeline */}
               {contractDates.created && (
                 <div style={{ marginTop: 8, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 10 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-3)", textTransform: "uppercase", marginBottom: 10 }}>
                     Timeline
                   </div>
                   <div style={{ display: "flex", flexDirection: "column" }}>
@@ -881,9 +881,9 @@ export default function EscrowPage() {
                           )}
                         </div>
                         <div style={{ paddingBottom: 10, paddingTop: 0 }}>
-                          <div style={{ fontSize: 11, fontWeight: 500, color: ev.done ? "var(--text-2)" : "var(--text-3)" }}>{ev.label}</div>
+                          <div style={{ fontSize: 14, fontWeight: 500, color: ev.done ? "var(--text-2)" : "var(--text-3)" }}>{ev.label}</div>
                           {ev.date && (
-                            <div style={{ fontSize: 10, color: "var(--text-3)", fontFamily: '"DM Mono", monospace' }}>
+                            <div style={{ fontSize: 13, color: "var(--text-3)", fontFamily: '"DM Mono", monospace' }}>
                               {new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                             </div>
                           )}
@@ -902,7 +902,7 @@ export default function EscrowPage() {
                     onClick={submitDelivery}
                     disabled={(!deliveryText.trim() && attachments.length === 0) || submitting}
                     className="btn-primary"
-                    style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}
+                    style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 16 }}
                   >
                     {submitting ? (
                       <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
@@ -917,11 +917,11 @@ export default function EscrowPage() {
                 {(phase === "evaluating" || phase === "delivered") && isClient && !scoreRunning && (
                   <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <button onClick={approvePayment} className="btn-primary"
-                      style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+                      style={{ width: "100%", padding: "12px", borderRadius: "var(--r-sm)", fontSize: 16 }}>
                       Approve and release {sym}{contract.netAmountUsdc.toFixed(2)} {contract.currency}
                     </button>
                     <button onClick={disputeContract} className="btn-ghost"
-                      style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13 }}>
+                      style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 16 }}>
                       Flag an issue
                     </button>
                   </motion.div>
@@ -929,19 +929,19 @@ export default function EscrowPage() {
 
                 {phase === "disputed" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)", fontSize: 13, color: "var(--text-2)", textAlign: "center" }}>
+                    <div style={{ padding: "12px", borderRadius: "var(--r-sm)", background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.2)", fontSize: 16, color: "var(--text-2)", textAlign: "center" }}>
                       {refundMsg || "Dispute opened. Both parties can review the contract details and reach a resolution."}
                     </div>
                     {isClient && !refundMsg && (
                       <button onClick={requestRefund} className="btn-ghost"
-                        style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 13, borderColor: "rgba(255,68,68,0.3)", color: "var(--red)" }}>
+                        style={{ width: "100%", padding: "11px", borderRadius: "var(--r-sm)", fontSize: 16, borderColor: "rgba(255,68,68,0.3)", color: "var(--red)" }}>
                         Request refund
                       </button>
                     )}
                   </div>
                 )}
 
-                <div style={{ textAlign: "center", fontSize: 11, color: "var(--text-3)", lineHeight: 1.55 }}>
+                <div style={{ textAlign: "center", fontSize: 14, color: "var(--text-3)", lineHeight: 1.55 }}>
                   {phase === "settled" && txHash
                     ? <span>Settled on Arc. <a href={`https://testnet.arcscan.app/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: "var(--green)", textDecoration: "underline" }}>View on ArcScan ↗</a></span>
                     : "Settlement via Circle Gateway on Arc Testnet."}

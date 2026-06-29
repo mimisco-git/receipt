@@ -239,7 +239,7 @@ export default function QuizPage() {
             </div>
             <div style={{ textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>Generating your assessment</p>
-              <p style={{ fontSize: 14, color: "var(--text-3)" }}>
+              <p style={{ fontSize: 17, color: "var(--text-3)" }}>
                 AI is creating questions based on: <span style={{ color: "var(--green)" }}>{skills}</span>
               </p>
             </div>
@@ -259,12 +259,12 @@ export default function QuizPage() {
                   <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.04em", marginBottom: 4 }}>
                     Skills Assessment
                   </h1>
-                  <p style={{ fontSize: 13, color: "var(--text-3)" }}>
+                  <p style={{ fontSize: 16, color: "var(--text-3)" }}>
                     {skills} · 70% to qualify
                   </p>
                 </div>
                 <span style={{
-                  fontSize: 13, fontWeight: 600, color: "var(--text-2)",
+                  fontSize: 16, fontWeight: 600, color: "var(--text-2)",
                   padding: "6px 14px", borderRadius: 999,
                   background: "rgba(255,255,255,0.05)",
                   border: "1px solid rgba(255,255,255,0.08)",
@@ -301,13 +301,13 @@ export default function QuizPage() {
                   display: "inline-flex", alignItems: "center", gap: 6,
                   padding: "4px 10px", borderRadius: 999, marginBottom: 18,
                   background: "rgba(0,229,195,0.08)", border: "1px solid rgba(0,229,195,0.2)",
-                  fontSize: 11, fontWeight: 700, color: "var(--green)", letterSpacing: "0.06em",
+                  fontSize: 14, fontWeight: 700, color: "var(--green)", letterSpacing: "0.06em",
                   textTransform: "uppercase",
                 }}>
                   Question {currentQ + 1} of {questions.length}
                 </div>
 
-                <p style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.5, marginBottom: 24, letterSpacing: "-0.01em" }}>
+                <p style={{ fontSize: 21, fontWeight: 600, lineHeight: 1.5, marginBottom: 24, letterSpacing: "-0.01em" }}>
                   {questions[currentQ].question}
                 </p>
 
@@ -345,7 +345,7 @@ export default function QuizPage() {
                         <span style={{
                           flexShrink: 0, width: 26, height: 26, borderRadius: "50%",
                           display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 11, fontWeight: 700,
+                          fontSize: 14, fontWeight: 700,
                           background: selected ? "var(--green)" : "rgba(255,255,255,0.06)",
                           color: selected ? "#060E0A" : "var(--text-3)",
                           border: selected ? "none" : "1px solid rgba(255,255,255,0.08)",
@@ -353,7 +353,7 @@ export default function QuizPage() {
                         }}>
                           {OPTION_LABELS[idx]}
                         </span>
-                        <span style={{ fontSize: 14, lineHeight: 1.55, paddingTop: 3 }}>{opt}</span>
+                        <span style={{ fontSize: 17, lineHeight: 1.55, paddingTop: 3 }}>{opt}</span>
                       </button>
                     );
                   })}
@@ -367,7 +367,7 @@ export default function QuizPage() {
                 onClick={goPrev}
                 disabled={currentQ === 0}
                 style={{
-                  padding: "12px 20px", borderRadius: 12, fontSize: 13, fontWeight: 600,
+                  padding: "12px 20px", borderRadius: 12, fontSize: 16, fontWeight: 600,
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.08)",
                   color: currentQ === 0 ? "var(--text-3)" : "var(--text-1)",
@@ -404,7 +404,7 @@ export default function QuizPage() {
                   disabled={!allAnswered}
                   className="btn-primary"
                   style={{
-                    padding: "12px 22px", borderRadius: 12, fontSize: 13, fontWeight: 700,
+                    padding: "12px 22px", borderRadius: 12, fontSize: 16, fontWeight: 700,
                     opacity: allAnswered ? 1 : 0.45,
                     cursor: allAnswered ? "pointer" : "default",
                   }}
@@ -416,7 +416,7 @@ export default function QuizPage() {
                   onClick={goNext}
                   disabled={answers[currentQ] === null}
                   style={{
-                    padding: "12px 22px", borderRadius: 12, fontSize: 13, fontWeight: 700,
+                    padding: "12px 22px", borderRadius: 12, fontSize: 16, fontWeight: 700,
                     background: answers[currentQ] !== null
                       ? "linear-gradient(180deg, #23FFE0, #00D7C2)"
                       : "rgba(255,255,255,0.08)",
@@ -432,7 +432,7 @@ export default function QuizPage() {
             </div>
 
             {!allAnswered && isLast && (
-              <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-3)", marginTop: 12 }}>
+              <p style={{ textAlign: "center", fontSize: 15, color: "var(--text-3)", marginTop: 12 }}>
                 Answer all questions before submitting
               </p>
             )}
@@ -446,7 +446,7 @@ export default function QuizPage() {
             style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 16, padding: 24 }}
           >
             <div style={{ width: 48, height: 48, borderRadius: "50%", border: "2px solid transparent", borderTopColor: "var(--green)", animation: "spin 0.9s linear infinite" }} />
-            <p style={{ fontSize: 16, fontWeight: 600 }}>Evaluating your answers…</p>
+            <p style={{ fontSize: 19, fontWeight: 600 }}>Evaluating your answers…</p>
           </motion.div>
         )}
 
@@ -479,7 +479,7 @@ export default function QuizPage() {
               <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.05em", marginBottom: 8, color: "var(--green)" }}>
                 Qualified!
               </h1>
-              <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 24, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 24, lineHeight: 1.6 }}>
                 You passed the skills assessment. Your profile now shows a <strong style={{ color: "var(--green)" }}>Qualified</strong> badge visible to all clients.
               </p>
 
@@ -493,7 +493,7 @@ export default function QuizPage() {
                   {displayScore}
                 </span>
                 <span style={{ fontSize: 18, color: "var(--green)", fontWeight: 700 }}>%</span>
-                <span style={{ fontSize: 14, color: "var(--text-3)", marginLeft: 8 }}>
+                <span style={{ fontSize: 17, color: "var(--text-3)", marginLeft: 8 }}>
                   {correct} / {results.length} correct
                 </span>
               </div>
@@ -518,10 +518,10 @@ export default function QuizPage() {
                       }
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: r.isCorrect ? "var(--green)" : "#ff6666", marginBottom: 2 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: r.isCorrect ? "var(--green)" : "#ff6666", marginBottom: 2 }}>
                         Question {i + 1} — {r.isCorrect ? "Correct" : "Incorrect"}
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-3)", lineHeight: 1.5 }}>{r.explanation}</div>
+                      <div style={{ fontSize: 15, color: "var(--text-3)", lineHeight: 1.5 }}>{r.explanation}</div>
                     </div>
                   </div>
                 ))}
@@ -530,7 +530,7 @@ export default function QuizPage() {
               <button
                 onClick={() => router.push("/profile")}
                 className="btn-primary"
-                style={{ width: "100%", padding: "14px", borderRadius: 14, fontSize: 14, fontWeight: 700 }}
+                style={{ width: "100%", padding: "14px", borderRadius: 14, fontSize: 17, fontWeight: 700 }}
               >
                 View your profile →
               </button>
@@ -567,7 +567,7 @@ export default function QuizPage() {
               <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.05em", marginBottom: 8, color: "#FFAA00" }}>
                 Almost there
               </h1>
-              <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 20, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 20, lineHeight: 1.6 }}>
                 You need 70% to qualify. Review the explanations below and retake the assessment in 24 hours.
               </p>
 
@@ -580,7 +580,7 @@ export default function QuizPage() {
                   {displayScore}
                 </span>
                 <span style={{ fontSize: 18, color: "#FFAA00", fontWeight: 700 }}>%</span>
-                <span style={{ fontSize: 14, color: "var(--text-3)", marginLeft: 8 }}>
+                <span style={{ fontSize: 17, color: "var(--text-3)", marginLeft: 8 }}>
                   {correct} / {results.length} correct · need {Math.ceil(results.length * 0.7)}
                 </span>
               </div>
@@ -605,10 +605,10 @@ export default function QuizPage() {
                       }
                     </div>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: r.isCorrect ? "var(--green)" : "#ff6666", marginBottom: 2 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: r.isCorrect ? "var(--green)" : "#ff6666", marginBottom: 2 }}>
                         Question {i + 1} — {r.isCorrect ? "Correct" : `Incorrect · correct was ${OPTION_LABELS[r.correctIndex]}`}
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-3)", lineHeight: 1.5 }}>{r.explanation}</div>
+                      <div style={{ fontSize: 15, color: "var(--text-3)", lineHeight: 1.5 }}>{r.explanation}</div>
                     </div>
                   </div>
                 ))}
@@ -618,7 +618,7 @@ export default function QuizPage() {
                 <button
                   onClick={() => router.push("/profile")}
                   style={{
-                    flex: 1, padding: "13px", borderRadius: 14, fontSize: 14, fontWeight: 600,
+                    flex: 1, padding: "13px", borderRadius: 14, fontSize: 17, fontWeight: 600,
                     background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
                     color: "var(--text-1)", cursor: "pointer",
                   }}
@@ -649,11 +649,11 @@ export default function QuizPage() {
             <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.04em", color: "#FFAA00" }}>
               You&apos;re already Qualified
             </h2>
-            <p style={{ fontSize: 14, color: "var(--text-2)", maxWidth: 320 }}>
+            <p style={{ fontSize: 17, color: "var(--text-2)", maxWidth: 320 }}>
               Your profile already displays the Qualified badge. No need to retake the assessment.
             </p>
             <button onClick={() => router.push("/profile")} className="btn-primary"
-              style={{ padding: "12px 28px", borderRadius: 12, fontSize: 14 }}>
+              style={{ padding: "12px 28px", borderRadius: 12, fontSize: 17 }}>
               View profile →
             </button>
           </motion.div>
@@ -676,10 +676,10 @@ export default function QuizPage() {
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
             </div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#ff6666" }}>{errorMsg}</p>
+            <p style={{ fontSize: 18, fontWeight: 600, color: "#ff6666" }}>{errorMsg}</p>
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => router.push("/profile")}
-                style={{ padding: "10px 20px", borderRadius: 10, fontSize: 13, cursor: "pointer", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-1)" }}>
+                style={{ padding: "10px 20px", borderRadius: 10, fontSize: 16, cursor: "pointer", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-1)" }}>
                 Go to profile
               </button>
             </div>

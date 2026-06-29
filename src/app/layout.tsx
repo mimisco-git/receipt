@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               color: "#fff",
               backdropFilter: "blur(20px)",
               fontFamily: "inherit",
-              fontSize: 13,
+              fontSize: 16,
             },
           }}
         />

@@ -69,12 +69,12 @@ export default function HeroStats() {
             }}>
               {s.value}
             </div>
-            <div style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.03em" }}>
+            <div style={{ fontSize: 14, color: "var(--text-3)", letterSpacing: "0.03em" }}>
               {s.label}
             </div>
           </div>
           {i < items.length - 1 && (
-            <span style={{ color: "rgba(255,255,255,0.12)", fontSize: 10 }}>·</span>
+            <span style={{ color: "rgba(255,255,255,0.12)", fontSize: 13 }}>·</span>
           )}
         </div>
       ))}

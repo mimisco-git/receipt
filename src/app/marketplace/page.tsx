@@ -86,7 +86,7 @@ export default function Marketplace() {
             <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", marginBottom: 6 }}>
               Marketplace
             </h1>
-            <p style={{ fontSize: 14, color: "var(--text-2)" }}>
+            <p style={{ fontSize: 17, color: "var(--text-2)" }}>
               Hire skilled workers or find open jobs. All payments settle in USDC or EURC on Arc.
             </p>
           </div>
@@ -103,13 +103,13 @@ export default function Marketplace() {
                     padding: "8px 18px", borderRadius: 100, border: "none",
                     background: tab === t ? "rgba(255,255,255,0.08)" : "transparent",
                     color: tab === t ? "var(--text-1)" : "var(--text-3)",
-                    fontSize: 13, fontWeight: tab === t ? 600 : 500,
+                    fontSize: 16, fontWeight: tab === t ? 600 : 500,
                     cursor: "pointer", transition: "all 0.2s ease",
                   }}
                 >
                   {t === "services" ? "Workers" : "Open Jobs"}
                   {count > 0 && (
-                    <span style={{ marginLeft: 6, fontSize: 11, color: "var(--green)", fontWeight: 600 }}>{count}</span>
+                    <span style={{ marginLeft: 6, fontSize: 14, color: "var(--green)", fontWeight: 600 }}>{count}</span>
                   )}
                 </button>
               );
@@ -141,13 +141,13 @@ export default function Marketplace() {
           />
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 0" }}>
-            <p style={{ color: "var(--text-3)", fontSize: 14 }}>
+            <p style={{ color: "var(--text-3)", fontSize: 17 }}>
               No results match &ldquo;{search}&rdquo;.
             </p>
           </div>
         ) : (
           <>
-            <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 16 }}>
+            <p style={{ fontSize: 15, color: "var(--text-3)", marginBottom: 16 }}>
               {filtered.length} {tab === "services" ? "service" : "job"}{filtered.length !== 1 ? "s" : ""} available
             </p>
 
@@ -210,7 +210,7 @@ export default function Marketplace() {
                                 width: 38, height: 38, borderRadius: "50%",
                                 background: item.avatarColor || "var(--green)",
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                fontSize: 13, fontWeight: 700, color: "#fff",
+                                fontSize: 16, fontWeight: 700, color: "#fff",
                               }}>
                                 {initials}
                               </div>
@@ -230,7 +230,7 @@ export default function Marketplace() {
                             </div>
                             <div style={{ minWidth: 0 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
-                                <span style={{ fontSize: 13, fontWeight: 600 }}>
+                                <span style={{ fontSize: 16, fontWeight: 600 }}>
                                   {item.freelancerName}
                                 </span>
                                 {item.verified && (
@@ -263,16 +263,16 @@ export default function Marketplace() {
                                 )}
                               </div>
                               {item.freelancerBio && (
-                                <div style={{ fontSize: 11, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                <div style={{ fontSize: 14, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {item.freelancerBio}
                                 </div>
                               )}
                               {item.avgRating != null && item.avgRating > 0 && (
                                 <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 2 }}>
                                   {[1,2,3,4,5].map(s => (
-                                    <span key={s} style={{ fontSize: 10, color: s <= Math.round(item.avgRating!) ? "#FFB800" : "rgba(255,255,255,0.15)" }}>★</span>
+                                    <span key={s} style={{ fontSize: 13, color: s <= Math.round(item.avgRating!) ? "#FFB800" : "rgba(255,255,255,0.15)" }}>★</span>
                                   ))}
-                                  <span style={{ fontSize: 10, color: "var(--text-3)", marginLeft: 2 }}>
+                                  <span style={{ fontSize: 13, color: "var(--text-3)", marginLeft: 2 }}>
                                     {item.avgRating.toFixed(1)} ({item.ratingCount})
                                   </span>
                                 </div>
@@ -281,7 +281,7 @@ export default function Marketplace() {
                           </div>
                           {/* Type badge */}
                           <div style={{
-                            padding: "3px 8px", borderRadius: 999, fontSize: 10, fontWeight: 600,
+                            padding: "3px 8px", borderRadius: 999, fontSize: 13, fontWeight: 600,
                             background: isJob ? "var(--blue-dim)" : "var(--green-dim)",
                             color: isJob ? "var(--blue)" : "var(--green)",
                             border: `1px solid var(--green-border)`,
@@ -293,7 +293,7 @@ export default function Marketplace() {
 
                         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
                           <h3 style={{
-                            fontSize: 15, fontWeight: 700,
+                            fontSize: 18, fontWeight: 700,
                             letterSpacing: "-0.01em",
                             lineHeight: 1.3, margin: 0,
                           }}>
@@ -301,7 +301,7 @@ export default function Marketplace() {
                           </h3>
                           {isFunded && (
                             <span style={{
-                              fontSize: 10, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                              fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
                               padding: "3px 8px", borderRadius: 999,
                               background: "rgba(0,229,195,0.12)",
                               color: "var(--green)",
@@ -312,7 +312,7 @@ export default function Marketplace() {
                           )}
                           {isJob && !isFunded && (
                             <span style={{
-                              fontSize: 10, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                              fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
                               padding: "3px 8px", borderRadius: 999,
                               background: "rgba(255,255,255,0.04)",
                               color: "rgba(255,255,255,0.35)",
@@ -324,7 +324,7 @@ export default function Marketplace() {
                         </div>
 
                         <p style={{
-                          fontSize: 13, opacity: 0.72, color: "inherit", lineHeight: 1.5,
+                          fontSize: 16, opacity: 0.72, color: "inherit", lineHeight: 1.5,
                           marginBottom: 14,
                           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
                         }}>
@@ -337,12 +337,12 @@ export default function Marketplace() {
                             <span className="font-mono" style={{ fontSize: 18, fontWeight: 700, color: "var(--green)" }}>
                               {sym}{formatUsdc(item.priceUsdc)}
                             </span>
-                            <span style={{ fontSize: 11, color: "var(--text-3)", marginLeft: 4 }}>{item.currency}</span>
+                            <span style={{ fontSize: 14, color: "var(--text-3)", marginLeft: 4 }}>{item.currency}</span>
                           </div>
                           {isJob ? (
                             isFunded ? (
                               <span style={{
-                                padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 700,
+                                padding: "7px 16px", borderRadius: 999, fontSize: 15, fontWeight: 700,
                                 background: "linear-gradient(135deg, rgba(0,229,195,0.18) 0%, rgba(0,229,195,0.09) 100%)",
                                 color: "var(--green)",
                                 border: "1px solid rgba(0,229,195,0.35)",
@@ -355,7 +355,7 @@ export default function Marketplace() {
                               </span>
                             ) : (
                               <span style={{
-                                padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 600,
+                                padding: "7px 16px", borderRadius: 999, fontSize: 15, fontWeight: 600,
                                 background: "rgba(255,255,255,0.04)",
                                 color: "rgba(255,255,255,0.35)",
                                 border: "1px solid rgba(255,255,255,0.08)",
@@ -366,7 +366,7 @@ export default function Marketplace() {
                             )
                           ) : (
                             <span style={{
-                              padding: "7px 16px", borderRadius: 999, fontSize: 12, fontWeight: 700,
+                              padding: "7px 16px", borderRadius: 999, fontSize: 15, fontWeight: 700,
                               background: "linear-gradient(135deg, rgba(0,229,195,0.18) 0%, rgba(0,229,195,0.09) 100%)",
                               color: "var(--green)",
                               border: "1px solid rgba(0,229,195,0.35)",
@@ -383,13 +383,13 @@ export default function Marketplace() {
                         {/* Posted time + expiry */}
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
                           {item.createdAt && (
-                            <div style={{ fontSize: 11, color: "var(--text-3)" }}>
+                            <div style={{ fontSize: 14, color: "var(--text-3)" }}>
                               Posted {timeAgo(new Date(item.createdAt))}
                             </div>
                           )}
                           {isJob && (
                             <div style={{
-                              fontSize: 10, fontWeight: 600,
+                              fontSize: 13, fontWeight: 600,
                               color: isExpired ? "var(--red)" : daysLeft <= 2 ? "var(--amber)" : "var(--text-3)",
                             }}>
                               {isExpired ? "Expired" : `Expires in ${daysLeft}d`}
@@ -449,8 +449,8 @@ function EmptyState({ title, subtitle, ctaLabel, ctaHref }: {
           <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </div>
-      <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{title}</div>
-      <p style={{ fontSize: 14, color: "rgba(255,255,255,.55)", marginBottom: 24, maxWidth: 360, margin: "0 auto 24px", lineHeight: 1.65 }}>
+      <div style={{ fontSize: 19, fontWeight: 600, marginBottom: 8 }}>{title}</div>
+      <p style={{ fontSize: 17, color: "rgba(255,255,255,.55)", marginBottom: 24, maxWidth: 360, margin: "0 auto 24px", lineHeight: 1.65 }}>
         {subtitle}
       </p>
       <Link href={ctaHref}>
