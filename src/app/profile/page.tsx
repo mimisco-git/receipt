@@ -354,14 +354,16 @@ export default function ProfilePage() {
 
           {/* ACTIONS */}
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={handleSave} disabled={saving || !form.name.trim() || !form.role} className="btn-primary"
-              style={{ flex: 1, padding: "13px", borderRadius: "var(--r-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              {saving ? (
-                <><span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(6,14,10,0.3)", borderTopColor: "#060E0A", display: "inline-block", animation: "spin 0.7s linear infinite" }} />Saving...</>
-              ) : saved ? (
-                <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>Saved</>
-              ) : "Save profile"}
-            </button>
+            <div className="btn-beam-ring" style={{ flex: 1, borderRadius: 13.5, display: "flex" }}>
+              <button onClick={handleSave} disabled={saving || !form.name.trim() || !form.role} className="btn-primary"
+                style={{ flex: 1, padding: "13px", borderRadius: "var(--r-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                {saving ? (
+                  <><span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(6,14,10,0.3)", borderTopColor: "#060E0A", display: "inline-block", animation: "spin 0.7s linear infinite" }} />Saving...</>
+                ) : saved ? (
+                  <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>Saved</>
+                ) : "Save profile"}
+              </button>
+            </div>
             {form.role === "worker" && (
               <button onClick={() => router.push("/setup")} className="btn-ghost"
                 style={{ padding: "13px 18px", borderRadius: "var(--r-sm)" }}>
@@ -546,28 +548,30 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                 <span style={{ fontSize: 15, fontWeight: 700, color: "#FFAA00" }}>Qualified</span>
               </div>
             ) : (
-              <button
-                onClick={onNavigateToQuiz}
-                className="btn-amber-glass"
-                style={{
-                  padding: "8px 16px", borderRadius: 10, fontSize: 15, fontWeight: 700,
-                  background: "rgba(255,170,0,0.1)",
-                  border: "1px solid rgba(255,170,0,0.2)",
-                  color: "#FFAA00", cursor: "pointer",
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  transition: "background 0.15s ease, border-color 0.15s ease",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  position: "relative",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,170,0,0.18)"; e.currentTarget.style.borderColor = "rgba(255,170,0,0.35)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,170,0,0.1)"; e.currentTarget.style.borderColor = "rgba(255,170,0,0.2)"; }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                Take Assessment →
-              </button>
+              <div className="btn-beam-ring" style={{ borderRadius: 11.5 }}>
+                <button
+                  onClick={onNavigateToQuiz}
+                  className="btn-amber-glass"
+                  style={{
+                    padding: "8px 16px", borderRadius: 10, fontSize: 15, fontWeight: 700,
+                    background: "rgba(255,170,0,0.1)",
+                    border: "none",
+                    color: "#FFAA00", cursor: "pointer",
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    transition: "background 0.15s ease",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,170,0,0.18)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,170,0,0.1)"; }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  Take Assessment →
+                </button>
+              </div>
             )}
           </div>
         </div>

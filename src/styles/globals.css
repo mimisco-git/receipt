@@ -470,6 +470,54 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
 }
 
+/* ── BORDER BEAM RING ────────────────────────────────────────
+   Wrapper div that provides a persistent dim ring track + an
+   ambient light comet that slowly orbits the edge of the button.
+   Usage: <div className="btn-beam-ring" style={{ borderRadius: X }}>
+            <button ...>...</button>
+          </div>
+   ─────────────────────────────────────────────────────────── */
+.btn-beam-ring {
+  position: relative;
+  display: inline-flex;
+  border-radius: 14px;   /* override per instance via inline style */
+  padding: 1.5px;
+  background: rgba(255,255,255,0.14);  /* the always-visible ring track */
+  overflow: hidden;
+}
+
+/* Luxury ambient beam: wide, gentle, slow — environmental light catching curved glass */
+.btn-beam-ring::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 400%; height: 400%;
+  background: conic-gradient(
+    from 0deg,
+    transparent              0deg,
+    transparent            278deg,
+    rgba(255,255,255,0.02) 293deg,
+    rgba(255,255,255,0.18) 310deg,
+    rgba(255,255,255,0.60) 328deg,
+    rgba(255,255,255,0.90) 338deg,
+    rgba(255,255,255,1.00) 343deg,
+    rgba(255,255,255,0.82) 349deg,
+    rgba(255,255,255,0.30) 358deg,
+    rgba(255,255,255,0.05) 364deg,
+    transparent            368deg
+  );
+  animation: border-beam-spin 7s linear infinite;
+  will-change: transform;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Keep button face above the beam layer */
+.btn-beam-ring > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Border Beam — hardware-accelerated via transform: rotate(), 60fps on all mobile */
 @keyframes border-beam-spin {
   from { transform: translate(-50%, -50%) rotate(0deg);   }

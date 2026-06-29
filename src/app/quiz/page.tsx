@@ -399,35 +399,37 @@ export default function QuizPage() {
               </div>
 
               {isLast ? (
-                <button
-                  onClick={submitQuiz}
-                  disabled={!allAnswered}
-                  className="btn-primary"
-                  style={{
-                    padding: "12px 22px", borderRadius: 12, fontSize: 16, fontWeight: 700,
-                    opacity: allAnswered ? 1 : 0.45,
-                    cursor: allAnswered ? "pointer" : "default",
-                  }}
-                >
-                  Submit Assessment →
-                </button>
+                <div className="btn-beam-ring" style={{ borderRadius: 13.5, opacity: allAnswered ? 1 : 0.45 }}>
+                  <button
+                    onClick={submitQuiz}
+                    disabled={!allAnswered}
+                    className="btn-primary"
+                    style={{
+                      padding: "12px 22px", borderRadius: 12, fontSize: 16, fontWeight: 700,
+                      cursor: allAnswered ? "pointer" : "default",
+                    }}
+                  >
+                    Submit Assessment →
+                  </button>
+                </div>
               ) : (
-                <button
-                  onClick={goNext}
-                  disabled={answers[currentQ] === null}
-                  style={{
-                    padding: "12px 22px", borderRadius: 12, fontSize: 16, fontWeight: 700,
-                    background: answers[currentQ] !== null
-                      ? "linear-gradient(180deg, #23FFE0, #00D7C2)"
-                      : "rgba(255,255,255,0.08)",
-                    color: answers[currentQ] !== null ? "#060E0A" : "var(--text-3)",
-                    border: "none", cursor: answers[currentQ] !== null ? "pointer" : "default",
-                    opacity: answers[currentQ] !== null ? 1 : 0.5,
-                    transition: "all 0.18s ease",
-                  }}
-                >
-                  Next →
-                </button>
+                <div className="btn-beam-ring" style={{ borderRadius: 13.5, opacity: answers[currentQ] !== null ? 1 : 0.5 }}>
+                  <button
+                    onClick={goNext}
+                    disabled={answers[currentQ] === null}
+                    style={{
+                      padding: "12px 22px", borderRadius: 12, fontSize: 16, fontWeight: 700,
+                      background: answers[currentQ] !== null
+                        ? "linear-gradient(180deg, #23FFE0, #00D7C2)"
+                        : "rgba(255,255,255,0.08)",
+                      color: answers[currentQ] !== null ? "#060E0A" : "var(--text-3)",
+                      border: "none", cursor: answers[currentQ] !== null ? "pointer" : "default",
+                      transition: "all 0.18s ease",
+                    }}
+                  >
+                    Next →
+                  </button>
+                </div>
               )}
             </div>
 
@@ -527,13 +529,15 @@ export default function QuizPage() {
                 ))}
               </div>
 
-              <button
-                onClick={() => router.push("/profile")}
-                className="btn-primary"
-                style={{ width: "100%", padding: "14px", borderRadius: 14, fontSize: 17, fontWeight: 700 }}
-              >
-                View your profile →
-              </button>
+              <div className="btn-beam-ring" style={{ borderRadius: 15.5, display: "flex" }}>
+                <button
+                  onClick={() => router.push("/profile")}
+                  className="btn-primary"
+                  style={{ flex: 1, padding: "14px", borderRadius: 14, fontSize: 17, fontWeight: 700 }}
+                >
+                  View your profile →
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -652,10 +656,12 @@ export default function QuizPage() {
             <p style={{ fontSize: 17, color: "var(--text-2)", maxWidth: 320 }}>
               Your profile already displays the Qualified badge. No need to retake the assessment.
             </p>
-            <button onClick={() => router.push("/profile")} className="btn-primary"
-              style={{ padding: "12px 28px", borderRadius: 12, fontSize: 17 }}>
-              View profile →
-            </button>
+            <div className="btn-beam-ring" style={{ borderRadius: 13.5 }}>
+              <button onClick={() => router.push("/profile")} className="btn-primary"
+                style={{ padding: "12px 28px", borderRadius: 12, fontSize: 17 }}>
+                View profile →
+              </button>
+            </div>
           </motion.div>
         )}
 

@@ -149,24 +149,28 @@ export default function HomePage() {
           transition={{ delay: 0.3, duration: 0.5 }}
           style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 60 }}
         >
-          <button
-            className="btn-primary"
-            onClick={() => router.push("/setup")}
-            style={{ padding: "13px 24px", borderRadius: 12, display: "flex", alignItems: "center", gap: 8 }}
-          >
-            Create your service link
-            <ArrowRight />
-          </button>
-          <button
-            className="btn-ghost"
-            onClick={() => router.push("/marketplace")}
-            style={{
-              padding: "13px 24px", borderRadius: 12,
-              display: "flex", alignItems: "center", gap: 8,
-            }}
-          >
-            Browse marketplace
-          </button>
+          <div className="btn-beam-ring" style={{ borderRadius: 13.5 }}>
+            <button
+              className="btn-primary"
+              onClick={() => router.push("/setup")}
+              style={{ padding: "13px 24px", borderRadius: 12, display: "flex", alignItems: "center", gap: 8 }}
+            >
+              Create your service link
+              <ArrowRight />
+            </button>
+          </div>
+          <div className="btn-beam-ring" style={{ borderRadius: 13.5 }}>
+            <button
+              className="btn-ghost"
+              onClick={() => router.push("/marketplace")}
+              style={{
+                padding: "13px 24px", borderRadius: 12,
+                display: "flex", alignItems: "center", gap: 8,
+              }}
+            >
+              Browse marketplace
+            </button>
+          </div>
         </motion.div>
 
         <motion.div
@@ -398,14 +402,16 @@ export default function HomePage() {
           }}>
             Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
-          <button
-            className="btn-primary"
-            onClick={() => router.push("/setup")}
-            style={{ padding: "14px 32px", borderRadius: 13, display: "inline-flex", alignItems: "center", gap: 9 }}
-          >
-            Create your service link
-            <ArrowRight />
-          </button>
+          <div className="btn-beam-ring" style={{ borderRadius: 14.5 }}>
+            <button
+              className="btn-primary"
+              onClick={() => router.push("/setup")}
+              style={{ padding: "14px 32px", borderRadius: 13, display: "inline-flex", alignItems: "center", gap: 9 }}
+            >
+              Create your service link
+              <ArrowRight />
+            </button>
+          </div>
           <div style={{ fontSize: 15, color: "rgba(255,255,255,.30)", marginTop: 14, position: "relative" }}>
             Free to use · No subscription · 10% fee per settled contract
           </div>
