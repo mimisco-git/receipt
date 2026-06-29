@@ -470,10 +470,20 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
 }
 
-/* Mobile "Menu" button — neutral Liquid Glass with specular sweep */
+/* @property lets the browser interpolate --menu-orbit as an angle,
+   which makes the conic-gradient starting point animate smoothly */
+@property --menu-orbit {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes menu-orbit-spin  { to { --menu-orbit: 360deg; } }
+@keyframes menu-orbit-pulse { 0%,100% { opacity: 0.65; } 50% { opacity: 1; } }
+
+/* Mobile "Menu" button — neutral Liquid Glass with orbiting edge reflection */
 .nav-menu-btn {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: rgba(255,255,255,0.055);
   backdrop-filter: blur(28px) saturate(170%);
   -webkit-backdrop-filter: blur(28px) saturate(170%);
@@ -488,24 +498,34 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
     border-color 500ms ease,
     background 500ms ease;
 }
-.nav-menu-btn::before {
+/* Orbiting edge reflection — conic gradient masked to border-only strip */
+.nav-menu-btn::after {
   content: "";
   position: absolute;
-  top: -60%; bottom: -60%;
-  left: 0; width: 40%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255,255,255,0.08) 25%,
-    rgba(255,255,255,0.18) 50%,
-    rgba(255,255,255,0.08) 75%,
-    transparent 100%
+  inset: -1px;
+  border-radius: 15px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--menu-orbit) at 50% 50%,
+    rgba(255,255,255,0.05) 0deg,
+    rgba(255,255,255,0.20) 3deg,
+    rgba(255,255,255,0.20) 5deg,
+    rgba(255,255,255,0.05) 8deg,
+    transparent 12deg,
+    transparent 360deg
   );
-  filter: blur(10px);
-  animation: btn-specular 7s linear infinite;
-  animation-delay: -1.8s;
+  /* Punch out the center: only the padding ring (= border area) is visible */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: blur(1px);
+  animation:
+    menu-orbit-spin  6s linear       infinite,
+    menu-orbit-pulse 2.8s ease-in-out infinite;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 .nav-menu-btn:hover {
   transform: translateY(-2px);
