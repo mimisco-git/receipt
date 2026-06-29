@@ -78,7 +78,7 @@ export default function HomePage() {
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         textAlign: "center",
-        padding: "80px 20px 60px",
+        padding: "140px 20px 80px",
         position: "relative", zIndex: 1,
       }}>
         {/* Eyebrow pill with Lepton logo */}
