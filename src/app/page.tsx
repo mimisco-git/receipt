@@ -128,7 +128,7 @@ export default function HomePage() {
             fontSize: "clamp(19px, 2.1vw, 23px)",
             color: "rgba(255,255,255,0.85)",
             lineHeight: 1.80,
-            maxWidth: 540,
+            maxWidth: 720,
             marginBottom: 44,
             padding: "0 4px",
           }}
