@@ -212,51 +212,76 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
 
 /* ── BUTTONS ──────────────────────────────────────────────── */
 
+/* ── APPLE LIQUID GLASS CTA — specular reflection keyframe ── */
+/* Sweeps 0→38% with ease-in-out, then holds off-screen for the pause */
+@keyframes btn-specular {
+  0% {
+    transform: skewX(-22deg) translateX(-200%);
+    animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  38% { transform: skewX(-22deg) translateX(350%); }
+  100% { transform: skewX(-22deg) translateX(350%); }
+}
+
 .btn-primary {
   background: linear-gradient(180deg, #2AFFDF 0%, #00C8B0 100%);
   color: #000000;
   font-weight: 650;
   font-size: 16px;
-  border: none;
+  /* Glass edge — thin translucent border */
+  border: 1px solid rgba(255,255,255,0.18);
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  /* Backdrop blur for glass depth */
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
   box-shadow:
-    0 1px 0 rgba(255,255,255,.28) inset,
-    0 8px 24px rgba(0,229,195,.18),
-    0 2px 8px rgba(0,229,195,.10);
+    /* Inner top-edge highlight (glass lip) */
+    inset 0 1px 0 rgba(255,255,255,0.36),
+    /* Inner bottom shadow (glass depth) */
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    /* Ambient lift shadow */
+    0 8px 28px rgba(0,229,195,0.20),
+    0 2px 8px rgba(0,229,195,0.10);
   transition:
-    opacity var(--ease-fast),
-    transform var(--spring),
-    box-shadow var(--ease-fast);
+    transform 500ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 500ms ease,
+    border-color 500ms ease;
 }
-/* Animated specular — light travelling diagonally across glass */
+/* Diagonal specular — slow environmental light crossing polished glass */
 .btn-primary::before {
   content: "";
   position: absolute;
-  top: -30%; bottom: -30%;
-  left: 0; width: 55%;
+  top: -60%; bottom: -60%;
+  left: 0; width: 40%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255,255,255,.08) 38%,
-    rgba(255,255,255,.13) 50%,
-    rgba(255,255,255,.08) 62%,
+    rgba(255,255,255,0.10) 25%,
+    rgba(255,255,255,0.22) 50%,
+    rgba(255,255,255,0.10) 75%,
     transparent 100%
   );
-  animation: glass-sweep 5.5s ease-in-out infinite;
+  /* Heavy blur = soft glass reflection, not a sharp sweep */
+  filter: blur(10px);
+  animation: btn-specular 7s linear infinite;
   pointer-events: none;
   z-index: 1;
 }
-.btn-primary:hover  {
-  opacity: 0.88;
+.btn-primary:hover {
   transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.28);
   box-shadow:
-    0 1px 0 rgba(255,255,255,.28) inset,
-    0 16px 36px rgba(0,229,195,.26),
-    0 4px 12px rgba(0,229,195,.14);
+    inset 0 1px 0 rgba(255,255,255,0.42),
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    0 16px 40px rgba(0,229,195,0.28),
+    0 4px 14px rgba(0,229,195,0.16);
 }
-.btn-primary:active { transform: scale(0.975) translateY(0); opacity: 0.94; }
+.btn-primary:active {
+  transform: scale(0.985) translateY(1px);
+  transition: transform 120ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
 .btn-primary:disabled { opacity: 0.25; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .btn-ghost {
@@ -449,21 +474,44 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
 .btn-amber-glass {
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.08),
+    0 4px 16px rgba(255,170,0,0.08);
+  transition:
+    transform 500ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 500ms ease;
+}
+.btn-amber-glass:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.08),
+    0 8px 24px rgba(255,170,0,0.14);
+}
+.btn-amber-glass:active {
+  transform: scale(0.985) translateY(1px);
+  transition: transform 120ms cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 .btn-amber-glass::before {
   content: "";
   position: absolute;
-  top: -40%; bottom: -40%;
-  left: 0; width: 55%;
+  top: -60%; bottom: -60%;
+  left: 0; width: 40%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255,255,255,.06) 40%,
-    rgba(255,255,255,.09) 50%,
-    rgba(255,255,255,.06) 60%,
+    rgba(255,255,255,0.08) 25%,
+    rgba(255,255,255,0.16) 50%,
+    rgba(255,255,255,0.08) 75%,
     transparent 100%
   );
-  animation: glass-sweep 5.5s ease-in-out infinite;
+  filter: blur(9px);
+  /* Offset by –2.5 s so amber sweep is staggered from the primary buttons */
+  animation: btn-specular 7s linear infinite;
+  animation-delay: -2.5s;
   pointer-events: none;
   z-index: 3;
 }
