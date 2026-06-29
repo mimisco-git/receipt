@@ -399,28 +399,18 @@ export default function QuizPage() {
               </div>
 
               {isLast ? (
-                <div style={{ position: "relative", display: "inline-flex", borderRadius: 14, padding: allAnswered ? 1.5 : 0, opacity: allAnswered ? 1 : 0.45 }}>
-                  {allAnswered && (
-                    <div style={{
-                      position: "absolute", inset: 0, borderRadius: 14,
-                      background: "conic-gradient(from 0deg, transparent 0deg, rgba(0,229,195,0.9) 55deg, #23FFE0 100deg, rgba(0,229,195,0.9) 145deg, transparent 210deg)",
-                      animation: "spin 2.5s linear infinite",
-                      zIndex: 0,
-                    }} />
-                  )}
-                  <button
-                    onClick={submitQuiz}
-                    disabled={!allAnswered}
-                    className="btn-primary"
-                    style={{
-                      position: "relative", zIndex: 1,
-                      padding: "12px 22px", borderRadius: allAnswered ? 12 : 12, fontSize: 13, fontWeight: 700,
-                      cursor: allAnswered ? "pointer" : "default",
-                    }}
-                  >
-                    Submit Assessment →
-                  </button>
-                </div>
+                <button
+                  onClick={submitQuiz}
+                  disabled={!allAnswered}
+                  className="btn-primary"
+                  style={{
+                    padding: "12px 22px", borderRadius: 12, fontSize: 13, fontWeight: 700,
+                    opacity: allAnswered ? 1 : 0.45,
+                    cursor: allAnswered ? "pointer" : "default",
+                  }}
+                >
+                  Submit Assessment →
+                </button>
               ) : (
                 <button
                   onClick={goNext}

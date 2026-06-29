@@ -97,9 +97,9 @@ export default function Nav() {
                   onMouseEnter={() => setHovered(l.label)}
                   onMouseLeave={() => setHovered(null)}
                   style={{
-                    cursor: "pointer", padding: "8px 16px", borderRadius: 999,
-                    fontSize: 13, fontWeight: active ? 600 : 500,
-                    color: active || hovering ? "var(--text-1)" : "rgba(255,255,255,0.5)",
+                    cursor: "pointer", padding: "8px 18px", borderRadius: 999,
+                    fontSize: 15, fontWeight: active ? 600 : 500,
+                    color: active || hovering ? "var(--text-1)" : "rgba(255,255,255,0.55)",
                     transition: "color 0.15s ease",
                     position: "relative", zIndex: 0,
                   }}
@@ -130,28 +130,28 @@ export default function Nav() {
                 <button onClick={() => navigate("/profile")}
                   className="nav-auth-btn"
                   style={{
-                    padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
-                    color: "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.15s ease",
+                    padding: "8px 16px", borderRadius: 999, fontSize: 15, fontWeight: 500,
+                    color: "rgba(255,255,255,0.55)", cursor: "pointer", transition: "all 0.15s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.color = "var(--text-1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.55)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; }}
                 >
                   Profile
                 </button>
                 <button onClick={signOut}
                   className="nav-auth-btn"
                   style={{
-                    padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
-                    color: "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.15s ease",
+                    padding: "8px 16px", borderRadius: 999, fontSize: 15, fontWeight: 500,
+                    color: "rgba(255,255,255,0.55)", cursor: "pointer", transition: "all 0.15s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.color = "#ff4444"; e.currentTarget.style.borderColor = "rgba(255,68,68,0.25)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.55)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; }}
                 >
                   Sign out
                 </button>
                 <button onClick={() => navigate("/setup")}
                   style={{
-                    padding: "8px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                    padding: "8px 20px", borderRadius: 999, fontSize: 15, fontWeight: 600,
                     background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#060E0A",
                     border: "none", cursor: "pointer",
                     boxShadow: "0 4px 16px rgba(0,229,195,.18)",
@@ -168,17 +168,17 @@ export default function Nav() {
                 <button onClick={() => navigate("/signin")}
                   className="nav-auth-btn"
                   style={{
-                    padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
-                    color: "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.15s ease",
+                    padding: "8px 16px", borderRadius: 999, fontSize: 15, fontWeight: 500,
+                    color: "rgba(255,255,255,0.55)", cursor: "pointer", transition: "all 0.15s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.color = "var(--text-1)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.55)"; }}
                 >
                   Sign in
                 </button>
                 <button onClick={() => navigate("/profile")}
                   style={{
-                    padding: "8px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                    padding: "8px 20px", borderRadius: 999, fontSize: 15, fontWeight: 600,
                     background: "linear-gradient(180deg, #23FFE0, #00D7C2)", color: "#060E0A",
                     border: "none", cursor: "pointer",
                     boxShadow: "0 4px 16px rgba(0,229,195,.18)",
