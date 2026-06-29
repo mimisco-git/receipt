@@ -603,5 +603,5 @@ p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
     padding: 28px 20px 24px;
     gap: 20px;
   }
-  .footer-brand { align-items: center; justify-content: center; }
+  .footer-brand { align-items: center; justify-content: center; width: fit-content; }
 }

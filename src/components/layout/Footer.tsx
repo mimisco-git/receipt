@@ -47,12 +47,12 @@ export default function Footer() {
           src="/receipt-logo.png"
           alt="Receipt"
           width={36} height={36}
-          style={{ borderRadius: 9, objectFit: "cover", width: "clamp(30px, 5vw, 36px)", height: "clamp(30px, 5vw, 36px)" }}
+          style={{ borderRadius: 9, objectFit: "cover", width: "clamp(36px, 5vw, 40px)", height: "clamp(36px, 5vw, 40px)" }}
           onError={e => (e.currentTarget.style.display = "none")}
         />
         <div>
-          <div style={{ fontSize: "clamp(16px, 4vw, 20px)", fontWeight: 600, color: "var(--text-1)" }}>Receipt</div>
-          <div style={{ fontSize: "clamp(13px, 3.2vw, 18px)", color: "var(--text-3)", display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+          <div style={{ fontSize: "clamp(20px, 4vw, 20px)", fontWeight: 600, color: "var(--text-1)" }}>Receipt</div>
+          <div style={{ fontSize: "clamp(15px, 3.2vw, 18px)", color: "var(--text-3)", display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
             Circle · Arc · USDC · EURC
             <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
               <LeptonLogo size={12} />
