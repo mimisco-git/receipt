@@ -8,45 +8,45 @@ const sections = [
     title: "Platform Overview",
     items: [
       { label: "Receipt is an AI-mediated freelance escrow platform. Workers offer services or clients post jobs. Payment is held in escrow (USDC or EURC on Arc) and released automatically when the AI agent approves the delivery." },
-      { label: "Key features: streaming AI evaluation with real-time reasoning, AI worker matching for jobs, 1-5 star rating system, AI description enhancer, contract timeline, and confetti on settlement." },
+      { label: "Key features: streaming AI evaluation with real-time reasoning, AI worker matching for jobs, a 1–5 star rating system, AI description enhancer, contract timeline, and confetti on settlement." },
     ],
   },
   {
     title: "x402 Protocol",
     items: [
       { label: "Receipt's AI evaluation endpoint is x402-protected. Any agent can pay $0.01 USDC per evaluation via HTTP 402 Payment Required." },
-      { label: "GET /api/evaluate — returns payment requirements", mono: true },
-      { label: "POST /api/evaluate — with x402 payment header, runs AI evaluation", mono: true },
+      { label: "GET  /api/evaluate  →  returns x402 payment requirements", mono: true },
+      { label: "POST /api/evaluate  →  x402 payment header required; runs AI evaluation", mono: true },
     ],
   },
   {
     title: "Escrow Flow",
     items: [
-      { label: "1. Worker creates a service (or client posts a job) with price in USDC or EURC" },
-      { label: "2. Client funds escrow — real USDC/EURC transfers from buyer wallet to escrow wallet on Arc" },
-      { label: "3. Worker submits delivery — AI agent (NVIDIA NIM Llama 3.3-70b) evaluates it against the brief" },
-      { label: "4. Score >= 75 — agent auto-releases payment to worker's wallet. No human approval needed." },
-      { label: "5. Score < 40 — agent auto-disputes. Funds remain locked." },
+      { label: "1. Worker creates a service (or client posts a job) with a price in USDC or EURC." },
+      { label: "2. Client funds escrow: real USDC/EURC transfers from the buyer wallet to the escrow wallet on Arc." },
+      { label: "3. Worker submits delivery. The AI agent (NVIDIA NIM Llama 3.3-70b) evaluates it against the original brief." },
+      { label: "4. Score ≥ 75: agent auto-releases payment to the worker's wallet. No human approval needed." },
+      { label: "5. Score < 40: agent auto-disputes. Funds remain locked." },
     ],
   },
   {
     title: "AI Agent",
     items: [
-      { label: "Model: NVIDIA NIM (meta/llama-3.3-70b-instruct) with Groq and Anthropic fallback" },
-      { label: "The agent scores delivery vs brief from 0-100, analyzing content quality, keyword alignment, and scope coverage." },
-      { label: "APPROVE (>= 75): auto-release payment" },
-      { label: "PARTIAL (40-74): human review required" },
+      { label: "Model: NVIDIA NIM (meta/llama-3.3-70b-instruct) with Groq and Anthropic fallback." },
+      { label: "The agent scores delivery against the brief from 0 to 100, analyzing content quality, keyword alignment, and scope coverage." },
+      { label: "APPROVE (≥ 75): auto-release payment" },
+      { label: "PARTIAL (40–74): human review required" },
       { label: "DISPUTE (< 40): auto-freeze funds" },
-      { label: "Evaluation streams in real-time — reasoning appears character-by-character as the agent thinks, then the score bar animates to the final value." },
+      { label: "Evaluation streams in real-time. Reasoning appears character-by-character as the agent thinks, then the score bar animates to the final value." },
     ],
   },
   {
     title: "Worker Matching Agent",
     items: [
       { label: "When a client posts a job, the AI matching agent scans all active freelancers and ranks the top 3 best fits." },
-      { label: "Rankings consider the job brief, worker titles, and service descriptions — not random ordering." },
+      { label: "Rankings consider the job brief, worker titles, and service descriptions, not random ordering." },
       { label: "Each match includes a one-line reason explaining why that worker fits the brief." },
-      { label: "POST /api/agent/match — { brief, serviceId } → { matches: [{ name, title, slug, reason, jobsDone }] }", mono: true },
+      { label: "POST /api/agent/match  { brief, serviceId } → { matches: [{ name, title, slug, reason, jobsDone }] }", mono: true },
     ],
   },
   {
@@ -54,8 +54,8 @@ const sections = [
     items: [
       { label: "After a contract settles, clients can rate the worker 1–5 stars with an optional note." },
       { label: "Ratings are averaged per freelancer and displayed on their marketplace listing card." },
-      { label: "Only SETTLED contracts with a non-null rating count toward the average — no fake or pending ratings." },
-      { label: "POST /api/rating — { contractId, rating, note } → updates contract record", mono: true },
+      { label: "Only settled contracts with a non-null rating count toward the average. No fake or pending ratings." },
+      { label: "POST /api/rating  { contractId, rating, note } → updates contract record", mono: true },
     ],
   },
   {
@@ -63,35 +63,35 @@ const sections = [
     items: [
       { label: "When creating a service or job listing, click '✦ Enhance with AI' to rewrite your description." },
       { label: "The AI rewrites the description to be clearer, more professional, and more likely to attract quality clients or workers." },
-      { label: "POST /api/ai/enhance — { text, context } → { enhanced, model }", mono: true },
+      { label: "POST /api/ai/enhance  { text, context } → { enhanced, model }", mono: true },
     ],
   },
   {
     title: "Currencies",
     items: [
-      { label: "USDC — USD Coin by Circle (digital dollar)" },
-      { label: "EURC — Euro Coin by Circle (digital euro)" },
-      { label: "Both settle on Arc Testnet with sub-500ms finality" },
+      { label: "USDC: USD Coin by Circle (digital dollar)" },
+      { label: "EURC: Euro Coin by Circle (digital euro)" },
+      { label: "Both settle on Arc Testnet with sub-500ms finality." },
     ],
   },
   {
     title: "API Reference",
     items: [
-      { label: "POST /api/service — create a service or job listing", mono: true },
-      { label: "GET  /api/service?slug=xxx — fetch service by slug", mono: true },
-      { label: "GET  /api/service/list — list all active services/jobs", mono: true },
-      { label: "POST /api/escrow — fund escrow (real on-chain deposit)", mono: true },
-      { label: "GET  /api/escrow?id=xxx — get contract details", mono: true },
-      { label: "POST /api/agent — submit delivery for AI evaluation (streaming)", mono: true },
-      { label: "PUT  /api/agent — manual approve or dispute", mono: true },
-      { label: "POST /api/evaluate — x402-protected AI evaluation", mono: true },
-      { label: "GET  /api/evaluate — x402 payment requirements", mono: true },
-      { label: "POST /api/agent/match — AI worker matching for job briefs", mono: true },
-      { label: "POST /api/ai/enhance — AI description enhancer", mono: true },
-      { label: "POST /api/rating — submit rating after settlement", mono: true },
-      { label: "GET  /api/wallet/balances — live wallet balances", mono: true },
-      { label: "GET  /api/stats — live platform metrics", mono: true },
-      { label: "POST /api/wallet — provision Circle wallet", mono: true },
+      { label: "POST /api/service          →  create a service or job listing", mono: true },
+      { label: "GET  /api/service?slug=xxx →  fetch service by slug", mono: true },
+      { label: "GET  /api/service/list     →  list all active services and jobs", mono: true },
+      { label: "POST /api/escrow           →  fund escrow (real on-chain deposit)", mono: true },
+      { label: "GET  /api/escrow?id=xxx    →  get contract details", mono: true },
+      { label: "POST /api/agent            →  submit delivery for AI evaluation (streaming)", mono: true },
+      { label: "PUT  /api/agent            →  manual approve or dispute", mono: true },
+      { label: "POST /api/evaluate         →  x402-protected AI evaluation", mono: true },
+      { label: "GET  /api/evaluate         →  x402 payment requirements", mono: true },
+      { label: "POST /api/agent/match      →  AI worker matching for job briefs", mono: true },
+      { label: "POST /api/ai/enhance       →  AI description enhancer", mono: true },
+      { label: "POST /api/rating           →  submit rating after settlement", mono: true },
+      { label: "GET  /api/wallet/balances  →  live wallet balances", mono: true },
+      { label: "GET  /api/stats            →  live platform metrics", mono: true },
+      { label: "POST /api/wallet           →  provision Circle wallet", mono: true },
     ],
   },
 ];
@@ -110,14 +110,14 @@ export default function DocsPage() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Nav />
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "100px 20px 60px" }}>
+      <main style={{ maxWidth: 780, margin: "0 auto", padding: "100px 20px 60px" }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
-          <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", marginBottom: 8 }}>
+          <h1 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 750, letterSpacing: "-0.04em", marginBottom: 10 }}>
             Documentation
           </h1>
-          <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 36, lineHeight: 1.7 }}>
-            Everything you need to know about Receipt — AI-mediated escrow on Arc with USDC and EURC.
+          <p style={{ fontSize: 18, color: "var(--text-2)", marginBottom: 44, lineHeight: 1.75 }}>
+            Everything you need to know about Receipt: AI-mediated escrow on Arc with USDC and EURC.
           </p>
 
           {/* Sections */}
@@ -133,22 +133,25 @@ export default function DocsPage() {
                 {section.title}
               </h2>
               <div style={{
-                padding: "18px 22px", borderRadius: 28,
+                padding: "20px 24px", borderRadius: 28,
                 background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.030) 0%, rgba(255,255,255,.012) 100%)",
                 backdropFilter: "blur(30px) saturate(180%)",
                 WebkitBackdropFilter: "blur(30px) saturate(180%)",
                 border: "1px solid rgba(255,255,255,.08)",
                 boxShadow: "0 16px 40px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08)",
-                display: "flex", flexDirection: "column", gap: 8,
+                display: "flex", flexDirection: "column", gap: 10,
               }}>
                 {section.items.map((item, i) => (
                   <div key={i} style={{
-                    opacity: 0.72, color: "inherit", lineHeight: 1.6,
+                    opacity: item.mono ? 0.80 : 0.85,
+                    color: "inherit",
+                    lineHeight: item.mono ? 1.5 : 1.70,
                     fontFamily: item.mono ? '"DM Mono", monospace' : "inherit",
-                    fontSize: item.mono ? 12 : 13,
-                    padding: item.mono ? "4px 8px" : 0,
-                    background: item.mono ? "rgba(0,0,0,0.2)" : "transparent",
-                    borderRadius: item.mono ? 6 : 0,
+                    fontSize: item.mono ? 13 : 15,
+                    padding: item.mono ? "6px 10px" : 0,
+                    background: item.mono ? "rgba(0,0,0,0.25)" : "transparent",
+                    borderRadius: item.mono ? 7 : 0,
+                    overflowX: "auto",
                   }}>
                     {item.label}
                   </div>

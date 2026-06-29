@@ -179,7 +179,7 @@ export default function FaucetPage() {
               Supported wallets
             </div>
             <div style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.6 }}>
-              MetaMask, Rabby, Coinbase Wallet, Rainbow — any EVM wallet works. Add Arc Testnet
+              MetaMask, Rabby, Coinbase Wallet, or Rainbow. Any EVM wallet works. Add Arc Testnet
               as a custom network with chain ID <span className="font-mono">5042002</span> and
               RPC <span className="font-mono">https://rpc.testnet.arc.network</span>.
             </div>

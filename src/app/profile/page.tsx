@@ -530,7 +530,7 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
               </div>
               <div style={{ fontSize: 14, color: "var(--text-3)", lineHeight: 1.5 }}>
                 {isQualified
-                  ? `Passed with ${form.quizScore ?? "—"}% — Qualified badge visible on marketplace`
+                  ? `Passed with ${form.quizScore ?? "—"}%. Qualified badge visible on marketplace.`
                   : "Pass a 6-question AI quiz to earn the Qualified badge"}
               </div>
             </div>

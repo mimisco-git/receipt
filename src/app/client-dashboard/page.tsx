@@ -152,7 +152,7 @@ export default function ClientDashboardPage() {
                   {needsReview.length} delivery{needsReview.length > 1 ? "ies" : ""} ready for review
                 </div>
                 <div style={{ fontSize: 15, color: "var(--text-3)" }}>
-                  Workers have submitted — review and approve to release payment.
+                  Workers have submitted. Review and approve to release payment.
                 </div>
               </div>
               <button onClick={() => router.push(`/escrow/${needsReview[0].id}`)} className="btn-primary"

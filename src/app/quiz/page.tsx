@@ -519,7 +519,7 @@ export default function QuizPage() {
                     </div>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 600, color: r.isCorrect ? "var(--green)" : "#ff6666", marginBottom: 2 }}>
-                        Question {i + 1} — {r.isCorrect ? "Correct" : "Incorrect"}
+                        Question {i + 1}: {r.isCorrect ? "Correct" : "Incorrect"}
                       </div>
                       <div style={{ fontSize: 15, color: "var(--text-3)", lineHeight: 1.5 }}>{r.explanation}</div>
                     </div>
@@ -606,7 +606,7 @@ export default function QuizPage() {
                     </div>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 600, color: r.isCorrect ? "var(--green)" : "#ff6666", marginBottom: 2 }}>
-                        Question {i + 1} — {r.isCorrect ? "Correct" : `Incorrect · correct was ${OPTION_LABELS[r.correctIndex]}`}
+                        Question {i + 1}: {r.isCorrect ? "Correct" : `Incorrect (correct: ${OPTION_LABELS[r.correctIndex]})`}
                       </div>
                       <div style={{ fontSize: 15, color: "var(--text-3)", lineHeight: 1.5 }}>{r.explanation}</div>
                     </div>

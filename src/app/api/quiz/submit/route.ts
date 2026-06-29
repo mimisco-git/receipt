@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       results,
       freelancerName: session.freelancer.name,
       message: passed
-        ? `You scored ${score}% — you're Qualified! Your profile now shows a Qualified badge.`
+        ? `You scored ${score}%. You're Qualified! Your profile now shows a Qualified badge.`
         : `You scored ${score}%. You need 70% to qualify. Review the explanations and try again in 24 hours.`,
     });
   } catch (err: unknown) {

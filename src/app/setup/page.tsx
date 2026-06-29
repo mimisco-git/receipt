@@ -569,7 +569,7 @@ export default function SetupPage() {
                 </h1>
                 <p style={{ fontSize: 17, opacity: 0.72, color: "inherit", marginBottom: 24, lineHeight: 1.65 }}>
                   {mode === "job"
-                    ? "Your budget is in escrow. Workers can now accept this job — payment releases automatically when you approve their delivery."
+                    ? "Your budget is in escrow. Workers can now accept this job. Payment releases automatically when you approve their delivery."
                     : cfg.successSub}
                 </p>
 
@@ -648,7 +648,7 @@ export default function SetupPage() {
                     Lock budget to activate job
                   </h1>
                   <p style={{ fontSize: 13.5, opacity: 0.7, lineHeight: 1.6 }}>
-                    Your job listing is created. Lock {sym}{form.priceUsdc} {form.currency} in escrow so workers know funds are guaranteed — no one accepts unpaid jobs.
+                    Your job listing is created. Lock {sym}{form.priceUsdc} {form.currency} in escrow so workers know funds are guaranteed. No one accepts unpaid jobs.
                   </p>
                 </div>
 

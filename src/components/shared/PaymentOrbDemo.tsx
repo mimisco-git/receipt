@@ -73,7 +73,7 @@ export default function PaymentOrbDemo() {
           flex: 1, textAlign: "center", fontSize: 13,
           color: "var(--mist)", fontFamily: '"DM Mono", monospace',
         }}>
-          receipt.app — escrow · Arc Testnet
+          receipt.app · escrow · Arc Testnet
         </div>
       </div>
 

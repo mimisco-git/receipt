@@ -476,7 +476,7 @@ export default function HirePage() {
                   {isOwnJob ? (
                     <div className="w-full py-4 rounded-xl text-sm text-center"
                       style={{ background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", color: "rgba(255,255,255,.45)" }}>
-                      This is your job posting — you can&apos;t accept your own job.
+                      This is your job posting. You cannot accept your own job.
                     </div>
                   ) : (
                     <button
@@ -576,10 +576,10 @@ export default function HirePage() {
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-xs font-semibold mb-0.5" style={{ color: workerWallet ? "var(--mint)" : "rgba(255,255,255,.55)" }}>
-                              {workerWallet ? "Wallet connected — payment will go here" : "Connect wallet to receive payment"}
+                              {workerWallet ? "Wallet connected. Payment will go here." : "Connect wallet to receive payment"}
                             </div>
                             <div className="text-xs font-mono" style={{ color: workerWallet ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.3)" }}>
-                              {workerWallet ? `${workerWallet.slice(0, 6)}...${workerWallet.slice(-4)}` : "Required — the client's locked funds pay your wallet on approval"}
+                              {workerWallet ? `${workerWallet.slice(0, 6)}...${workerWallet.slice(-4)}` : "Required: the client's locked funds pay your wallet on approval"}
                             </div>
                           </div>
                           {workerWallet ? (
@@ -720,13 +720,13 @@ export default function HirePage() {
 
                 <h2 className="text-xl font-bold mb-1">Gasless escrow payment</h2>
                 <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
-                  Sign once — no gas fees. Platform relays {sym}{formatUsdc(price)} {cur} to escrow on your behalf.
+                  Sign once. No gas fees. Platform relays {sym}{formatUsdc(price)} {cur} to escrow on your behalf.
                 </p>
 
                 <div className="w-full space-y-3 text-left mb-6">
                   {([
                     ["connecting", "Connect wallet",          "Approve wallet access"],
-                    ["signing",    "Sign authorization",      `Gasless EIP-3009 signature — no ${cur} gas needed`],
+                    ["signing",    "Sign authorization",      `Gasless EIP-3009 signature, no ${cur} gas needed`],
                     ["relaying",   "Platform relays",         "Submitting your authorization on-chain"],
                     ["confirmed",  "Escrow confirmed",        "Funds locked on Arc Testnet"],
                   ] as [WalletStep, string, string][]).map(([step, label, sub], i) => {

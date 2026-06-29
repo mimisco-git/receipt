@@ -138,7 +138,7 @@ export default function SignInPage() {
             Welcome back
           </h1>
           <p style={{ fontSize: 17, color: "var(--text-2)", marginBottom: 32 }}>
-            Connect your wallet to sign in — one tap, no password.
+            Connect your wallet to sign in. One tap, no password.
           </p>
 
           {/* Wallet connect card */}

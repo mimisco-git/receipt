@@ -187,7 +187,7 @@ export default function EscrowPage() {
     setSubmitting(true);
     setPhase("delivered");
 
-    toast("Delivery submitted — agent is reviewing...", { icon: "🤖" });
+    toast("Delivery submitted. Agent is reviewing...", { icon: "🤖" });
 
     setTimeout(async () => {
       setPhase("evaluating");

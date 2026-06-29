@@ -326,7 +326,7 @@ export default function HomePage() {
                 fontSize: 14, fontFamily: '"DM Mono", monospace',
                 color: "rgba(255,255,255,.32)", letterSpacing: "0.02em",
               }}>
-                receipt.app — escrow · Arc Testnet
+                receipt.app · escrow · Arc Testnet
               </div>
             </div>
 
