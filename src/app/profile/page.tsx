@@ -558,6 +558,7 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                 <div style={{ position: "absolute", inset: 1.5, borderRadius: 10.5, background: "#060E0A", zIndex: 1 }} />
                 <button
                   onClick={onNavigateToQuiz}
+                  className="btn-amber-glass"
                   style={{
                     position: "relative", zIndex: 2,
                     padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
@@ -567,6 +568,7 @@ function VerificationSection({ form, onNavigateToQuiz }: { form: ProfileData; on
                     display: "inline-flex", alignItems: "center", gap: 6,
                     transition: "background 0.15s ease",
                     whiteSpace: "nowrap",
+                    overflow: "hidden",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,170,0,0.18)"; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,170,0,0.1)"; }}

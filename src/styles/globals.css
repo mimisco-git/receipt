@@ -79,13 +79,13 @@ html { scroll-behavior: smooth; }
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
-  color: rgba(255,255,255,0.78);
+  color: rgba(255,255,255,0.80);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 15.5px;
-  font-weight: 400;
-  line-height: 1.72;
+  font-size: 17px;
+  font-weight: 460;
+  line-height: 1.78;
   overflow-x: hidden;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   text-rendering: optimizeLegibility;
@@ -117,17 +117,18 @@ body::after {
 
 h1, h2, h3, h4 {
   font-family: "Geist", "Inter", -apple-system, sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.92;
+  font-weight: 730;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
   color: #FFFFFF;
   font-feature-settings: "ss01" 1, "ss02" 1;
+  margin-bottom: 0.4em;
 }
 
 /* Preserve readability on smaller headings */
-h3, h4 { line-height: 1.15; letter-spacing: -0.03em; font-weight: 700; }
+h3, h4 { line-height: 1.22; letter-spacing: -0.03em; font-weight: 660; }
 
-p { color: rgba(255,255,255,0.78); }
+p { color: rgba(255,255,255,0.80); margin-bottom: 0.5em; }
 
 .font-mono {
   font-family: "DM Mono", monospace;
@@ -214,8 +215,8 @@ p { color: rgba(255,255,255,0.78); }
 .btn-primary {
   background: linear-gradient(180deg, #2AFFDF 0%, #00C8B0 100%);
   color: #000000;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 650;
+  font-size: 14.5px;
   border: none;
   cursor: pointer;
   position: relative;
@@ -229,12 +230,23 @@ p { color: rgba(255,255,255,0.78); }
     transform var(--spring),
     box-shadow var(--ease-fast);
 }
-/* Top-left light catch — single source, 160° */
+/* Animated specular — light travelling diagonally across glass */
 .btn-primary::before {
   content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(160deg, rgba(255,255,255,.28) 0%, transparent 48%);
+  position: absolute;
+  top: -30%; bottom: -30%;
+  left: 0; width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.08) 38%,
+    rgba(255,255,255,.13) 50%,
+    rgba(255,255,255,.08) 62%,
+    transparent 100%
+  );
+  animation: glass-sweep 5.5s ease-in-out infinite;
   pointer-events: none;
+  z-index: 1;
 }
 .btn-primary:hover  {
   opacity: 0.88;
@@ -357,6 +369,104 @@ p { color: rgba(255,255,255,0.78); }
 }
 
 /* ── KEYFRAMES ───────────────────────────────────────────── */
+
+/* ── GLASS SPECULAR — light travelling diagonally across a curved surface ── */
+
+/* Sweep: 0→28% active, 28→100% pause (sweeps every 5–6 s) */
+@keyframes glass-sweep {
+  0%   { transform: translateX(-180%) skewX(-15deg); }
+  28%  { transform: translateX(280%)  skewX(-15deg); }
+  100% { transform: translateX(280%)  skewX(-15deg); }
+}
+
+/* Nav link buttons — subtle glass pill + specular */
+.nav-link-btn {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,.018);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  border: 1px solid rgba(255,255,255,.06);
+  transition: background 200ms ease, border-color 200ms ease, color 150ms ease;
+}
+.nav-link-btn:hover { background: rgba(255,255,255,.038); border-color: rgba(255,255,255,.11); }
+.nav-link-btn::before {
+  content: "";
+  position: absolute;
+  top: -40%; bottom: -40%;
+  left: 0; width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.05) 40%,
+    rgba(255,255,255,.08) 50%,
+    rgba(255,255,255,.05) 60%,
+    transparent 100%
+  );
+  animation: glass-sweep 6.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Nav auth buttons — frosted glass + specular */
+.nav-auth-btn {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,.026);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.09);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+  transition: background 200ms ease, border-color 200ms ease, color 150ms ease;
+}
+.nav-auth-btn:hover { background: rgba(255,255,255,.050); border-color: rgba(255,255,255,.16); }
+.nav-auth-btn::before {
+  content: "";
+  position: absolute;
+  top: -40%; bottom: -40%;
+  left: 0; width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.06) 40%,
+    rgba(255,255,255,.09) 50%,
+    rgba(255,255,255,.06) 60%,
+    transparent 100%
+  );
+  animation: glass-sweep 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Nav pill — glass background for active/hover indicator */
+.nav-pill-glass {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09);
+}
+
+/* Amber glass button (profile page Take Assessment) */
+.btn-amber-glass {
+  position: relative;
+  overflow: hidden;
+}
+.btn-amber-glass::before {
+  content: "";
+  position: absolute;
+  top: -40%; bottom: -40%;
+  left: 0; width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.06) 40%,
+    rgba(255,255,255,.09) 50%,
+    rgba(255,255,255,.06) 60%,
+    transparent 100%
+  );
+  animation: glass-sweep 5.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+}
 
 @keyframes skeleton-pulse  { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes cursor-blink    { 0%,100% { opacity: 1; } 50% { opacity: 0; } }

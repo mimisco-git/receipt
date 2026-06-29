@@ -104,12 +104,12 @@ export default function HomePage() {
           transition={{ delay: 0.15, duration: 0.6 }}
           style={{
             fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(42px, 7.5vw, 96px)",
-            fontWeight: 800,
-            letterSpacing: "-0.055em",
-            lineHeight: 0.91,
-            maxWidth: 860,
-            marginBottom: 28,
+            fontSize: "clamp(48px, 8.5vw, 110px)",
+            fontWeight: 730,
+            letterSpacing: "-0.04em",
+            lineHeight: 1.05,
+            maxWidth: 900,
+            marginBottom: 32,
             color: "#FFFFFF",
           }}
         >
@@ -130,11 +130,11 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.55 }}
           style={{
-            fontSize: "clamp(15px, 1.8vw, 18px)",
-            color: "rgba(255,255,255,0.68)",
-            lineHeight: 1.72,
-            maxWidth: 480,
-            marginBottom: 40,
+            fontSize: "clamp(16px, 1.9vw, 19px)",
+            color: "rgba(255,255,255,0.80)",
+            lineHeight: 1.78,
+            maxWidth: 500,
+            marginBottom: 44,
             padding: "0 4px",
           }}
         >
@@ -253,10 +253,10 @@ export default function HomePage() {
               }}>
                 {f.icon}
               </div>
-              <div style={{ fontSize: 15.5, fontWeight: 650, marginBottom: 9, color: "#FFFFFF", letterSpacing: "-0.02em", position: "relative" }}>
+              <div style={{ fontSize: 17, fontWeight: 660, marginBottom: 10, color: "#FFFFFF", letterSpacing: "-0.025em", position: "relative" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.62)", lineHeight: 1.72, position: "relative" }}>
+              <div style={{ fontSize: 15.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.78, position: "relative" }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -279,16 +279,16 @@ export default function HomePage() {
         </div>
         <h2 style={{
           fontFamily: '"Geist", "Inter", sans-serif',
-          fontSize: "clamp(24px,4vw,44px)", fontWeight: 800,
-          letterSpacing: "-0.055em", lineHeight: 0.92,
-          textAlign: "center", marginBottom: 16,
+          fontSize: "clamp(28px,4.5vw,50px)", fontWeight: 730,
+          letterSpacing: "-0.04em", lineHeight: 1.06,
+          textAlign: "center", marginBottom: 18,
           color: "#FFFFFF",
         }}>
           Watch a payment clear
         </h2>
         <p style={{
-          fontSize: "clamp(14px,1.6vw,16px)", color: "rgba(255,255,255,.62)",
-          textAlign: "center", maxWidth: 400, marginBottom: 52, lineHeight: 1.72,
+          fontSize: "clamp(15px,1.7vw,17px)", color: "rgba(255,255,255,.78)",
+          textAlign: "center", maxWidth: 420, marginBottom: 52, lineHeight: 1.78,
         }}>
           Real interface. Real orb. The ripple is exactly what your client sees when payment settles.
         </p>
@@ -397,15 +397,15 @@ export default function HomePage() {
           </div>
           <h3 style={{
             fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(20px,3.2vw,28px)", fontWeight: 800, letterSpacing: "-0.05em",
-            lineHeight: 1.05, marginBottom: 14, color: "#FFFFFF",
+            fontSize: "clamp(22px,3.4vw,32px)", fontWeight: 730, letterSpacing: "-0.04em",
+            lineHeight: 1.1, marginBottom: 16, color: "#FFFFFF",
             position: "relative",
           }}>
             Ready to get paid?
           </h3>
           <p style={{
-            fontSize: "clamp(13px,1.5vw,15px)", color: "rgba(255,255,255,.65)",
-            lineHeight: 1.72, marginBottom: 28, position: "relative",
+            fontSize: "clamp(14px,1.6vw,16px)", color: "rgba(255,255,255,.78)",
+            lineHeight: 1.78, marginBottom: 28, position: "relative",
           }}>
             Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
@@ -421,7 +421,7 @@ export default function HomePage() {
               onClick={() => router.push("/setup")}
               style={{
                 position: "relative", zIndex: 1,
-                padding: "14px 32px", borderRadius: 13, fontSize: 14.5, fontWeight: 600,
+                padding: "14px 32px", borderRadius: 13,
                 display: "inline-flex", alignItems: "center", gap: 9,
               }}
             >
