@@ -193,23 +193,23 @@ export default function Nav() {
             )}
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile menu button */}
           <button
             className="nav-mobile-only"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
             style={{
-              display: "none", background: "none", border: "none",
-              cursor: "pointer", padding: 6, color: "var(--text-1)",
+              display: "none", cursor: "pointer",
+              padding: "9px 20px", borderRadius: 14,
+              fontSize: 16, fontWeight: 600, color: "#FFFFFF",
+              background: "linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(to top, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 55%, transparent 100%) border-box",
+              border: "1px solid transparent",
+              backdropFilter: "blur(18px)",
+              WebkitBackdropFilter: "blur(18px)",
+              letterSpacing: "-0.01em",
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" stroke="currentColor">
-              {menuOpen ? (
-                <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
-              ) : (
-                <><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></>
-              )}
-            </svg>
+            {menuOpen ? "Close" : "Menu"}
           </button>
         </div>
       </motion.nav>
