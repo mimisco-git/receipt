@@ -79,13 +79,13 @@ html { scroll-behavior: smooth; }
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
-  color: rgba(255,255,255,0.80);
+  color: rgba(255,255,255,0.85);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 460;
-  line-height: 1.78;
+  line-height: 1.80;
   overflow-x: hidden;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   text-rendering: optimizeLegibility;
@@ -128,7 +128,7 @@ h1, h2, h3, h4 {
 /* Preserve readability on smaller headings */
 h3, h4 { line-height: 1.22; letter-spacing: -0.03em; font-weight: 660; }
 
-p { color: rgba(255,255,255,0.80); margin-bottom: 0.5em; }
+p { color: rgba(255,255,255,0.85); margin-bottom: 0.5em; }
 
 .font-mono {
   font-family: "DM Mono", monospace;
@@ -216,7 +216,7 @@ p { color: rgba(255,255,255,0.80); margin-bottom: 0.5em; }
   background: linear-gradient(180deg, #2AFFDF 0%, #00C8B0 100%);
   color: #000000;
   font-weight: 650;
-  font-size: 14.5px;
+  font-size: 16px;
   border: none;
   cursor: pointer;
   position: relative;

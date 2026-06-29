@@ -130,10 +130,10 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.55 }}
           style={{
-            fontSize: "clamp(16px, 1.9vw, 19px)",
-            color: "rgba(255,255,255,0.80)",
-            lineHeight: 1.78,
-            maxWidth: 500,
+            fontSize: "clamp(18px, 2.0vw, 21px)",
+            color: "rgba(255,255,255,0.85)",
+            lineHeight: 1.80,
+            maxWidth: 520,
             marginBottom: 44,
             padding: "0 4px",
           }}
@@ -241,10 +241,10 @@ export default function HomePage() {
               }}>
                 {f.icon}
               </div>
-              <div style={{ fontSize: 17, fontWeight: 660, marginBottom: 10, color: "#FFFFFF", letterSpacing: "-0.025em", position: "relative" }}>
+              <div style={{ fontSize: 19, fontWeight: 660, marginBottom: 10, color: "#FFFFFF", letterSpacing: "-0.025em", position: "relative" }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: 15.5, color: "rgba(255,255,255,0.72)", lineHeight: 1.78, position: "relative" }}>
+              <div style={{ fontSize: 17, color: "rgba(255,255,255,0.82)", lineHeight: 1.80, position: "relative" }}>
                 {f.desc}
               </div>
             </motion.div>
@@ -275,8 +275,8 @@ export default function HomePage() {
           Watch a payment clear
         </h2>
         <p style={{
-          fontSize: "clamp(15px,1.7vw,17px)", color: "rgba(255,255,255,.78)",
-          textAlign: "center", maxWidth: 420, marginBottom: 52, lineHeight: 1.78,
+          fontSize: "clamp(17px,1.9vw,20px)", color: "rgba(255,255,255,.85)",
+          textAlign: "center", maxWidth: 440, marginBottom: 52, lineHeight: 1.80,
         }}>
           Real interface. Real orb. The ripple is exactly what your client sees when payment settles.
         </p>
@@ -392,8 +392,8 @@ export default function HomePage() {
             Ready to get paid?
           </h3>
           <p style={{
-            fontSize: "clamp(14px,1.6vw,16px)", color: "rgba(255,255,255,.78)",
-            lineHeight: 1.78, marginBottom: 28, position: "relative",
+            fontSize: "clamp(16px,1.8vw,19px)", color: "rgba(255,255,255,.85)",
+            lineHeight: 1.80, marginBottom: 28, position: "relative",
           }}>
             Set up your service in 60 seconds. Share the link. Get paid in USDC or EURC the moment your client approves.
           </p>
