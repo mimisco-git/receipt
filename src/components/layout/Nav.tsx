@@ -195,17 +195,13 @@ export default function Nav() {
 
           {/* Mobile menu button */}
           <button
-            className="nav-mobile-only"
+            className="nav-mobile-only nav-menu-btn"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
             style={{
               display: "none", cursor: "pointer",
-              padding: "9px 20px", borderRadius: 14,
-              fontSize: 16, fontWeight: 600, color: "#FFFFFF",
-              background: "linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)) padding-box, linear-gradient(to top, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 55%, transparent 100%) border-box",
-              border: "1px solid transparent",
-              backdropFilter: "blur(18px)",
-              WebkitBackdropFilter: "blur(18px)",
+              padding: "9px 22px", borderRadius: 14,
+              fontSize: 16, fontWeight: 600, color: "rgba(255,255,255,0.90)",
               letterSpacing: "-0.01em",
             }}
           >
