@@ -178,41 +178,6 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* DEMO VIDEO */}
-      <section style={{ padding: "0 20px 80px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,.35)", textTransform: "uppercase", marginBottom: 14 }}>
-            Demo
-          </div>
-          <h2 style={{
-            fontFamily: '"Geist", "Inter", sans-serif',
-            fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 730,
-            letterSpacing: "-0.04em", color: "#FFFFFF", marginBottom: 32,
-          }}>
-            Watch the agent evaluate a live delivery
-          </h2>
-          <div style={{
-            position: "relative", width: "100%", borderRadius: 20, overflow: "hidden",
-            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,.08)",
-            aspectRatio: "16/9",
-            boxShadow: "0 40px 100px rgba(0,0,0,.5)",
-          }}>
-            {/* Swap this for an <iframe> once the video is recorded */}
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-              <div style={{
-                width: 72, height: 72, borderRadius: "50%",
-                background: "rgba(0,229,195,0.10)", border: "1px solid rgba(0,229,195,0.3)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--green)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </div>
-              <div style={{ color: "rgba(255,255,255,.55)", fontSize: 15 }}>Demo video uploading shortly</div>
-              <div style={{ color: "rgba(255,255,255,.25)", fontSize: 13 }}>Brief → escrow lock → AI evaluation → sub-500ms settlement</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* HOW IT WORKS */}
       <HowItWorks />
 
