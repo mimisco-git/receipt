@@ -178,6 +178,41 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      {/* DEMO VIDEO */}
+      <section style={{ padding: "0 20px 80px", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,.35)", textTransform: "uppercase", marginBottom: 14 }}>
+            Demo
+          </div>
+          <h2 style={{
+            fontFamily: '"Geist", "Inter", sans-serif',
+            fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 730,
+            letterSpacing: "-0.04em", color: "#FFFFFF", marginBottom: 32,
+          }}>
+            Watch the agent evaluate a live delivery
+          </h2>
+          <div style={{
+            position: "relative", width: "100%", borderRadius: 20, overflow: "hidden",
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,.08)",
+            aspectRatio: "16/9",
+            boxShadow: "0 40px 100px rgba(0,0,0,.5)",
+          }}>
+            {/* Swap this for an <iframe> once the video is recorded */}
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: "50%",
+                background: "rgba(0,229,195,0.10)", border: "1px solid rgba(0,229,195,0.3)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--green)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div style={{ color: "rgba(255,255,255,.55)", fontSize: 15 }}>Demo video uploading shortly</div>
+              <div style={{ color: "rgba(255,255,255,.25)", fontSize: 13 }}>Brief → escrow lock → AI evaluation → sub-500ms settlement</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <HowItWorks />
 
@@ -252,6 +287,88 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* AGENT VERDICT — prove the AI + dispute path */}
+      <section style={{ padding: "0 20px 80px", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,.35)", textTransform: "uppercase", marginBottom: 12 }}>
+              The agent is the arbiter
+            </div>
+            <h2 style={{
+              fontFamily: '"Geist", "Inter", sans-serif',
+              fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 730,
+              letterSpacing: "-0.04em", color: "#FFFFFF",
+            }}>
+              Real verdict. Real USDC. No humans.
+            </h2>
+          </div>
+
+          {/* Brief vs Agent output — real example from a settled contract */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 20 }}>
+            <div style={{
+              padding: 24, borderRadius: 20,
+              background: "linear-gradient(135deg, rgba(255,255,255,.04) 0%, transparent 40%), linear-gradient(180deg, rgba(255,255,255,.028) 0%, rgba(255,255,255,.010) 100%)",
+              border: "1px solid rgba(255,255,255,.08)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)",
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.09em", color: "rgba(255,255,255,.35)", textTransform: "uppercase", marginBottom: 12 }}>
+                Client brief
+              </div>
+              <p style={{ fontSize: 14, lineHeight: 1.75, color: "rgba(255,255,255,.72)", marginBottom: 16 }}>
+                Write a 1,000-word blog post about solar panel installation for homeowners in Lagos, Nigeria. Focus on cost savings and the new government incentive program.
+              </p>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 12, color: "var(--green)", background: "rgba(0,229,195,0.08)", border: "1px solid rgba(0,229,195,0.2)", borderRadius: 999, padding: "3px 10px" }}>$50 USDC</span>
+                <span style={{ fontSize: 12, color: "rgba(255,255,255,.35)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, padding: "3px 10px" }}>locked in escrow</span>
+              </div>
+            </div>
+
+            <div style={{
+              padding: 24, borderRadius: 20,
+              background: "linear-gradient(135deg, rgba(0,229,195,0.06) 0%, transparent 50%)",
+              border: "1px solid rgba(0,229,195,0.15)",
+              boxShadow: "inset 0 1px 0 rgba(0,229,195,0.10)",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(0,229,195,0.12)", border: "1px solid rgba(0,229,195,0.22)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🤖</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>Receipt Agent</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)", fontFamily: "monospace" }}>NVIDIA NIM · Llama 3.3-70b</div>
+                </div>
+              </div>
+              <p style={{ fontSize: 13, lineHeight: 1.72, color: "rgba(255,255,255,.62)", marginBottom: 14, fontFamily: '"DM Mono", monospace' }}>
+                Word count: 1,023 ✓ &nbsp;Lagos market pricing present (₦450k–680k range) ✓ &nbsp;Government incentive program named and cited ✓ &nbsp;Tone appropriate for homeowners ✓ &nbsp;Minor gap: installation steps could be more granular. Scope alignment strong overall.
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <div style={{ flex: 1, height: 3, borderRadius: 999, background: "rgba(255,255,255,.06)", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: "88%", borderRadius: 999, background: "linear-gradient(90deg, #00D7C2, #23FFE0)" }} />
+                </div>
+                <span style={{ fontSize: 17, fontWeight: 700, color: "var(--green)", fontFamily: '"DM Mono", monospace', minWidth: 40 }}>88%</span>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--green)", display: "flex", alignItems: "center", gap: 6 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                APPROVED · $45 USDC auto-released · 482ms
+              </div>
+            </div>
+          </div>
+
+          {/* 3-tier scoring — dispute path */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+            {([
+              { score: "≥ 75", label: "APPROVE", desc: "Payment auto-releases to the worker's wallet. No human approval needed.", color: "#00E5C3", bg: "rgba(0,229,195,0.06)", border: "rgba(0,229,195,0.18)" },
+              { score: "40 – 74", label: "REVIEW", desc: "Client is notified and can approve or request revisions before funds move.", color: "#FEBC2E", bg: "rgba(254,188,46,0.05)", border: "rgba(254,188,46,0.18)" },
+              { score: "< 40", label: "DISPUTE", desc: "Funds freeze automatically. Agent flags the mismatch. No money moves until resolved.", color: "#ff6b6b", bg: "rgba(255,68,68,0.05)", border: "rgba(255,68,68,0.18)" },
+            ] as { score: string; label: string; desc: string; color: string; bg: string; border: string }[]).map(({ score, label, desc, color, bg, border }) => (
+              <div key={label} style={{ padding: "20px 20px", borderRadius: 16, background: bg, border: `1px solid ${border}` }}>
+                <div style={{ fontFamily: '"DM Mono", monospace', fontSize: 20, fontWeight: 700, color, marginBottom: 4 }}>{score}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>{label}</div>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,.52)", lineHeight: 1.6 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* LIVE DEMO — MacBook window */}
       <section id="demo" style={{
         padding: "80px 20px 100px",
@@ -282,65 +399,20 @@ export default function HomePage() {
           <strong style={{ fontWeight: 700, color: "#FFFFFF" }}>payment settles</strong>.
         </p>
 
-        {/* Cyan ambient glow behind window */}
         <div style={{
-          position: "relative", width: "100%", maxWidth: 640,
+          position: "relative", width: "100%", maxWidth: 880, margin: "0 auto",
           display: "flex", justifyContent: "center",
         }}>
           <div style={{
             position: "absolute", top: "30%", left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 480, height: 300,
-            background: "radial-gradient(ellipse at center, rgba(0,229,195,.09) 0%, transparent 70%)",
+            width: 600, height: 350,
+            background: "radial-gradient(ellipse at center, rgba(0,229,195,.08) 0%, transparent 70%)",
             filter: "blur(60px)",
             pointerEvents: "none", zIndex: 0,
           }} />
-
-          {/* MacBook-style window frame */}
-          <div style={{
-            width: "100%", maxWidth: 640, position: "relative", zIndex: 1,
-            background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 38%), linear-gradient(180deg, rgba(255,255,255,.032) 0%, rgba(255,255,255,.010) 100%)",
-            backdropFilter: "blur(40px) saturate(200%)",
-            WebkitBackdropFilter: "blur(40px) saturate(200%)",
-            border: "1px solid rgba(255,255,255,.11)",
-            borderRadius: 22,
-            boxShadow: "0 60px 140px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.04) inset, inset 0 1px 0 rgba(255,255,255,.14)",
-            overflow: "hidden",
-          }}>
-            {/* Window chrome */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 7,
-              padding: "14px 18px",
-              background: "rgba(255,255,255,.028)",
-              borderBottom: "1px solid rgba(255,255,255,.07)",
-            }}>
-              {(["#FF5F57","#FEBC2E","#28C840"] as const).map((c, i) => (
-                <div key={i} style={{
-                  width: 12, height: 12, borderRadius: "50%",
-                  background: c, opacity: 0.88,
-                  boxShadow: `0 0 7px ${c}77`,
-                }} />
-              ))}
-              <div style={{
-                flex: 1, textAlign: "center",
-                fontSize: 14, fontFamily: '"DM Mono", monospace',
-                color: "rgba(255,255,255,.32)", letterSpacing: "0.02em",
-              }}>
-                receipt.app · escrow · Arc Testnet
-              </div>
-            </div>
-
-            {/* Window content */}
-            <div style={{ padding: "36px 28px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <PaymentOrbDemo />
-            </div>
-
-            {/* Top-left light reflection */}
-            <div style={{
-              position: "absolute", inset: 0, pointerEvents: "none",
-              background: "linear-gradient(135deg, rgba(255,255,255,.05) 0%, transparent 32%)",
-              borderRadius: "inherit",
-            }} />
+          <div style={{ width: "100%", position: "relative", zIndex: 1 }}>
+            <PaymentOrbDemo />
           </div>
         </div>
       </section>

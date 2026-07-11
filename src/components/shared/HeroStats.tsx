@@ -9,12 +9,12 @@ interface Stats {
   volume: number;
 }
 
-function useCountUp(target: number | null, duration = 1400): string {
-  const [display, setDisplay] = useState("—");
+function useCountUp(target: number, duration = 1400): string {
+  const [display, setDisplay] = useState("0");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (target === null) { setDisplay("—"); return; }
+    if (target === 0) { setDisplay("0"); return; }
     const start = Date.now();
     const step = () => {
       const elapsed = Date.now() - start;
@@ -40,16 +40,16 @@ export default function HeroStats() {
       .catch(() => {});
   }, []);
 
-  const servicesVal = useCountUp(stats ? stats.services : null);
-  const settledVal  = useCountUp(stats ? stats.settled : null);
-  const volumeInt   = useCountUp(stats ? Math.floor(stats.volume) : null);
+  const servicesVal = useCountUp(stats?.services ?? 0);
+  const settledVal  = useCountUp(stats?.settled ?? 0);
+  const volumeInt   = useCountUp(stats ? Math.floor(stats.volume) : 0);
 
   const items = [
     { label: "Settlement speed",  value: "<500ms" },
     { label: "Currencies",        value: "USDC · EURC" },
     { label: "Services live",     value: servicesVal },
     { label: "Contracts settled", value: settledVal },
-    { label: "Volume (USDC)",     value: stats ? `$${volumeInt}` : "—" },
+    { label: "Volume (USDC)",     value: `$${volumeInt}` },
   ];
 
   return (

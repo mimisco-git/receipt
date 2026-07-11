@@ -344,7 +344,10 @@ export default function HirePage() {
       setPhase("success");
       toast.success("Payment sent! Escrow contract created.");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong";
+      const raw = err instanceof Error ? err.message : "Something went wrong";
+      const msg = raw.includes("Extension context invalidated")
+        ? "Your wallet disconnected. Refresh the page and try again."
+        : raw;
       setWalletError(msg);
       setWalletStep("idle");
       setPhase("brief");

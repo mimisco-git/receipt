@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PaymentOrb from "./PaymentOrb";
 
@@ -34,8 +34,26 @@ export default function PaymentOrbDemo() {
     : (phase === "locked" || phase === "locking" || phase === "evaluating") ? "locked"
     : "idle";
 
+  // Auto-play: idle → brief → fund → auto-approve
+  useEffect(() => {
+    const t = setTimeout(() => setPhase("brief"), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (phase !== "brief") return;
+    const t = setTimeout(() => fund(), 1800);
+    return () => clearTimeout(t);
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (phase !== "evaluating" || score < 90) return;
+    const t = setTimeout(() => setPhase("released"), 1200);
+    return () => clearTimeout(t);
+  }, [phase, score]);
+
   const pillPhase: Record<Phase, { label: string; cls: string }> = {
-    idle:       { label: "No active contract",  cls: "pill pill-mist" },
+    idle:       { label: "Live demo",           cls: "pill pill-mist" },
     brief:      { label: "Awaiting deposit",    cls: "pill pill-mist" },
     locking:    { label: "Locking funds",       cls: "pill pill-amber" },
     locked:     { label: "Funds locked",        cls: "pill pill-amber" },
@@ -104,7 +122,7 @@ export default function PaymentOrbDemo() {
         }}>
           {/* Status label */}
           <div style={{ fontSize: 13, color: "var(--ash)", fontWeight: 400, textAlign: "center", minHeight: 16 }}>
-            {phase === "idle"       && "No active contract"}
+            {phase === "idle"       && "Starting demo..."}
             {phase === "brief"      && "Brief received"}
             {phase === "locking"    && "Depositing to Circle"}
             {phase === "locked"     && "Awaiting delivery"}
@@ -356,9 +374,18 @@ export default function PaymentOrbDemo() {
             </AnimatePresence>
 
             <div style={{ textAlign: "center", fontSize: 13, color: "var(--mist)", lineHeight: 1.55 }}>
-              {phase === "released"
-                ? "Settled via submitBatch() on Arc in 482ms. Transaction onchain."
-                : "Buyer signs EIP-3009 offchain. Gateway batches and settles via submitBatch()."}
+              {phase === "released" ? (
+                <span>
+                  Settled via submitBatch() on Arc in 482ms.{" "}
+                  <a
+                    href="https://testnet.arcscan.app/address/0x456599488c5088c5A4EFceFFEDA2A952aFae33F0"
+                    target="_blank" rel="noreferrer"
+                    style={{ color: "var(--ledger)", textDecoration: "none", fontWeight: 500 }}
+                  >
+                    View escrow on ArcScan →
+                  </a>
+                </span>
+              ) : "Buyer signs EIP-3009 offchain. Gateway batches and settles via submitBatch()."}
             </div>
           </div>
         </div>
